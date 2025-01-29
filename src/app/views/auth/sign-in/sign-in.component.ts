@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgStyle } from '@angular/common';
 import { IconDirective } from '@coreui/icons-angular';
 import { 
@@ -13,7 +14,8 @@ import {
   InputGroupComponent, 
   InputGroupTextDirective, 
   FormControlDirective, 
-  ButtonDirective 
+  ButtonDirective,
+  FormFeedbackComponent
 } from '@coreui/angular';
 
 @Component({
@@ -34,14 +36,18 @@ import {
     IconDirective, 
     FormControlDirective, 
     ButtonDirective, 
-    NgStyle
+    NgStyle,
+    ReactiveFormsModule,
+    FormsModule,
+    FormFeedbackComponent
   ]
 })
 export class SignInComponent {
 
+  customStylesValidated : boolean = true
 
-  onSignIn() {
-    console.log("Sign in Click");
+  onSubmit() {
+
   }
 
 }
