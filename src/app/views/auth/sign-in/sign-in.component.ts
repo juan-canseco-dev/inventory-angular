@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { NgStyle } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule, NgStyle } from '@angular/common';
 import { IconDirective } from '@coreui/icons-angular';
 import { 
   ContainerComponent, 
@@ -14,8 +14,8 @@ import {
   InputGroupComponent, 
   InputGroupTextDirective, 
   FormControlDirective, 
-  ButtonDirective,
-  FormFeedbackComponent
+  ButtonDirective, 
+  FormFeedbackComponent 
 } from '@coreui/angular';
 
 @Component({
@@ -23,6 +23,7 @@ import {
   templateUrl: './sign-in.component.html',
   styleUrl: './sign-in.component.scss',
   imports: [
+    CommonModule,
     ContainerComponent,
     RowComponent, 
     ColComponent, 
@@ -42,12 +43,46 @@ import {
     FormFeedbackComponent
   ]
 })
-export class SignInComponent {
+export class SignInComponent implements OnInit {
 
-  customStylesValidated : boolean = true
+  signInForm!: FormGroup;
 
-  onSubmit() {
-
+  constructor(private formBuilder : FormBuilder) {}
+  
+  ngOnInit(): void {
+    this.signInForm = this.formBuilder.group({
+      email: [null, {
+        validators: [
+          Validators.required,
+          Validators.email,
+          Validators.maxLength(50)
+        ]
+      }],
+      password: [null, {
+        validators: [
+          Validators.required,
+          Validators.minLength(6),
+          Validators.maxLength(30)
+        ]
+      }]
+    });
   }
 
+  get email() {
+    return this.signInForm.get('email')!;
+  }
+
+  get password() {
+    return this.signInForm.get('password')!;
+  }
+
+  onSubmit() {
+    if (this.signInForm.valid) {
+      alert('correct');
+      console.log('Form Submitted', this.signInForm.value);
+    } else {
+      console.log('Form is invalid');
+      this.signInForm.markAllAsTouched();
+    }
+  }
 }
