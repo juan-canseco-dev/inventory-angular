@@ -13,6 +13,7 @@ import {
 import { DropdownModule, SidebarModule } from '@coreui/angular';
 import { IconSetService } from '@coreui/icons-angular';
 import { routes } from './app.routes';
+import { provideHttpClient } from '@angular/common/http';
 
 export function tokenGetter() {
   return localStorage.getItem("token");
@@ -44,6 +45,7 @@ export const appConfig: ApplicationConfig = {
       }) 
     ),
     IconSetService,
-    provideAnimations()
+    provideAnimations(),
+    provideHttpClient()
   ]
 };

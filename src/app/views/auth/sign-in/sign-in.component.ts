@@ -15,8 +15,15 @@ import {
   InputGroupTextDirective, 
   FormControlDirective, 
   ButtonDirective, 
-  FormFeedbackComponent 
+  FormFeedbackComponent,
+  AlertComponent,
+  SpinnerModule,
+  ToastModule
 } from '@coreui/angular';
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { Observable } from 'rxjs';
+import { Result} from '../../../core/models/result';
+import { JwtResponse } from '../../../core/models/auth';
 
 @Component({
   selector: 'app-sign-in',
@@ -24,9 +31,11 @@ import {
   styleUrl: './sign-in.component.scss',
   imports: [
     CommonModule,
+    SpinnerModule,
     ContainerComponent,
     RowComponent, 
-    ColComponent, 
+    ColComponent,
+    AlertComponent,
     CardGroupComponent, 
     TextColorDirective, 
     CardComponent, 
@@ -40,6 +49,7 @@ import {
     NgStyle,
     ReactiveFormsModule,
     FormsModule,
+    ToastModule,
     FormFeedbackComponent
   ]
 })
@@ -47,7 +57,9 @@ export class SignInComponent implements OnInit {
 
   signInForm!: FormGroup;
 
-  constructor(private formBuilder : FormBuilder) {}
+  authResult$!: Observable<Result<JwtResponse>>;
+
+  constructor(private formBuilder : FormBuilder, private authService : AuthService) {}
   
   ngOnInit(): void {
     this.signInForm = this.formBuilder.group({
@@ -78,10 +90,10 @@ export class SignInComponent implements OnInit {
 
   onSubmit() {
     if (this.signInForm.valid) {
-      alert('correct');
-      console.log('Form Submitted', this.signInForm.value);
+      const { email, password } = this.signInForm.value;
+      this.authResult$ = this.authService.signIn({email, password});
+
     } else {
-      console.log('Form is invalid');
       this.signInForm.markAllAsTouched();
     }
   }

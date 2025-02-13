@@ -1,4 +1,19 @@
+
+<c-toaster
+class="p-3"
+*ngIf="(authResult$ | async)?.status === 'failure'"
+placement="top-end">
+  <c-toast #toast="cToast" [autohide]="true"  [delay]="2000" [visible]="true" class="align-items-center text-white border-0" color="danger">
+    <div class="d-flex">
+      <c-toast-body>
+        <span>{{(authResult$ | async)?.failure?.message}}</span>
+      </c-toast-body>
+    </div>
+  </c-toast>
+</c-toaster>
+
 <div class="bg-light dark:bg-transparent min-vh-100 d-flex flex-row align-items-center">
+
     <c-container breakpoint="md">
       <c-row class="justify-content-center">
         <c-col lg="10" xl="8">
@@ -60,11 +75,40 @@
                     </c-form-feedback>
 
                   </c-input-group>
+
                   <c-row>
                     <c-col xs="12">
-                      <button cButton class="px-4" color="primary" type="submit" [disabled]="signInForm.invalid">
+
+
+
+                      <button 
+                        *ngIf="(authResult$ | async)?.status === 'loading'; else showLoginState"
+                        cButton
+                        class="px-4" 
+                        color="primary" 
+                        type="submit" 
+                        [disabled]="true"
+                        >
+                        
+                        <c-spinner aria-hidden="true" size="sm" /> 
+                        Loading...
+
+                      </button>
+
+
+                      <ng-template #showLoginState>
+                        <button 
+                        cButton
+                        class="px-4" 
+                        color="primary" 
+                        type="submit" 
+                        [disabled]="signInForm.invalid"
+                        >
                         Login
                       </button>
+                      </ng-template>
+
+                      
                     </c-col>
                   </c-row>
                 </form>
