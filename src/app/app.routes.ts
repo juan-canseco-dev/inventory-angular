@@ -22,41 +22,38 @@ export const routes: Routes = [
         loadChildren: () => import('./views/dashboard/routes').then((m) => m.routes)
       },
       {
-        path: 'theme',
-        loadChildren: () => import('./views/theme/routes').then((m) => m.routes)
+        path: 'categories',
+        loadComponent: () => import('./views/categories').then(m => m.CategoriesComponent)
       },
       {
-        path: 'base',
-        loadChildren: () => import('./views/base/routes').then((m) => m.routes)
+        path: 'units',
+        loadComponent: () => import('./views/units').then(m => m.UnitsComponent)
       },
       {
-        path: 'buttons',
-        loadChildren: () => import('./views/buttons/routes').then((m) => m.routes)
+        path: 'products',
+        loadComponent: () => import('./views/products').then(m => m.ProductsComponent)
       },
       {
-        path: 'forms',
-        loadChildren: () => import('./views/forms/routes').then((m) => m.routes)
+        path: 'suppliers',
+        loadComponent: () => import('./views/suppliers').then(m => m.SuppliersComponent)
       },
       {
-        path: 'icons',
-        loadChildren: () => import('./views/icons/routes').then((m) => m.routes)
+        path: 'purchases',
+        loadComponent: () => import('./views/purchases').then(m => m.PurchasesComponent)
       },
       {
-        path: 'notifications',
-        loadChildren: () => import('./views/notifications/routes').then((m) => m.routes)
+        path: 'orders',
+        loadComponent: () => import('./views/orders').then(m => m.OrdersComponent)
       },
       {
-        path: 'widgets',
-        loadChildren: () => import('./views/widgets/routes').then((m) => m.routes)
+        path: 'users',
+        loadComponent: () => import('./views/users').then(m => m.UsersComponent)
+        
       },
       {
-        path: 'charts',
-        loadChildren: () => import('./views/charts/routes').then((m) => m.routes)
+        path: 'roles',
+        loadComponent: () => import('./views/roles').then(m => m.RolesComponent)
       },
-      {
-        path: 'pages',
-        loadChildren: () => import('./views/pages/routes').then((m) => m.routes)
-      }
     ]
   },
   {
