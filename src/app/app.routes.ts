@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { DefaultLayoutComponent } from './layout';
+import { loggedInGuard } from './core/guards/logged-in';
+import { notLoggedInGuard } from './core/guards/not-logged-in';
 
 export const routes: Routes = [
   {
@@ -13,6 +15,7 @@ export const routes: Routes = [
     data: {
       title: 'Home'
     },
+    canActivate: [loggedInGuard],
     children: [
       {
         path: 'dashboard',
@@ -58,7 +61,8 @@ export const routes: Routes = [
   },
   {
     path: 'auth',
-    loadComponent: () => import('./views/auth/sign-in').then(m => m.SignInComponent)
+    loadComponent: () => import('./views/auth/sign-in').then(m => m.SignInComponent),
+    canActivate: [notLoggedInGuard]
   },
   {
     path: '404',

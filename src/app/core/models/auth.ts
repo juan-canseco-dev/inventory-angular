@@ -6,3 +6,10 @@ export interface SignInRequest {
 export interface JwtResponse {
     token: string;
 };
+
+export interface UserDetails {
+    id: string;
+    fullName: string;
+    email: string;
+    permissions: string[];
+};
