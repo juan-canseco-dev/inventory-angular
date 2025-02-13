@@ -13,17 +13,17 @@ export const navItems: INavData[] = [
   {
     name: 'Category',
     url: '/categories',
-    iconComponent: { name: 'cil-list' }
+    iconComponent: { name: 'cilTags' }
   },
   {
     name: 'Units Of Measurement',
     url: '/units',
-    iconComponent: { name: 'cil-ruler' }
+    iconComponent: { name: 'cilList' }
   },
   {
     name: 'Products',
     url: '/products',
-    iconComponent: { name: 'cil-cart' }
+    iconComponent: { name: 'cil-clipboard' }
   },
   {
     name: 'Inventory',
@@ -32,18 +32,17 @@ export const navItems: INavData[] = [
   {
     name: 'Suppliers',
     url: '/suppliers',
-    iconComponent: { name: 'cil-drop' }
+    iconComponent: { name: 'cilTruck' }
   },
   {
     name: 'Purchases',
     url: '/purchases',
-    linkProps: { fragment: 'headings' },
-    iconComponent: { name: 'cil-pencil' }
+    iconComponent: { name: 'cilBasket' }
   },
   {
     name: 'Orders',
     url: '/orders',
-    iconComponent: { name: 'cil-drop' }
+    iconComponent: { name: 'cilCart' }
   },
   {
     name: 'Users & Roles',
@@ -52,11 +51,11 @@ export const navItems: INavData[] = [
   {
     name: 'Users',
     url: '/users',
-    iconComponent: { name: 'cil-drop' }
+    iconComponent: { name: 'cilUserPlus' }
   },
   {
     name: 'Roles',
     url: '/roles',
-    iconComponent: { name: 'cil-drop' }
+    iconComponent: { name: 'cilPeople' }
   },
 ];
