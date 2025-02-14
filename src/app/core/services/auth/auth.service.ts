@@ -49,9 +49,9 @@ export class AuthService {
     return !this.jwtHelper.isTokenExpired(token);
   }
 
-  getUser() : UserDetails | null {
+  getUser() : UserDetails {
     const token = localStorage.getItem("token");
-    return this.jwtHelper.decodeToken(token!);
+    return this.jwtHelper.decodeToken(token!)!;
   }
   
 }

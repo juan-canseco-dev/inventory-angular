@@ -53,10 +53,11 @@
       <c-avatar
         shape="rounded-1"
         [size]="'md'"
-        src="./assets/images/avatars/8.jpg"
         textColor="primary"
         alt="User avatar"
-      />
+      >
+      {{userDetails?.fullName![0]}}
+    </c-avatar>
     </button>
     <ul cDropdownMenu class="pt-0 w-auto">
       <li>

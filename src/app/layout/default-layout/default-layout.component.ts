@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NgScrollbar } from 'ngx-scrollbar';
-
+import { AuthService } from '../../core/services/auth';
 import { IconDirective } from '@coreui/icons-angular';
 import {
   ContainerComponent,
@@ -17,6 +17,7 @@ import {
 
 import { DefaultFooterComponent, DefaultHeaderComponent } from './';
 import { navItems } from './_nav';
+import { UserDetails } from '../../core/models/auth';
 
 function isOverflown(element: HTMLElement) {
   return (
@@ -48,11 +49,23 @@ function isOverflown(element: HTMLElement) {
     ]
 })
 export class DefaultLayoutComponent {
+
   public navItems = navItems;
+  
+  authService = inject(AuthService);
+
+  userDetails !: UserDetails;
+
+  constructor() {
+    this.userDetails = this.authService.getUser();
+    console.log(this.userDetails);
+  }
 
   onScrollbarUpdate($event: any) {
     // if ($event.verticalUsed) {
     // console.log('verticalUsed', $event.verticalUsed);
     // }
   }
+
+
 }
