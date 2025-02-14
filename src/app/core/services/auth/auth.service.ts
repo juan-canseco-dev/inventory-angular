@@ -42,6 +42,7 @@ export class AuthService {
   
   logOut() {
     localStorage.clear();
+    this.router.navigateByUrl("/auth");
   }
 
   isLoggedIn() : boolean{

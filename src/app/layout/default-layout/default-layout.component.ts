@@ -4,7 +4,14 @@ import { NgScrollbar } from 'ngx-scrollbar';
 import { AuthService } from '../../core/services/auth';
 import { IconDirective } from '@coreui/icons-angular';
 import {
+  ButtonCloseDirective,
+  ButtonDirective,
   ContainerComponent,
+  ModalBodyComponent,
+  ModalComponent,
+  ModalFooterComponent,
+  ModalHeaderComponent,
+  ModalTitleDirective,
   ShadowOnScrollDirective,
   SidebarBrandComponent,
   SidebarComponent,
@@ -18,6 +25,7 @@ import {
 import { DefaultFooterComponent, DefaultHeaderComponent } from './';
 import { navItems } from './_nav';
 import { UserDetails } from '../../core/models/auth';
+import { NgStyle } from '@angular/common';
 
 function isOverflown(element: HTMLElement) {
   return (
@@ -45,12 +53,21 @@ function isOverflown(element: HTMLElement) {
         ShadowOnScrollDirective,
         ContainerComponent,
         RouterOutlet,
-        DefaultFooterComponent
+        DefaultFooterComponent,
+        ModalBodyComponent,
+        ModalComponent,
+        ModalFooterComponent,
+        ModalHeaderComponent,
+        ModalTitleDirective,
+        ButtonCloseDirective,
+        ButtonDirective
     ]
 })
 export class DefaultLayoutComponent {
 
   public navItems = navItems;
+
+  showLogOutModal = false;
   
   authService = inject(AuthService);
 
@@ -67,5 +84,16 @@ export class DefaultLayoutComponent {
     // }
   }
 
+  onLogOut(event : any) {
+    this.showLogOutModal = true;
+  }
 
+  onLogOutCancel() {
+    this.showLogOutModal = false;
+  }
+
+  onLogOutConfirm() {
+    this.showLogOutModal = true;
+    this.authService.logOut();
+  }
 }

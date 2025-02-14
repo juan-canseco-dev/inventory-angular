@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, Input, input } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Input, input, Output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import {
@@ -19,7 +19,7 @@ import {
   HeaderTogglerDirective,
   NavItemComponent,
   NavLinkDirective,
-  SidebarToggleDirective
+  SidebarToggleDirective,
 } from '@coreui/angular';
 
 import { IconDirective } from '@coreui/icons-angular';
@@ -51,8 +51,9 @@ export class DefaultHeaderComponent extends HeaderComponent {
   }
 
   sidebarId = input('sidebar1');
-
+  
   @Input()
   userDetails !: UserDetails;
 
+  @Output() logOut = new EventEmitter<any>();
 }

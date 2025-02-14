@@ -32,10 +32,28 @@
     position="sticky"
     sidebarId="sidebar1"
     [userDetails]="userDetails"
+    (logOut)="onLogOut($event)"
+    
   />
   <!--app-body-->
   <div class="body flex-grow-1">
     <c-container breakpoint="lg" class="h-auto px-4">
+
+      <c-modal id="logOutModal" [visible]="showLogOutModal">
+        <c-modal-header>
+          <h5 cModalTitle>Confirm Logout</h5>
+          <button (click)="onLogOutCancel()" cButtonClose></button>
+        </c-modal-header>
+        <c-modal-body>Do you really want to log out?</c-modal-body>
+        <c-modal-footer>
+          <button (click)="onLogOutCancel()" cButton color="secondary">
+            Cancel
+          </button>
+          <button cButton color="primary" (click)="onLogOutConfirm()">Yes</button>
+        </c-modal-footer>
+      </c-modal>
+
+
       <router-outlet />
     </c-container>
   </div>
