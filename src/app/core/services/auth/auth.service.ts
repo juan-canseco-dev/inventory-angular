@@ -23,6 +23,7 @@ export class AuthService {
       tap(),
       map((response: JwtResponse) => {
         localStorage.setItem("token", response.token);
+        console.log(this.jwtHelper.decodeToken(response.token));
         this.router.navigateByUrl('/');
         return Result.success(response);
       }),
@@ -55,4 +56,8 @@ export class AuthService {
     return this.jwtHelper.decodeToken(token!)!;
   }
   
+
+  hasPermission(permission : string) : boolean {
+    return this.getUser().permissions.includes(permission);
+  }
 }

@@ -7,6 +7,7 @@ import {
   ButtonCloseDirective,
   ButtonDirective,
   ContainerComponent,
+  INavData,
   ModalBodyComponent,
   ModalComponent,
   ModalFooterComponent,
@@ -22,8 +23,10 @@ import {
   SidebarTogglerDirective
 } from '@coreui/angular';
 
+import { Permissions } from '../../core/models/permissions';
+
 import { DefaultFooterComponent, DefaultHeaderComponent } from './';
-import { navItems } from './_nav';
+import { INavDataWithPermissions, navItems } from './_nav';
 import { UserDetails } from '../../core/models/auth';
 import { NgStyle } from '@angular/common';
 
@@ -65,7 +68,21 @@ function isOverflown(element: HTMLElement) {
 })
 export class DefaultLayoutComponent {
 
-  public navItems = navItems;
+
+  private permissions : string[] =  [
+    Permissions.Dashboard_View,
+    Permissions.Categories_View,
+    Permissions.Products_View,
+    Permissions.Suppliers_View,
+    Permissions.Units_View,
+    Permissions.Customers_View,
+    Permissions.Orders_View,
+    Permissions.Purchases_View,
+    Permissions.Users_View,
+    Permissions.Roles_View
+  ];
+
+  public navItems : INavDataWithPermissions[] = navItems;
 
   showLogOutModal = false;
   
@@ -75,7 +92,12 @@ export class DefaultLayoutComponent {
 
   constructor() {
     this.userDetails = this.authService.getUser();
-    console.log(this.userDetails);
+    this.permissions = this.permissions.filter(p => this.userDetails.permissions.includes(p));
+    this.navItems = this.navItems.filter(item => {
+      if (!item.permission) return true;
+      return this.permissions.includes(item.permission);
+    });
+
   }
 
   onScrollbarUpdate($event: any) {
