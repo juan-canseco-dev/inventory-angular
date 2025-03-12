@@ -2,14 +2,19 @@
     <c-col xs="12">
         <c-card class="mb-4">
             <c-card-header>
+               <c-container>
                 <c-row>
                     <c-col>
                         <h4>Categories</h4>
                     </c-col>
-                    <c-col class="align-self-end">
-                        <button cButton color="primary" size="sm">Small button</button>
+                    <c-col class="text-end">
+                        <button cButton color="primary" size="sm">
+                            <c-icon name="cilPlus" class="me-2"></c-icon>
+                            New Category
+                        </button>
                     </c-col>
                 </c-row>
+               </c-container>
 
             </c-card-header>
             <c-card-body>
@@ -18,7 +23,7 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Name</th>
-                            <th scope="col">Actions</th>
+                            <th scope="col" class="text-end">Actions</th>
                         </tr>
                     </thead>
 
@@ -26,7 +31,7 @@
                         <tr>
                             <td>1</td>
                             <td>Juan Pablo</td>
-                            <td>
+                            <td class="text-end">
                                 <fa-icon [icon]="faEye" ></fa-icon>
                                 <fa-icon [icon]="faEdit" class="m-2"></fa-icon>
                                 <fa-icon [icon]="faTrash" class="m-2"></fa-icon>
