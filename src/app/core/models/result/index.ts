@@ -28,6 +28,10 @@ class Failure {
       return new Result<TValue>('failure', undefined, failure);
     }
 
+    static empty<TValue>() : Result<TValue> {
+      return new Result<TValue>('empty', undefined, undefined);
+    }
+
     public get status() : string {
       return this._status;
     }
