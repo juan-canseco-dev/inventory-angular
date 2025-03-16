@@ -13,9 +13,9 @@ export interface Category {
 }
 
 export interface GetCategoriesRequest {
-    pageNumber: number | null | undefined;
-    pageSize: number | null | undefined;
-    orderBy: string | null | undefined; 
-    sortOrder: string | null | undefined;
-    name: string | null | undefined;
+    pageNumber: number | null;
+    pageSize: number | null;
+    orderBy: string | null; 
+    sortOrder: string | null;
+    name: string | null;
 }

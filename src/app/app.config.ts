@@ -1,6 +1,7 @@
 import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { JwtModule } from '@auth0/angular-jwt';
+import { JwtModule} from '@auth0/angular-jwt';
+import { withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
 import {
   provideRouter,
   withEnabledBlockingInitialNavigation,
@@ -39,13 +40,12 @@ export const appConfig: ApplicationConfig = {
       JwtModule.forRoot({
         config: {
           tokenGetter: tokenGetter,
-          allowedDomains: ["localhost:8080"],
-          disallowedRoutes: []
+          allowedDomains: ["localhost:8080"]
         }
       }) 
     ),
     IconSetService,
     provideAnimations(),
-    provideHttpClient()
+    provideHttpClient(withInterceptorsFromDi())
   ]
 };

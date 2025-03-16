@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { Observable, delay, shareReplay, map, catchError, of, startWith } from 'rxjs';
+import { Observable, delay, shareReplay, map, catchError, of, startWith, min } from 'rxjs';
 import { Result, Failure } from '../../models/result';
 import { PagedList } from '../../models/shared';
 import { Category, CreateCategoryRequest, UpdateCategoryRequest, GetCategoriesRequest } from '../../models/categories';
@@ -18,29 +18,29 @@ export class CategoriesService {
     
     let params = new HttpParams();
 
-    if (request.pageNumber && request.pageNumber! > 0) {
-      params.append("pageNumber", request.pageNumber!);
+    if (request.pageNumber != null) {
+      params = params.append("pageNumber", request.pageNumber!);
     }
 
-    if (request.pageSize && request.pageSize! > 0) {
-      params.append("pageSize", request.pageSize);
+    if (request.pageSize != null) {
+      params = params.append("pageSize", request.pageSize);
     }
 
-    if (request.orderBy && request.orderBy!.trim().length > 0) {
-      params.append("orderBy", request.orderBy); 
+    if (request.orderBy != null) {
+      params = params.append("orderBy", request.orderBy); 
     }
 
-    if (request.sortOrder && request.sortOrder!.trim().length > 0) {
-      params.append("orderBy", request.sortOrder); 
+    if (request.sortOrder != null) {
+      params = params.append("orderBy", request.sortOrder); 
     }
 
-    if (request.name && request.name!.trim().length > 0) {
-      params.append("name", request.name);
+    if (request.name != null) {
+      params = params.append("name", request.name);
     }
-
-    return this.http.get<PagedList<Category>>(`${environment.baseUrl}/api/categories`, {params: params}).pipe(
+    
+    return this.http.get<PagedList<Category>>(`${environment.baseUrl}/categories`, {params: params}).pipe(
       map((response: PagedList<Category>) => {
-        if (response.empty()) {
+        if (!response.items || response.items.length === 0) {
           return Result.empty<PagedList<Category>>();
         } else {
           return Result.success(response);
@@ -56,7 +56,7 @@ export class CategoriesService {
   }
   
   getById(id : number) : Observable<Result<Category>>{
-    return this.http.get<Category>(`${environment.baseUrl}/api/categories/${id}`).pipe(
+    return this.http.get<Category>(`${environment.baseUrl}/categories/${id}`).pipe(
       map((response: Category) => {
         return Result.success(response);
       }),
@@ -70,7 +70,7 @@ export class CategoriesService {
   }
 
   create(request: CreateCategoryRequest) : Observable<Result<number>> {
-    return this.http.post<number>(`${environment.baseUrl}/api/categories`, request).pipe(
+    return this.http.post<number>(`${environment.baseUrl}/categories`, request).pipe(
       map((response: number) => {
         return Result.success(response);
       }),
@@ -85,7 +85,7 @@ export class CategoriesService {
 
 
   update(request: UpdateCategoryRequest) : Observable<Result<any>> {
-    return this.http.put<any>(`${environment.baseUrl}/api/categories/${request.categoryId}`, request).pipe(
+    return this.http.put<any>(`${environment.baseUrl}/categories/${request.categoryId}`, request).pipe(
       map((_: any) => {
         return Result.empty();
       }),
@@ -99,7 +99,7 @@ export class CategoriesService {
   }
 
   delete(id: number) : Observable<Result<any>> {
-    return this.http.delete<any>(`${environment.baseUrl}/api/categories/${id}`).pipe(
+    return this.http.delete<any>(`${environment.baseUrl}/categories/${id}`).pipe(
       map((_: any) => {
         return Result.empty();
       }),
