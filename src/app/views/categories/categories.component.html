@@ -7,13 +7,7 @@
                <c-container>
                 <c-row>
                     <c-col>
-                        <h4>Categories</h4>
-                    </c-col>
-                    <c-col class="text-end">
-                        <button cButton color="primary" size="sm">
-                            <c-icon name="cilPlus" class="me-2"></c-icon>
-                            New Category
-                        </button>
+                        <h4>Loading Categories...</h4>
                     </c-col>
                 </c-row>
                </c-container>
@@ -30,13 +24,15 @@
                     </thead>
 
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Juan Pablo</td>
+                        <tr *ngFor="item of [1,2,3,4,5,6,7]">
+                            <td>
+                                <ngx-skeleton-loader count="1"/>
+                            </td>
+                            <td>
+                                <ngx-skeleton-loader count="1"/>
+                            </td>
                             <td class="text-end">
-                                <fa-icon [icon]="faEye" ></fa-icon>
-                                <fa-icon [icon]="faEdit" class="m-2"></fa-icon>
-                                <fa-icon [icon]="faTrash" class="m-2"></fa-icon>
+                                <ngx-skeleton-loader count="1"/>
                             </td>
                         </tr>
                     </tbody>
@@ -45,22 +41,8 @@
             
             <c-card-footer>
                 <c-pagination aria-label="Page navigation example" align="end" size="sm">
-                    <li cPageItem [active]="true">
-                      <a cPageLink [routerLink]>Previous</a>
-                    </li>
-                    <li cPageItem>
-                      <a cPageLink [routerLink]>1</a>
-                    </li>
-                    <li cPageItem>
-                      <a cPageLink [routerLink]>2</a>
-                    </li>
-                    <li cPageItem>
-                      <a cPageLink [routerLink]>3</a>
-                    </li>
-                    <li cPageItem>
-                      <a cPageLink [routerLink]>Next</a>
-                    </li>
-                  </c-pagination>
+                    <ngx-skeleton-loader count="1"/>
+                </c-pagination>
             </c-card-footer>
             
         </c-card>
@@ -203,69 +185,18 @@
                     <c-col>
                         <h4>Categories</h4>
                     </c-col>
-                    <c-col class="text-end">
-                        <button cButton color="primary" size="sm">
-                            <c-icon name="cilPlus" class="me-2"></c-icon>
-                            New Category
-                        </button>
-                    </c-col>
                 </c-row>
                </c-container>
 
             </c-card-header>
-            <c-card-body>
-                <table cTable class="m-2">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Name</th>
-                            <th scope="col" class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Juan Pablo</td>
-                            <td class="text-end">
-                                <fa-icon [icon]="faEye" ></fa-icon>
-                                <fa-icon [icon]="faEdit" class="m-2"></fa-icon>
-                                <fa-icon [icon]="faTrash" class="m-2"></fa-icon>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <c-card-body class="text-center">
+                <img cImg align="center" height="200" rounded src="../../../assets/images/error.png" width="200" />
+                <p CardText>
+                    An error occurred, please try again
+                </p>
+                <button cButton color="primary">Retry</button>
             </c-card-body>
-            
-            <c-card-footer>
-                <c-pagination aria-label="Page navigation example" align="end" size="sm">
-                    <li cPageItem [active]="true">
-                      <a cPageLink [routerLink]>Previous</a>
-                    </li>
-                    <li cPageItem>
-                      <a cPageLink [routerLink]>1</a>
-                    </li>
-                    <li cPageItem>
-                      <a cPageLink [routerLink]>2</a>
-                    </li>
-                    <li cPageItem>
-                      <a cPageLink [routerLink]>3</a>
-                    </li>
-                    <li cPageItem>
-                      <a cPageLink [routerLink]>Next</a>
-                    </li>
-                  </c-pagination>
-            </c-card-footer>
-            
         </c-card>
-
-
-
-
-
-
-
-        
 
     </c-col>
 </c-row>

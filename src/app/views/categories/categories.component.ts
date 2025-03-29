@@ -10,6 +10,7 @@ import { Category, GetCategoriesRequest } from '../../core/models/categories';
 import { Result } from '../../core/models/result';
 import { PagedList } from '../../core/models/shared';
 import { CategoriesService } from '../../core/services/categories/categories.service';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 
 @Component({
   selector: 'app-categories',
@@ -33,7 +34,8 @@ import { CategoriesService } from '../../core/services/categories/categories.ser
     ButtonDirective,
     GridModule,
     IconModule,
-    CommonModule
+    CommonModule,
+    NgxSkeletonLoaderModule
   ],
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.scss'
