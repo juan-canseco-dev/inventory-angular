@@ -1,7 +1,11 @@
 <c-row ngPreserveWhitespaces>
     <c-col xs="12">
 
-        <c-modal #newCategoryModal id="newCategoryModal">
+        <c-modal 
+            #newCategoryModal 
+            id="newCategoryModal"
+            backdrop="static"
+            >
             <form 
             cForm
             [formGroup]="addCategoryForm"

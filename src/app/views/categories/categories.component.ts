@@ -75,6 +75,7 @@ export class CategoriesComponent implements OnInit {
 
   addCategoryForm!: FormGroup;
   pageResult$!: Observable<Result<PagedList<Category>>>;
+  newCategoryResult$!: Observable<Result<number>>;
 
   private request : GetCategoriesRequest = {
     pageNumber: 1,
@@ -126,13 +127,13 @@ export class CategoriesComponent implements OnInit {
 
   addCategorySubmit() {
     if(this.addCategoryForm.valid) {
-      console.log('valid');
+      this.newCategoryResult$ = this.service.create(this.addCategoryForm.value);
     }
     else {
       this.addCategoryForm.markAllAsTouched();
     }
   }
-
+  
   addCategoryCancel() {
     this.add_name?.setValue(null);
     this.addCategoryForm.markAsPristine();
