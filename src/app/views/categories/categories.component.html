@@ -3,11 +3,12 @@
 
         <c-modal #newCategoryModal id="newCategoryModal">
             <form 
+            cForm
             [formGroup]="addCategoryForm"
             (ngSubmit)="addCategorySubmit()"
-            novalidate
-            cForm
-            class="needs-validation">
+            [validated]="true"
+            class="needs-validation"
+            ngNativeValidate>
 
             <c-modal-header>
                 <h5 cModalTitle>New Category</h5>
@@ -16,14 +17,15 @@
               
                     <c-input-group class="mb-3 has-validation">
                         <input
+                            [valid]="false"
                             formControlName="name"
                             id="name"
                             cFormControl
                             placeholder="Name"
-                            type="name"
+                            type="text"
                             required
                             />
-
+                            
                         <c-form-feedback *ngIf="add_name?.errors?.['required'] && add_name?.touched" invalid>
                             Name is required.
                         </c-form-feedback>
@@ -32,7 +34,7 @@
 
             </c-modal-body>
             <c-modal-footer>
-                <button [cModalToggle]="newCategoryModal.id" cButton color="secondary">
+                <button [cModalToggle]="newCategoryModal.id" (click)="addCategoryCancel()" cButton color="secondary">
                     Close
                   </button>
                   <button cButton type="submit" color="primary">Save changes</button>

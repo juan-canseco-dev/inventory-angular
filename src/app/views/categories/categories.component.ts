@@ -133,6 +133,12 @@ export class CategoriesComponent implements OnInit {
     }
   }
 
+  addCategoryCancel() {
+    this.add_name?.setValue(null);
+    this.addCategoryForm.markAsPristine();
+    this.addCategoryForm.markAsUntouched();
+  }
+
   get add_name() {
     return this.addCategoryForm.get('name');
   }
