@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, Signal, Injector, runInInjectionContext} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule, NgStyle } from '@angular/common';
 import { IconDirective } from '@coreui/icons-angular';
@@ -21,9 +22,9 @@ import {
   ToastModule
 } from '@coreui/angular';
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Result} from '../../../core/models/result';
-import { JwtResponse } from '../../../core/models/auth';
+import { JwtResponse, SignInRequest } from '../../../core/models/auth';
 
 @Component({
   selector: 'app-sign-in',
@@ -56,10 +57,15 @@ import { JwtResponse } from '../../../core/models/auth';
 export class SignInComponent implements OnInit {
 
   signInForm!: FormGroup;
+  
+  private formBuilder = inject(FormBuilder);
+  private authService = inject(AuthService);
+  injector = inject(Injector);
 
-  authResult$!: Observable<Result<JwtResponse>>;
+  private result$: Observable<Result<JwtResponse>> = of(Result.empty<JwtResponse>())
+  result : Signal<Result<JwtResponse>> = signal(Result.empty());
 
-  constructor(private formBuilder : FormBuilder, private authService : AuthService) {}
+
   
   ngOnInit(): void {
     this.signInForm = this.formBuilder.group({
@@ -91,7 +97,10 @@ export class SignInComponent implements OnInit {
   onSubmit() {
     if (this.signInForm.valid) {
       const { email, password } = this.signInForm.value;
-      this.authResult$ = this.authService.signIn({email, password});
+      this.result$ = this.authService.signIn({email, password});
+      runInInjectionContext(this.injector, () => {
+        this.result = toSignal(this.result$, { initialValue: Result.loading<JwtResponse>() });
+      });
 
     } else {
       this.signInForm.markAllAsTouched();

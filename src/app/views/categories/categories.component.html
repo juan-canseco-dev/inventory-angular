@@ -38,10 +38,18 @@
 
             </c-modal-body>
             <c-modal-footer>
+                
                 <button [cModalToggle]="newCategoryModal.id" (click)="addCategoryCancel()" cButton color="secondary">
                     Close
-                  </button>
-                  <button cButton type="submit" color="primary">Save changes</button>
+                </button>
+                
+                @if (true) {
+                    <button
+                         cButton 
+                         color="primary">Loading...</button>
+                }@else {
+                    <button cButton type="submit" color="primary">Save changes</button>
+                }            
             </c-modal-footer>
         </form>
         </c-modal>

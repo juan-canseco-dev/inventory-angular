@@ -1,12 +1,9 @@
-
-<c-toaster
-class="p-3"
-*ngIf="(authResult$ | async)?.status === 'failure'"
-placement="top-end">
-  <c-toast #toast="cToast" [autohide]="true"  [delay]="2000" [visible]="true" class="align-items-center text-white border-0" color="danger">
+<c-toaster *ngIf="result()?.status === 'failure'" class="p-3" placement="top-end">
+  <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
+    class="align-items-center text-white border-0" color="danger">
     <div class="d-flex">
       <c-toast-body>
-        <span>{{(authResult$ | async)?.failure?.message}}</span>
+        <span>{{result()?.failure?.message}}</span>
       </c-toast-body>
     </div>
   </c-toast>
@@ -14,109 +11,80 @@ placement="top-end">
 
 <div class="bg-light dark:bg-transparent min-vh-100 d-flex flex-row align-items-center">
 
-    <c-container breakpoint="md">
-      <c-row class="justify-content-center">
-        <c-col lg="10" xl="8">
-          <c-card-group>
-            <c-card class="p-4">
-              <c-card-body>
-                <form 
-                  [formGroup]="signInForm"
-                  (ngSubmit)="onSubmit()"
-                  [validated]="true"
-                  novalidate
-                  cForm
-                  class="needs-validation"
-                  >
-                  <h1>Login</h1>
-                  <p class="text-body-secondary">Sign In to your account</p>
-                  <c-input-group class="mb-3 has-validation">
-                    <span cInputGroupText>
-                      <svg cIcon name="cilUser"></svg>
-                    </span>
-                    <input
-                      formControlName="email"
-                      id="email"  
-                      cFormControl 
-                      placeholder="Email"
-                      type="email"
-                      required
-                      [class.is-invalid]="email?.invalid && email?.touched"
-                      />
+  <c-container breakpoint="md">
+    <c-row class="justify-content-center">
+      <c-col lg="10" xl="8">
+        <c-card-group>
+          <c-card class="p-4">
+            <c-card-body>
+              <form [formGroup]="signInForm" (ngSubmit)="onSubmit()" [validated]="true" novalidate cForm
+                class="needs-validation">
+                <h1>Login</h1>
+                <p class="text-body-secondary">Sign In to your account</p>
+                <c-input-group class="mb-3 has-validation">
+                  <span cInputGroupText>
+                    <svg cIcon name="cilUser"></svg>
+                  </span>
+                  <input formControlName="email" id="email" cFormControl placeholder="Email" type="email" required
+                    [class.is-invalid]="email?.invalid && email?.touched" />
 
-                      <c-form-feedback *ngIf="email?.errors?.['required'] && email?.touched" invalid>
-                        Email is required.
-                      </c-form-feedback>
-                      <c-form-feedback *ngIf="email?.errors?.['email'] && email?.touched" invalid>
-                        Invalid email format.
-                      </c-form-feedback>
+                  @if (email?.errors?.['required'] && email?.touched) {
+                  <c-form-feedback invalid>
+                    Email is required.
+                  </c-form-feedback>
+                  }
 
-                  </c-input-group>
-                  <c-input-group class="mb-4 has-validation">
-                    <span cInputGroupText>
-                      <svg cIcon name="cilLockLocked"></svg>
-                    </span>
-                    <input
-                      formControlName="password"
-                      id="password"
-                      autoComplete="current-password"
-                      cFormControl
-                      placeholder="Password"
-                      required
-                      type="password"
-                      [class.is-invalid]="password?.invalid && password?.touched"
-                    />
-
-                    <c-form-feedback *ngIf="password?.errors?.['required'] && password?.touched" invalid>
-                      Password is required.
-                    </c-form-feedback>
-                    <c-form-feedback *ngIf="password?.errors?.['minlength'] && password?.touched" invalid>
-                      Password must be at least 6 characters.
-                    </c-form-feedback>
-
-                  </c-input-group>
-
-                  <c-row>
-                    <c-col xs="12">
+                  @if (email?.errors?.['email'] && email?.touched) {
+                  <c-form-feedback invalid>
+                    Invalid email format.
+                  </c-form-feedback>
+                  }
 
 
+                </c-input-group>
+                <c-input-group class="mb-4 has-validation">
+                  <span cInputGroupText>
+                    <svg cIcon name="cilLockLocked"></svg>
+                  </span>
+                  <input formControlName="password" id="password" autoComplete="current-password" cFormControl
+                    placeholder="Password" required type="password"
+                    [class.is-invalid]="password?.invalid && password?.touched" />
 
-                      <button 
-                        *ngIf="(authResult$ | async)?.status === 'loading'; else showLoginState"
-                        cButton
-                        class="px-4" 
-                        color="primary" 
-                        type="submit" 
-                        [disabled]="true"
-                        >
-                        
-                        <c-spinner aria-hidden="true" size="sm" /> 
-                        Loading...
-
-                      </button>
+                  @if (password?.errors?.['required'] && password?.touched) {
+                  <c-form-feedback invalid>
+                    Password is required.
+                  </c-form-feedback>
+                  }
 
 
-                      <ng-template #showLoginState>
-                        <button 
-                        cButton
-                        class="px-4" 
-                        color="primary" 
-                        type="submit" 
-                        [disabled]="signInForm.invalid"
-                        >
-                        Login
-                      </button>
-                      </ng-template>
+                  @if (password?.errors?.['minlength'] && password?.touched) {
+                  <c-form-feedback invalid>
+                    Password must be at least 6 characters.
+                  </c-form-feedback>
+                  }
 
-                      
-                    </c-col>
-                  </c-row>
-                </form>
-              </c-card-body>
-            </c-card>
-          </c-card-group>
-        </c-col>
-      </c-row>
-    </c-container>
-  </div>
-  
+                </c-input-group>
+
+                <c-row>
+                  <c-col xs="12">
+                    <button *ngIf="result()?.status === 'loading'" cButton class="px-4" color="primary" type="submit"
+                      [disabled]="true">
+                      <c-spinner aria-hidden="true" size="sm"></c-spinner>
+                      Loading...
+                    </button>
+
+                    <!-- Login button -->
+                    <button *ngIf="result()?.status !== 'loading'" cButton class="px-4" color="primary" type="submit"
+                      [disabled]="signInForm.invalid">
+                      Login
+                    </button>
+                  </c-col>
+                </c-row>
+              </form>
+            </c-card-body>
+          </c-card>
+        </c-card-group>
+      </c-col>
+    </c-row>
+  </c-container>
+</div>
