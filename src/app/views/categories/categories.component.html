@@ -8,8 +8,8 @@
             >
             <form 
             cForm
-            [formGroup]="addCategoryForm"
-            (ngSubmit)="addCategorySubmit()"
+            [formGroup]="addForm"
+            (ngSubmit)="addSubmit()"
             [validated]="true"
             class="needs-validation"
             ngNativeValidate>
@@ -39,24 +39,34 @@
             </c-modal-body>
             <c-modal-footer>
                 
-                <button [cModalToggle]="newCategoryModal.id" (click)="addCategoryCancel()" cButton color="secondary">
+                <button [cModalToggle]="newCategoryModal.id" (click)="addCancel()" cButton color="secondary">
                     Close
                 </button>
+
+                <button
+                    *ngIf="addResult()?.status === 'loading'"
+                    [disabled]="true"
+                    cButton 
+                    color="primary">
+                    Loading...
+                </button>
                 
-                @if (true) {
-                    <button
-                         cButton 
-                         color="primary">Loading...</button>
-                }@else {
-                    <button cButton type="submit" color="primary">Save changes</button>
-                }            
+                    
+                
+                <button
+                    *ngIf="addResult()?.status !== 'loading'"
+                    [disabled]="addForm.invalid" 
+                    cButton type="submit" 
+                    color="primary">Save changes
+                </button>
+                            
             </c-modal-footer>
         </form>
         </c-modal>
 
 
 
-        <c-card *ngIf="(pageResult$ | async)?.status === 'loading'" class="mb-4" style="min-height: 480px;">
+        <c-card *ngIf="pageResult()?.status === 'loading'" class="mb-4" style="min-height: 480px;">
             <c-card-header>
                <c-container>
                 <c-row>
@@ -102,7 +112,7 @@
         </c-card>
         
 
-        <c-card *ngIf="(pageResult$ | async)?.status === 'success'" class="mb-4" style="min-height: 480px;">
+        <c-card *ngIf="pageResult()?.status === 'success'" class="mb-4" style="min-height: 480px;">
             <c-card-header>
                <c-container>
                 <c-row>
@@ -166,7 +176,7 @@
         </c-card>
 
 
-        <c-card *ngIf="(pageResult$ | async)?.status === 'empty'" class="mb-4" style="min-height: 480px;">
+        <c-card *ngIf="pageResult()?.status === 'empty'" class="mb-4" style="min-height: 480px;">
             <c-card-header>
                <c-container>
                 <c-row>
@@ -232,7 +242,7 @@
 
 
 
-        <c-card *ngIf="(pageResult$ | async)?.status === 'failure'" class="mb-4" style="min-height: 480px;">
+        <c-card *ngIf="pageResult()?.status === 'failure'" class="mb-4" style="min-height: 480px;">
             <c-card-header>
                <c-container>
                 <c-row>

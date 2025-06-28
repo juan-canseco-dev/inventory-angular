@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, Injector, OnInit, runInInjectionContext, signal, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -26,13 +26,14 @@ import {
 import { IconDirective, IconModule } from '@coreui/icons-angular';
 import { FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import { faEye, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Observable } from 'rxjs';
+import { Observable, of, single } from 'rxjs';
 import { Category, GetCategoriesRequest } from '../../core/models/categories';
 import { Result } from '../../core/models/result';
 import { PagedList } from '../../core/models/shared';
 import { CategoriesService } from '../../core/services/categories/categories.service';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { ModalModule } from '@coreui/angular';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-categories',
@@ -71,11 +72,20 @@ import { ModalModule } from '@coreui/angular';
   styleUrl: './categories.component.scss'
 })
 export class CategoriesComponent implements OnInit {
-  
 
-  addCategoryForm!: FormGroup;
-  pageResult$!: Observable<Result<PagedList<Category>>>;
-  newCategoryResult$!: Observable<Result<number>>;
+
+  private formBuilder = inject(FormBuilder);
+  private service = inject(CategoriesService);
+  injector = inject(Injector);
+
+  addForm!: FormGroup;
+  
+  private pageResult$: Observable<Result<PagedList<Category>>> = of(Result.empty<PagedList<Category>>());
+  pageResult : Signal<Result<PagedList<Category>>> = signal(Result.empty());
+
+  private addResult$: Observable<Result<number>> = of(Result.empty<number>());
+  addResult : Signal<Result<number>> = signal(Result.empty());
+
 
   private request : GetCategoriesRequest = {
     pageNumber: 1,
@@ -84,16 +94,14 @@ export class CategoriesComponent implements OnInit {
     orderBy: null,
     name: null
   };
-
+  
   faEye = faEye;
   faEdit = faEdit;
   faTrash = faTrash;
 
-  constructor(private formBuilder: FormBuilder, private service : CategoriesService) {}
-
 
   ngOnInit(): void {
-    this.addCategoryForm = this.formBuilder.group({
+    this.addForm = this.formBuilder.group({
       name: [null,{
         validators: [
           Validators.required,
@@ -107,8 +115,11 @@ export class CategoriesComponent implements OnInit {
   
   getAll() : void {
     this.pageResult$ = this.service.getAll(this.request);
+    runInInjectionContext(this.injector, () => {
+      this.pageResult = toSignal(this.pageResult$, {initialValue: Result.loading<PagedList<Category>>()})
+    });
   }
-
+  
   onDetailsClick(categoryId : number) : void {
 
   }
@@ -125,22 +136,25 @@ export class CategoriesComponent implements OnInit {
     this.getAll();
   }
 
-  addCategorySubmit() {
-    if(this.addCategoryForm.valid) {
-      this.newCategoryResult$ = this.service.create(this.addCategoryForm.value);
+  addSubmit() {
+    if(this.addForm.valid) {
+      this.addResult$ = this.service.create(this.addForm.value);
+      runInInjectionContext(this.injector, () => {
+        this.addResult = toSignal(this.addResult$, {initialValue: Result.loading<number>()})
+      });
     }
     else {
-      this.addCategoryForm.markAllAsTouched();
+      this.addForm.markAllAsTouched();
     }
   }
   
-  addCategoryCancel() {
+  addCancel() {
     this.add_name?.setValue(null);
-    this.addCategoryForm.markAsPristine();
-    this.addCategoryForm.markAsUntouched();
+    this.addForm.markAsPristine();
+    this.addForm.markAsUntouched();
   }
 
   get add_name() {
-    return this.addCategoryForm.get('name');
+    return this.addForm.get('name');
   }
 }
