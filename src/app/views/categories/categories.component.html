@@ -1,71 +1,6 @@
 <c-row ngPreserveWhitespaces>
     <c-col xs="12">
-
-        <c-modal 
-            #newCategoryModal 
-            id="newCategoryModal"
-            backdrop="static"
-            >
-            <form 
-            cForm
-            [formGroup]="addForm"
-            (ngSubmit)="addSubmit()"
-            [validated]="true"
-            class="needs-validation"
-            ngNativeValidate>
-
-            <c-modal-header>
-                <h5 cModalTitle>New Category</h5>
-            </c-modal-header>
-            <c-modal-body>
-              
-                    <c-input-group class="mb-3 has-validation">
-                        <input
-                            [valid]="false"
-                            formControlName="name"
-                            id="name"
-                            cFormControl
-                            placeholder="Name"
-                            type="text"
-                            required
-                            />
-                            
-                        <c-form-feedback *ngIf="add_name?.errors?.['required'] && add_name?.touched" invalid>
-                            Name is required.
-                        </c-form-feedback>
-
-                    </c-input-group>
-
-            </c-modal-body>
-            <c-modal-footer>
-                
-                <button [cModalToggle]="newCategoryModal.id" (click)="addCancel()" cButton color="secondary">
-                    Close
-                </button>
-
-                <button
-                    *ngIf="addResult()?.status === 'loading'"
-                    [disabled]="true"
-                    cButton 
-                    color="primary">
-                    Loading...
-                </button>
-                
-                    
-                
-                <button
-                    *ngIf="addResult()?.status !== 'loading'"
-                    [disabled]="addForm.invalid" 
-                    cButton type="submit" 
-                    color="primary">Save changes
-                </button>
-                            
-            </c-modal-footer>
-        </form>
-        </c-modal>
-
-
-
+        
         <c-card *ngIf="pageResult()?.status === 'loading'" class="mb-4" style="min-height: 480px;">
             <c-card-header>
                <c-container>
@@ -120,7 +55,7 @@
                         <h4>Categories</h4>
                     </c-col>
                     <c-col class="text-end">
-                        <button cButton [cModalToggle]="newCategoryModal.id" color="primary" size="sm">
+                        <button cButton color="primary" size="sm">
                             <c-icon name="cilPlus" class="me-2"></c-icon>
                             New Category
                         </button>
@@ -140,9 +75,9 @@
                     </thead>
 
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Juan Pablo</td>
+                        <tr *ngFor="let item of pageResult()?.value?.items;">
+                            <td>{{item.id}}</td>
+                            <td>{{item.name}}</td>
                             <td class="text-end">
                                 <fa-icon [icon]="faEye" ></fa-icon>
                                 <fa-icon [icon]="faEdit" class="m-2"></fa-icon>
@@ -154,23 +89,14 @@
             </c-card-body>
             
             <c-card-footer>
-                <c-pagination aria-label="Page navigation example" align="end" size="sm">
-                    <li cPageItem [active]="true">
-                      <a cPageLink [routerLink]>Previous</a>
-                    </li>
-                    <li cPageItem>
-                      <a cPageLink [routerLink]>1</a>
-                    </li>
-                    <li cPageItem>
-                      <a cPageLink [routerLink]>2</a>
-                    </li>
-                    <li cPageItem>
-                      <a cPageLink [routerLink]>3</a>
-                    </li>
-                    <li cPageItem>
-                      <a cPageLink [routerLink]>Next</a>
-                    </li>
-                  </c-pagination>
+                
+                <mat-paginator 
+                    [length]="100"
+                    [pageSize]="10"
+                    [pageSizeOptions]="[5, 10, 25, 100]"
+                    aria-label="Select page">
+                </mat-paginator>
+
             </c-card-footer>
             
         </c-card>
@@ -184,7 +110,7 @@
                         <h4>Categories</h4>
                     </c-col>
                     <c-col class="text-end">
-                        <button cButton [cModalToggle]="newCategoryModal.id" color="primary" size="sm">
+                        <button cButton color="primary" size="sm">
                             <c-icon name="cilPlus" class="me-2"></c-icon>
                             New Category
                         </button>
@@ -205,12 +131,8 @@
 
                     <tbody>
                         <tr>
-                            <td>1</td>
-                            <td>Juan Pablo</td>
-                            <td class="text-end">
-                                <fa-icon [icon]="faEye" ></fa-icon>
-                                <fa-icon [icon]="faEdit" class="m-2"></fa-icon>
-                                <fa-icon [icon]="faTrash" class="m-2"></fa-icon>
+                            <td colspan="3">
+                                No Results
                             </td>
                         </tr>
                     </tbody>

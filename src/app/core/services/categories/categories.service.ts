@@ -40,9 +40,10 @@ export class CategoriesService {
     
     return this.http.get<PagedList<Category>>(`${environment.baseUrl}/categories`, {params: params}).pipe(
       map((response: PagedList<Category>) => {
-        if (!response.items || response.items.length === 0) {
+
+        if (!Array.isArray(response.items) || response.items.length == 0){
           return Result.empty<PagedList<Category>>();
-        } else {
+        }else {
           return Result.success(response);
         }
       }),

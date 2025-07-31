@@ -34,6 +34,9 @@ import { CategoriesService } from '../../core/services/categories/categories.ser
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { ModalModule } from '@coreui/angular';
 import { toSignal } from '@angular/core/rxjs-interop';
+import {MatPaginatorModule} from '@angular/material/paginator';
+import {MatIcon, MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
 
 @Component({
   selector: 'app-categories',
@@ -66,7 +69,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
     InputGroupTextDirective,
     FormDirective,
     FormControlDirective,
-    FormFeedbackComponent
+    FormFeedbackComponent,
+    MatPaginatorModule,
+    MatIconModule,
+    MatButtonModule
   ],
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.scss'
@@ -77,16 +83,10 @@ export class CategoriesComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private service = inject(CategoriesService);
   injector = inject(Injector);
-
-  addForm!: FormGroup;
   
   private pageResult$: Observable<Result<PagedList<Category>>> = of(Result.empty<PagedList<Category>>());
   pageResult : Signal<Result<PagedList<Category>>> = signal(Result.empty());
-
-  private addResult$: Observable<Result<number>> = of(Result.empty<number>());
-  addResult : Signal<Result<number>> = signal(Result.empty());
-
-
+  
   private request : GetCategoriesRequest = {
     pageNumber: 1,
     pageSize: 10,
@@ -101,14 +101,6 @@ export class CategoriesComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.addForm = this.formBuilder.group({
-      name: [null,{
-        validators: [
-          Validators.required,
-          Validators.maxLength(50)
-        ]
-      }]
-    });
     this.getAll();
   }
   
@@ -134,27 +126,5 @@ export class CategoriesComponent implements OnInit {
 
   onRetryClick() {
     this.getAll();
-  }
-
-  addSubmit() {
-    if(this.addForm.valid) {
-      this.addResult$ = this.service.create(this.addForm.value);
-      runInInjectionContext(this.injector, () => {
-        this.addResult = toSignal(this.addResult$, {initialValue: Result.loading<number>()})
-      });
-    }
-    else {
-      this.addForm.markAllAsTouched();
-    }
-  }
-  
-  addCancel() {
-    this.add_name?.setValue(null);
-    this.addForm.markAsPristine();
-    this.addForm.markAsUntouched();
-  }
-
-  get add_name() {
-    return this.addForm.get('name');
   }
 }
