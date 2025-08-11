@@ -40,6 +40,12 @@ export class AuthService {
     );
   }
 
+
+
+  removeJwt() {
+    localStorage.clear();
+  }
+
   
   logOut() {
     localStorage.clear();

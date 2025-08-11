@@ -13,6 +13,9 @@ export const notLoggedInGuard: CanActivateFn = (route, state) => {
     router.navigateByUrl("/");
     return false;
   }
-  
+
+  // Cleans JWT Token
+  authService.removeJwt();
+
   return true;
 };

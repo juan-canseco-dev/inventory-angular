@@ -21,7 +21,8 @@ import {
   InputGroupTextDirective,
   FormDirective,
   FormControlDirective,
-  FormFeedbackComponent
+  FormFeedbackComponent,
+  CardModule
 } from '@coreui/angular';
 import { IconDirective, IconModule } from '@coreui/icons-angular';
 import { FontAwesomeModule} from '@fortawesome/angular-fontawesome';
@@ -35,8 +36,9 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { ModalModule } from '@coreui/angular';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {MatPaginatorModule} from '@angular/material/paginator';
-import {MatIcon, MatIconModule} from '@angular/material/icon';
+import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-categories',
@@ -72,7 +74,8 @@ import {MatButtonModule} from '@angular/material/button';
     FormFeedbackComponent,
     MatPaginatorModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    MatCardModule
   ],
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.scss'
