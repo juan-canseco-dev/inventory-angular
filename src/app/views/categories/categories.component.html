@@ -57,11 +57,11 @@
                             <h4>Categories</h4>
                         </div>
                         <div class="col d-flex justify-content-end gap-2">
-                            <button mat-stroked-button color="accent" type="button">
-                                Next
+                            <button mat-stroked-button color="accent" type="button" (click)="onFiltersClicked()">
+                                Filters
                                 <mat-icon>filter_alt</mat-icon>
                             </button>
-                            <button mat-stroked-button color="accent" type="button">
+                            <button mat-stroked-button color="accent" type="button" >
                                 New Category
                                 <mat-icon>add</mat-icon>
                             </button>
@@ -70,6 +70,15 @@
                 </div>
 
                 <div class="card-body p-0">
+
+
+                    @if (filtersClicked) {
+                    <div class="row align-items-center p-0" style="background-color: aquamarine; min-height: 128px;">
+                        My Custom filters here
+                    </div>
+
+                    }
+
                     <table mat-table [dataSource]="dataSource()" class="table table-striped table-hover m-0">
 
                         <!-- ID Column -->

@@ -97,6 +97,10 @@ export class CategoriesComponent implements OnInit {
   dataSource: Signal<MatTableDataSource<Category>> = signal(new MatTableDataSource<Category>([]));
   displayedColumns: string[] = ['id', 'name', 'actions'];
 
+
+  filtersClicked : boolean = false;
+
+
   @ViewChild(MatPaginator) paginator!: MatPaginator
 
 
@@ -133,6 +137,11 @@ export class CategoriesComponent implements OnInit {
       );
       this.dataSource = toSignal(dataSource$, {initialValue: new MatTableDataSource<Category>([])});
     });
+  }
+
+  onFiltersClicked() : void {
+    this.filtersClicked = !this.filtersClicked;
+    console.log(this.filtersClicked);
   }
 
   onDetailsClick(categoryId: number): void {
