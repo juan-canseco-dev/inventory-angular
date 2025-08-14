@@ -1,21 +1,21 @@
-import { Component, inject, Injector, OnInit, runInInjectionContext, signal, Signal } from '@angular/core';
+import { Component, inject, Injector, OnInit, runInInjectionContext, signal, Signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { 
-  ButtonDirective, 
-  CardBodyComponent, 
-  CardComponent, 
-  CardFooterComponent, 
-  CardHeaderComponent, 
-  ColComponent, 
-  ContainerComponent, 
-  PageItemDirective, 
-  PageLinkDirective, 
-  PaginationComponent, 
-  RowComponent, 
-  TableDirective, 
-  TableModule, 
+import {
+  ButtonDirective,
+  CardBodyComponent,
+  CardComponent,
+  CardFooterComponent,
+  CardHeaderComponent,
+  ColComponent,
+  ContainerComponent,
+  PageItemDirective,
+  PageLinkDirective,
+  PaginationComponent,
+  RowComponent,
+  TableDirective,
+  TableModule,
   GridModule,
   InputGroupComponent,
   InputGroupTextDirective,
@@ -25,20 +25,25 @@ import {
   CardModule
 } from '@coreui/angular';
 import { IconDirective, IconModule } from '@coreui/icons-angular';
-import { FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEye, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Observable, of, single } from 'rxjs';
+import { map, Observable, of, single } from 'rxjs';
 import { Category, GetCategoriesRequest } from '../../core/models/categories';
 import { Result } from '../../core/models/result';
 import { PagedList } from '../../core/models/shared';
 import { CategoriesService } from '../../core/services/categories/categories.service';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { ModalModule } from '@coreui/angular';
-import { toSignal } from '@angular/core/rxjs-interop';
-import {MatPaginatorModule} from '@angular/material/paginator';
-import {MatIconModule} from '@angular/material/icon';
-import {MatButtonModule} from '@angular/material/button';
+import { toSignal } from '@angular/core/rxjs-interop'; 
+import { computed } from '@angular/core';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+
 
 @Component({
   selector: 'app-categories',
@@ -58,7 +63,7 @@ import { MatCardModule } from '@angular/material/card';
     ButtonDirective,
     IconDirective,
     FontAwesomeModule,
-    RouterLink, 
+    RouterLink,
     ButtonDirective,
     GridModule,
     IconModule,
@@ -75,29 +80,34 @@ import { MatCardModule } from '@angular/material/card';
     MatPaginatorModule,
     MatIconModule,
     MatButtonModule,
-    MatCardModule
+    MatCardModule,
+    MatTableModule
   ],
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.scss'
 })
 export class CategoriesComponent implements OnInit {
 
-
-  private formBuilder = inject(FormBuilder);
   private service = inject(CategoriesService);
   injector = inject(Injector);
-  
+
   private pageResult$: Observable<Result<PagedList<Category>>> = of(Result.empty<PagedList<Category>>());
-  pageResult : Signal<Result<PagedList<Category>>> = signal(Result.empty());
-  
-  private request : GetCategoriesRequest = {
+  pageResult: Signal<Result<PagedList<Category>>> = signal(Result.empty());
+
+  dataSource: Signal<MatTableDataSource<Category>> = signal(new MatTableDataSource<Category>([]));
+  displayedColumns: string[] = ['id', 'name', 'actions'];
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator
+
+
+  private request: GetCategoriesRequest = {
     pageNumber: 1,
     pageSize: 10,
     sortOrder: null,
     orderBy: null,
     name: null
   };
-  
+
   faEye = faEye;
   faEdit = faEdit;
   faTrash = faTrash;
@@ -106,24 +116,34 @@ export class CategoriesComponent implements OnInit {
   ngOnInit(): void {
     this.getAll();
   }
-  
-  
-  getAll() : void {
+
+
+  getAll(): void {
     this.pageResult$ = this.service.getAll(this.request);
     runInInjectionContext(this.injector, () => {
-      this.pageResult = toSignal(this.pageResult$, {initialValue: Result.loading<PagedList<Category>>()})
+      this.pageResult = toSignal(this.pageResult$, { initialValue: Result.loading<PagedList<Category>>() });
+
+      const dataSource$ = this.pageResult$.pipe(
+        map(result => {
+          if (result.status === 'success' && result.value?.items) {
+            return new MatTableDataSource<Category>(result.value.items);
+          }
+          return new MatTableDataSource<Category>([]);
+        })
+      );
+      this.dataSource = toSignal(dataSource$, {initialValue: new MatTableDataSource<Category>([])});
     });
   }
-  
-  onDetailsClick(categoryId : number) : void {
+
+  onDetailsClick(categoryId: number): void {
 
   }
 
-  onEditClick(categoryId : number) : void {
+  onEditClick(categoryId: number): void {
 
   }
 
-  onDeleteClick(categoryId : number) {
+  onDeleteClick(categoryId: number) {
 
   }
 

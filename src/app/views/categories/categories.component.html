@@ -1,15 +1,15 @@
 <c-row ngPreserveWhitespaces>
     <c-col xs="12">
-        
-        <c-card *ngIf="pageResult()?.status === 'loading'" class="mb-4" style="min-height: 480px;">
+        <c-card *ngIf="pageResult()?.status === 'loading'" class="mb-4">
+            <!-- loading content -->
             <c-card-header>
-               <c-container>
-                <c-row>
-                    <c-col>
-                        <h4>Loading Categories...</h4>
-                    </c-col>
-                </c-row>
-               </c-container>
+                <c-container>
+                    <c-row>
+                        <c-col>
+                            <h4>Loading Categories...</h4>
+                        </c-col>
+                    </c-row>
+                </c-container>
 
             </c-card-header>
             <c-card-body>
@@ -25,104 +25,112 @@
                     <tbody>
                         <tr *ngFor="item of [1,2,3,4,5,6,7]">
                             <td>
-                                <ngx-skeleton-loader count="1"/>
+                                <ngx-skeleton-loader count="1" />
                             </td>
                             <td>
-                                <ngx-skeleton-loader count="1"/>
+                                <ngx-skeleton-loader count="1" />
                             </td>
                             <td class="text-end">
-                                <ngx-skeleton-loader count="1"/>
+                                <ngx-skeleton-loader count="1" />
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </c-card-body>
-            
+
             <c-card-footer>
                 <c-pagination aria-label="Page navigation example" align="end" size="sm">
-                    <ngx-skeleton-loader count="1"/>
+                    <ngx-skeleton-loader count="1" />
                 </c-pagination>
             </c-card-footer>
-            
+
         </c-card>
-        
 
-        <c-card *ngIf="pageResult()?.status === 'success'" class="mb-4" style="min-height: 480px;">
-            <c-card-header>
-               <c-container>
-                <c-row>
-                    <c-col>
-                        <h4>Categories</h4>
-                    </c-col>
-                    <c-col class="text-end">
-                        
-                     <button mat-stroked-button color="accent">
-                        Next
-                        <mat-icon>filter_alt</mat-icon>
-                    </button>
 
-                        <button cButton color="primary" size="sm">
-                            <c-icon name="cilPlus" class="me-2"></c-icon>
-                            New Category
-                        </button>
-                    </c-col>
-                </c-row>
-               </c-container>
 
-            </c-card-header>
-            <c-card-body>
-                <table cTable class="m-2">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Name</th>
-                            <th scope="col" class="text-end">Actions</th>
-                        </tr>
-                    </thead>
+        <div *ngIf="pageResult()?.status === 'success'" class="min-height: 480px; width: auto; margin-left: 0; margin-right: auto;"
+            style="min-height: 480px;">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h4>Categories</h4>
+                        </div>
+                        <div class="col d-flex justify-content-end gap-2">
+                            <button mat-stroked-button color="accent" type="button">
+                                Next
+                                <mat-icon>filter_alt</mat-icon>
+                            </button>
+                            <button mat-stroked-button color="accent" type="button">
+                                New Category
+                                <mat-icon>add</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-                    <tbody>
-                        <tr *ngFor="let item of pageResult()?.value?.items;">
-                            <td>{{item.id}}</td>
-                            <td>{{item.name}}</td>
-                            <td class="text-end">
-                                <fa-icon [icon]="faEye" ></fa-icon>
-                                <fa-icon [icon]="faEdit" class="m-2"></fa-icon>
-                                <fa-icon [icon]="faTrash" class="m-2"></fa-icon>
+                <div class="card-body p-0">
+                    <table mat-table [dataSource]="dataSource()" class="table table-striped table-hover m-0">
+
+                        <!-- ID Column -->
+                        <ng-container matColumnDef="id">
+                            <th mat-header-cell *matHeaderCellDef> # </th>
+                            <td mat-cell *matCellDef="let element">{{element.id}}</td>
+                        </ng-container>
+
+                        <!-- Name Column -->
+                        <ng-container matColumnDef="name">
+                            <th mat-header-cell *matHeaderCellDef> Name </th>
+                            <td mat-cell *matCellDef="let element">{{element.name}}</td>
+                        </ng-container>
+
+                        <!-- Actions Column -->
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef class="text-end"> Actions </th>
+                            <td mat-cell *matCellDef="let element" class="text-end">
+                                <button mat-icon-button aria-label="View">
+                                    <mat-icon>visibility</mat-icon>
+                                </button>
+                                <button mat-icon-button aria-label="Edit" class="mx-2">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button mat-icon-button aria-label="Delete">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
                             </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </c-card-body>
-            
-            <c-card-footer>
-                
-                <mat-paginator 
-                    [length]="100"
-                    [pageSize]="10"
-                    [pageSizeOptions]="[5, 10, 25, 100]"
-                    aria-label="Select page">
-                </mat-paginator>
+                        </ng-container>
 
-            </c-card-footer>
-            
-        </c-card>
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    </table>
+                </div>
+
+                <div class="card-footer d-flex justify-content-end p-2">
+                    <mat-paginator [length]="100" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"
+                        aria-label="Select page">
+                    </mat-paginator>
+                </div>
+            </div>
+        </div>
+
+
 
 
         <c-card *ngIf="pageResult()?.status === 'empty'" class="mb-4" style="min-height: 480px;">
             <c-card-header>
-               <c-container>
-                <c-row>
-                    <c-col>
-                        <h4>Categories</h4>
-                    </c-col>
-                    <c-col class="text-end">
-                        <button cButton color="primary" size="sm">
-                            <c-icon name="cilPlus" class="me-2"></c-icon>
-                            New Category
-                        </button>
-                    </c-col>
-                </c-row>
-               </c-container>
+                <c-container>
+                    <c-row>
+                        <c-col>
+                            <h4>Categories</h4>
+                        </c-col>
+                        <c-col class="text-end">
+                            <button cButton color="primary" size="sm">
+                                <c-icon name="cilPlus" class="me-2"></c-icon>
+                                New Category
+                            </button>
+                        </c-col>
+                    </c-row>
+                </c-container>
 
             </c-card-header>
             <c-card-body>
@@ -144,7 +152,7 @@
                     </tbody>
                 </table>
             </c-card-body>
-            
+
         </c-card>
 
 
@@ -152,13 +160,13 @@
 
         <c-card *ngIf="pageResult()?.status === 'failure'" class="mb-4" style="min-height: 480px;">
             <c-card-header>
-               <c-container>
-                <c-row>
-                    <c-col>
-                        <h4>Categories</h4>
-                    </c-col>
-                </c-row>
-               </c-container>
+                <c-container>
+                    <c-row>
+                        <c-col>
+                            <h4>Categories</h4>
+                        </c-col>
+                    </c-row>
+                </c-container>
 
             </c-card-header>
             <c-card-body class="text-center">
