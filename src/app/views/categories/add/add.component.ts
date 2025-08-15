@@ -1,75 +1,65 @@
-import { Component, inject, Injector, OnInit, runInInjectionContext, signal, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Component, inject, Injector, OnInit, runInInjectionContext, signal, Signal, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ModalModule } from '@coreui/angular';
-import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { CategoriesService } from 'src/app/core/services/categories/categories.service';
-import { IconDirective, IconModule } from '@coreui/icons-angular';
-import { 
-  ButtonDirective, 
-  CardBodyComponent, 
-  CardComponent, 
-  CardFooterComponent, 
-  CardHeaderComponent, 
-  ColComponent, 
-  ContainerComponent, 
-  PageItemDirective, 
-  PageLinkDirective, 
-  PaginationComponent, 
-  RowComponent, 
-  TableDirective, 
-  TableModule, 
-  GridModule,
-  InputGroupComponent,
-  InputGroupTextDirective,
-  FormDirective,
-  FormControlDirective,
-  FormFeedbackComponent
-} from '@coreui/angular';
-
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule} from '@angular/material/dialog';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-categories-add',
-  imports: [
-    RowComponent,
-    ColComponent,
-    ContainerComponent,
-    TableDirective,
-    TableModule,
-    CardComponent,
-    CardHeaderComponent,
-    CardBodyComponent,
-    CardFooterComponent,
-    PaginationComponent,
-    PageItemDirective,
-    PageLinkDirective,
-    ButtonDirective,
-    RouterLink, 
-    ButtonDirective,
-    GridModule,
-    IconModule,
-    CommonModule,
-    NgxSkeletonLoaderModule,
-    ModalModule,
-    FormsModule,
-    ReactiveFormsModule,
-    InputGroupComponent,
-    InputGroupTextDirective,
-    FormDirective,
-    FormControlDirective,
-    FormFeedbackComponent
-  ],
   templateUrl: './add.component.html',
+  imports: [
+      ReactiveFormsModule,
+      MatIconModule,
+      MatButtonModule,   
+      MatDialogModule,
+      MatFormFieldModule,
+      MatInputModule
+  ],
   styleUrl: './add.component.scss'
 })
-export class AddComponent {
+export class AddComponent implements OnInit {
   
-  private formBuilder = inject(FormBuilder);
-  private service = inject(CategoriesService);
-  injector = inject(Injector);
+  parent !: FormGroup;
+  loading : boolean = false;
 
+  constructor(
+    public dialogRef : MatDialogRef<AddComponent>,
+    @Inject(MAT_DIALOG_DATA) public data : AddComponent,
+    private categoryService : CategoriesService,
+    private fb : FormBuilder
+  ) { }
+
+  ngOnInit(): void {
+    this.parent = this.fb.group({
+      name: [null, {
+        validators: [
+          Validators.required,
+          Validators.maxLength(50)
+        ]
+      }]
+    })
+  }
+
+  onSubmit() {
+    if (!this.parent.valid) {
+      return;
+    }
+
+  }
+
+  createCategory() {
+
+  }
+
+  onCancelClick() {
+  }
   
-  
+  get name() {
+    return this.parent.get('name');
+  }
 
 }

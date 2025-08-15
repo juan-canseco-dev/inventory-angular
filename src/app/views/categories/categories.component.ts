@@ -43,6 +43,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatDialog, MatDialogModule} from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import { includes } from 'lodash-es';
+import { AddComponent } from './add/add.component';
 
 
 @Component({
@@ -81,7 +86,10 @@ import { MatPaginator } from '@angular/material/paginator';
     MatIconModule,
     MatButtonModule,
     MatCardModule,
-    MatTableModule
+    MatTableModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.scss'
@@ -100,9 +108,10 @@ export class CategoriesComponent implements OnInit {
 
   filtersClicked : boolean = false;
 
-
   @ViewChild(MatPaginator) paginator!: MatPaginator
-
+  
+  
+  private dialog  = inject(MatDialog);
 
   private request: GetCategoriesRequest = {
     pageNumber: 1,
@@ -142,6 +151,13 @@ export class CategoriesComponent implements OnInit {
   onFiltersClicked() : void {
     this.filtersClicked = !this.filtersClicked;
     console.log(this.filtersClicked);
+  }
+
+  onCreateClick() : void {
+    const dialogRef = this.dialog.open(AddComponent, {
+      data: {},
+      disableClose: true
+    });
   }
 
   onDetailsClick(categoryId: number): void {
