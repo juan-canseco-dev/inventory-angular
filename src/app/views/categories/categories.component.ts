@@ -46,7 +46,6 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule} from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import { includes } from 'lodash-es';
 import { AddComponent } from './add/add.component';
 
 
@@ -101,9 +100,12 @@ export class CategoriesComponent implements OnInit {
 
   private pageResult$: Observable<Result<PagedList<Category>>> = of(Result.empty<PagedList<Category>>());
   pageResult: Signal<Result<PagedList<Category>>> = signal(Result.empty());
-
   dataSource: Signal<MatTableDataSource<Category>> = signal(new MatTableDataSource<Category>([]));
   displayedColumns: string[] = ['id', 'name', 'actions'];
+
+  private addResult$: Observable<Result<number>> = of(Result.empty<number>());
+  addResult: Signal<Result<number>> = signal(Result.empty());
+
 
 
   filtersClicked : boolean = false;
@@ -124,6 +126,12 @@ export class CategoriesComponent implements OnInit {
   faEye = faEye;
   faEdit = faEdit;
   faTrash = faTrash;
+
+
+
+  constructor () {
+    
+  }
 
 
   ngOnInit(): void {
@@ -158,6 +166,13 @@ export class CategoriesComponent implements OnInit {
       data: {},
       disableClose: true
     });
+    
+    this.addResult$ = dialogRef.afterClosed();
+    
+    runInInjectionContext(this.injector, () => {
+      this.addResult = toSignal(this.addResult$, {initialValue: Result.loading<number>()});
+    });
+
   }
 
   onDetailsClick(categoryId: number): void {
