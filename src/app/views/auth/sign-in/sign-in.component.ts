@@ -63,10 +63,17 @@ export class SignInComponent implements OnInit {
   injector = inject(Injector);
 
   private result$: Observable<Result<JwtResponse>> = of(Result.empty<JwtResponse>())
-  result : Signal<Result<JwtResponse>> = signal(Result.empty());
-
-
   
+  result : Signal<Result<JwtResponse>> = signal(Result.empty());
+  isComplete: Signal<boolean> = signal(false);
+
+  completed = computed(() => {
+    if (this.isComplete()) {
+      console.log("completed success or failure");
+    }
+    return this.isComplete();
+  });
+
   ngOnInit(): void {
     this.signInForm = this.formBuilder.group({
       email: [null, {
