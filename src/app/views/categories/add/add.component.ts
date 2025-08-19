@@ -40,6 +40,14 @@ export class AddComponent implements OnInit {
     private injector:  Injector
   ) { }
 
+  status = computed(() => {
+    const current = this.result();
+    if (current.status === 'success' || current.status === 'failure') {
+      this.dialogRef.close(current);
+    }
+    return current.status;
+  });
+
   ngOnInit(): void {
     this.parent = this.fb.group({
       name: [null, {
@@ -50,6 +58,8 @@ export class AddComponent implements OnInit {
       }]
     })
   }
+
+  
 
   onSubmit() {
     if (!this.parent.valid) {

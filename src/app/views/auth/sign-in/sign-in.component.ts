@@ -1,5 +1,4 @@
-import { Component, OnInit, inject, signal, computed, Signal, Injector, runInInjectionContext} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, OnInit, inject, Injector, runInInjectionContext} from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule, NgStyle } from '@angular/common';
 import { IconDirective } from '@coreui/icons-angular';
@@ -22,7 +21,7 @@ import {
   ToastModule
 } from '@coreui/angular';
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { Observable, of } from 'rxjs';
+import { map, Observable, of, shareReplay, startWith } from 'rxjs';
 import { Result} from '../../../core/models/result';
 import { JwtResponse, SignInRequest } from '../../../core/models/auth';
 
@@ -62,17 +61,9 @@ export class SignInComponent implements OnInit {
   private authService = inject(AuthService);
   injector = inject(Injector);
 
-  private result$: Observable<Result<JwtResponse>> = of(Result.empty<JwtResponse>())
-  
-  result : Signal<Result<JwtResponse>> = signal(Result.empty());
-  isComplete: Signal<boolean> = signal(false);
-
-  completed = computed(() => {
-    if (this.isComplete()) {
-      console.log("completed success or failure");
-    }
-    return this.isComplete();
-  });
+  private result$: Observable<Result<JwtResponse>> = of(Result.empty<JwtResponse>());
+  loading$: Observable<boolean> = of(false);
+  error$: Observable<string | null> = of(null);
 
   ngOnInit(): void {
     this.signInForm = this.formBuilder.group({
@@ -103,11 +94,21 @@ export class SignInComponent implements OnInit {
 
   onSubmit() {
     if (this.signInForm.valid) {
+
       const { email, password } = this.signInForm.value;
-      this.result$ = this.authService.signIn({email, password});
-      runInInjectionContext(this.injector, () => {
-        this.result = toSignal(this.result$, { initialValue: Result.loading<JwtResponse>() });
-      });
+
+      this.result$ = this.authService.signIn({email, password}).pipe(
+        shareReplay(1)
+      );
+
+      this.loading$ = this.result$.pipe(
+        map(r => r.status === 'loading'),
+        startWith(false)
+      );
+
+      this.error$ = this.result$.pipe(
+        map(r => r.status === 'failure' ? r.failure.message  : null)
+      );
 
     } else {
       this.signInForm.markAllAsTouched();

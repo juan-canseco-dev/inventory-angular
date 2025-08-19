@@ -1,6 +1,6 @@
 <c-row ngPreserveWhitespaces>
     <c-col xs="12">
-        <c-card *ngIf="pageResult()?.status === 'loading'" class="mb-4">
+        <c-card *ngIf="loading$ | async" class="mb-4">
             <!-- loading content -->
             <c-card-header>
                 <c-container>
@@ -48,7 +48,7 @@
 
 
 
-        <div *ngIf="pageResult()?.status === 'success'" class="min-height: 480px; width: auto; margin-left: 0; margin-right: auto;"
+        <div *ngIf="page$ | async as page" class="min-height: 480px; width: auto; margin-left: 0; margin-right: auto;"
             style="min-height: 480px;">
             <div class="card">
                 <div class="card-header">
@@ -73,13 +73,13 @@
 
 
                     @if (filtersClicked) {
-                    <div class="row align-items-center p-0" style="background-color: aquamarine; min-height: 128px;">
+                    <div class="row align-items-center p-0" style="min-height: 128px;">
                         My Custom filters here
                     </div>
 
                     }
 
-                    <table mat-table [dataSource]="dataSource()" class="table table-striped table-hover m-0">
+                    <table *ngIf="dataSource$ | async as dataSource" mat-table [dataSource]="dataSource" class="table table-striped table-hover m-0">
 
                         <!-- ID Column -->
                         <ng-container matColumnDef="id">
@@ -128,7 +128,7 @@
 
 
 
-        <c-card *ngIf="pageResult()?.status === 'empty'" class="mb-4" style="min-height: 480px;">
+        <c-card *ngIf="empty$ | async" class="mb-4" style="min-height: 480px;">
             <c-card-header>
                 <c-container>
                     <c-row>
@@ -170,7 +170,7 @@
 
 
 
-        <c-card *ngIf="pageResult()?.status === 'failure'" class="mb-4" style="min-height: 480px;">
+        <c-card *ngIf="error$ | async" class="mb-4" style="min-height: 480px;">
             <c-card-header>
                 <c-container>
                     <c-row>

@@ -26,16 +26,14 @@ import {
 } from '@coreui/angular';
 import { IconDirective, IconModule } from '@coreui/icons-angular';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faEye, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { map, Observable, of, single } from 'rxjs';
+import { faEye, faEdit, faTrash, faL } from '@fortawesome/free-solid-svg-icons';
+import { map, Observable, of, shareReplay, single } from 'rxjs';
 import { Category, GetCategoriesRequest } from '../../core/models/categories';
 import { Result } from '../../core/models/result';
 import { PagedList } from '../../core/models/shared';
 import { CategoriesService } from '../../core/services/categories/categories.service';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { ModalModule } from '@coreui/angular';
-import { toSignal } from '@angular/core/rxjs-interop'; 
-import { computed } from '@angular/core';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -98,15 +96,14 @@ export class CategoriesComponent implements OnInit {
   private service = inject(CategoriesService);
   injector = inject(Injector);
 
-  private pageResult$: Observable<Result<PagedList<Category>>> = of(Result.empty<PagedList<Category>>());
-  pageResult: Signal<Result<PagedList<Category>>> = signal(Result.empty());
-  dataSource: Signal<MatTableDataSource<Category>> = signal(new MatTableDataSource<Category>([]));
+  private result$: Observable<Result<PagedList<Category>>> = of(Result.empty<PagedList<Category> >());
+  loading$ : Observable<boolean> = of(false);
+  error$: Observable<boolean> = of(false);
+  empty$: Observable<boolean> = of(false);
+  page$: Observable<PagedList<Category> | null> = of(null);
+  dataSource$ : Observable<MatTableDataSource<Category>> = of(new MatTableDataSource<Category>([]));
+
   displayedColumns: string[] = ['id', 'name', 'actions'];
-
-  private addResult$: Observable<Result<number>> = of(Result.empty<number>());
-  addResult: Signal<Result<number>> = signal(Result.empty());
-
-
 
   filtersClicked : boolean = false;
 
@@ -140,20 +137,31 @@ export class CategoriesComponent implements OnInit {
 
 
   getAll(): void {
-    this.pageResult$ = this.service.getAll(this.request);
-    runInInjectionContext(this.injector, () => {
-      this.pageResult = toSignal(this.pageResult$, { initialValue: Result.loading<PagedList<Category>>() });
 
-      const dataSource$ = this.pageResult$.pipe(
-        map(result => {
-          if (result.status === 'success' && result.value?.items) {
-            return new MatTableDataSource<Category>(result.value.items);
-          }
-          return new MatTableDataSource<Category>([]);
-        })
-      );
-      this.dataSource = toSignal(dataSource$, {initialValue: new MatTableDataSource<Category>([])});
-    });
+    this.result$ = this.service.getAll(this.request).pipe(
+      shareReplay(1)
+    );
+
+    this.loading$ = this.result$.pipe(
+      map(result => result.status === 'loading')
+    );
+
+    this.error$ = this.result$.pipe(
+      map(result => result.status === 'failure')
+    );
+
+    this.empty$ = this.result$.pipe(
+      map(result => result.status === 'empty')
+    );
+
+    // success will always emit a PagedList<Category>
+    this.page$ = this.result$.pipe(
+      map(result => result.value as PagedList<Category>)
+    );
+    
+    this.dataSource$ = this.page$.pipe(
+      map(page => new MatTableDataSource<Category>(page?.items ?? []))
+    );
   }
 
   onFiltersClicked() : void {
@@ -166,13 +174,6 @@ export class CategoriesComponent implements OnInit {
       data: {},
       disableClose: true
     });
-    
-    this.addResult$ = dialogRef.afterClosed();
-    
-    runInInjectionContext(this.injector, () => {
-      this.addResult = toSignal(this.addResult$, {initialValue: Result.loading<number>()});
-    });
-
   }
 
   onDetailsClick(categoryId: number): void {

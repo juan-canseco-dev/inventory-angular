@@ -1,9 +1,9 @@
-<c-toaster *ngIf="result()?.status === 'failure'" class="p-3" placement="top-end">
+<c-toaster *ngIf="error$ | async as error" class="p-3" placement="top-end">
   <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
     class="align-items-center text-white border-0" color="danger">
     <div class="d-flex">
       <c-toast-body>
-        <span>{{result()?.failure?.message}}</span>
+        <span>{{ error }}</span>
       </c-toast-body>
     </div>
   </c-toast>
@@ -67,14 +67,14 @@
 
                 <c-row>
                   <c-col xs="12">
-                    <button *ngIf="result()?.status === 'loading'" cButton class="px-4" color="primary" type="submit"
+                    <button *ngIf="loading$ | async" cButton class="px-4" color="primary" type="submit"
                       [disabled]="true">
                       <c-spinner aria-hidden="true" size="sm"></c-spinner>
                       Loading...
                     </button>
 
                     <!-- Login button -->
-                    <button *ngIf="result()?.status !== 'loading'" cButton class="px-4" color="primary" type="submit"
+                    <button *ngIf="!(loading$ | async)" cButton class="px-4" color="primary" type="submit"
                       [disabled]="signInForm.invalid">
                       Login
                     </button>
