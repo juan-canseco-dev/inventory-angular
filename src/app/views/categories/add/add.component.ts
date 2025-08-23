@@ -1,4 +1,4 @@
-import { Component, inject, Injector, OnInit, runInInjectionContext, signal, Signal, Inject, OnDestroy, computed } from '@angular/core';
+import { Component, inject, Injector, OnInit, runInInjectionContext, signal, Signal, Inject, OnDestroy, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CategoriesService } from '../../../core/services/categories/categories.service';
@@ -8,9 +8,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { Result } from '../../../core/models/result';
-import { Observable, of } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map, Observable, of, shareReplay, startWith, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-categories-add',
@@ -22,14 +23,18 @@ import { toSignal } from '@angular/core/rxjs-interop';
     MatButtonModule,
     MatDialogModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    NgxSkeletonLoaderModule
   ],
   styleUrl: './add.component.scss'
 })
 export class AddComponent implements OnInit {
   
   private result$: Observable<Result<number>> = of(Result.empty<number>());
-  result: Signal<Result<number>> = signal(Result.empty());
+  empty$: Observable<Boolean> = of(true);
+  loading$: Observable<boolean> = of(false);
+  complete$: Observable<Result<number>> = of(Result.empty<number>());
+
   parent !: FormGroup;
 
   constructor(
@@ -37,16 +42,9 @@ export class AddComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: AddComponent,
     private categoryService: CategoriesService,
     private fb: FormBuilder,
-    private injector:  Injector
+    private injector:  Injector,
+    private destroyRef: DestroyRef
   ) { }
-
-  status = computed(() => {
-    const current = this.result();
-    if (current.status === 'success' || current.status === 'failure') {
-      this.dialogRef.close(current);
-    }
-    return current.status;
-  });
 
   ngOnInit(): void {
     this.parent = this.fb.group({
@@ -62,14 +60,31 @@ export class AddComponent implements OnInit {
   
 
   onSubmit() {
+    
     if (!this.parent.valid) {
       return;
     }
+    
     const { name } = this.parent.value;
-    this.result$ = this.categoryService.create({name});
-    runInInjectionContext(this.injector, () => {
-      this.result = toSignal(this.result$, {initialValue: Result.loading<number>()});
-    });
+
+    this.result$ = this.categoryService.create({name}).pipe(
+      shareReplay(1)
+    );
+
+    this.empty$ = this.result$.pipe(
+      map(r => r.status === 'empty')
+    );
+
+    this.loading$ = this.result$.pipe(
+      map(r => r.status === 'loading')
+    );
+
+    this.complete$ = this.result$.pipe(
+      filter(r => r.status === 'success' || r.status === 'failure'),
+      tap(r => this.dialogRef.close(r)),
+      takeUntilDestroyed(this.destroyRef)
+    );
+
   }
 
   onCancelClick() {

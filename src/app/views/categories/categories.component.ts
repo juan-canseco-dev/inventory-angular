@@ -103,6 +103,8 @@ export class CategoriesComponent implements OnInit {
   page$: Observable<PagedList<Category> | null> = of(null);
   dataSource$ : Observable<MatTableDataSource<Category>> = of(new MatTableDataSource<Category>([]));
 
+  addResult$ : Observable<Result<number>> = of(Result.empty<number>());
+
   displayedColumns: string[] = ['id', 'name', 'actions'];
 
   filtersClicked : boolean = false;
@@ -174,6 +176,7 @@ export class CategoriesComponent implements OnInit {
       data: {},
       disableClose: true
     });
+    
   }
 
   onDetailsClick(categoryId: number): void {
