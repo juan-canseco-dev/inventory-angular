@@ -118,7 +118,12 @@
                 </div>
 
                 <div class="card-footer d-flex justify-content-end p-2">
-                    <mat-paginator [length]="100" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"
+                    <mat-paginator 
+                        [length]="page?.totalElements || 0" 
+                        [pageIndex]="request.pageNumber! - 1"
+                        [pageSize]="request.pageSize" 
+                        [pageSizeOptions]="[5, 10, 25, 100]"
+                        (page)="onPageChange($event)"
                         aria-label="Select page">
                     </mat-paginator>
                 </div>

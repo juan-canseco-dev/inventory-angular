@@ -1,4 +1,4 @@
-import { Component, inject, Injector, OnInit, runInInjectionContext, signal, Signal, Inject, OnDestroy, computed, DestroyRef } from '@angular/core';
+import { Component, inject, Injector, OnInit, Inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CategoriesService } from '../../../core/services/categories/categories.service';
@@ -81,14 +81,14 @@ export class AddComponent implements OnInit {
 
     this.complete$ = this.result$.pipe(
       filter(r => r.status === 'success' || r.status === 'failure'),
-      tap(r => this.dialogRef.close(r)),
       takeUntilDestroyed(this.destroyRef)
     );
 
+    this.complete$.subscribe(r => this.dialogRef.close(r));
   }
 
   onCancelClick() {
-    this.dialogRef.close();
+    this.dialogRef.close(Result.empty<number>());
   }
 
   get name() {
