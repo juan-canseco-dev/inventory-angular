@@ -1,7 +1,6 @@
 class Failure {
     static None = new Failure("None");
     static NullValue = new Failure("NullValue");
-  
     constructor(public message: string) {}
   };
 

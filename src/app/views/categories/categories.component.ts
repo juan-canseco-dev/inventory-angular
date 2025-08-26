@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, Injector, OnInit, runInInjectionContext, signal, Signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, Injector, OnInit, runInInjectionContext, signal, Signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -22,11 +22,12 @@ import {
   FormDirective,
   FormControlDirective,
   FormFeedbackComponent,
+  ToastModule,
 } from '@coreui/angular';
 import { IconDirective, IconModule } from '@coreui/icons-angular';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEye, faEdit, faTrash, faL } from '@fortawesome/free-solid-svg-icons';
-import { map, Observable, of, shareReplay, single } from 'rxjs';
+import { filter, map, Observable, of, shareReplay, single } from 'rxjs';
 import { Category, GetCategoriesRequest } from '../../core/models/categories';
 import { Result } from '../../core/models/result';
 import { PagedList } from '../../core/models/shared';
@@ -45,6 +46,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { AddComponent } from './add/add.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 
 
 @Component({
@@ -63,6 +65,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     PageItemDirective,
     PageLinkDirective,
     ButtonDirective,
+    ToastModule,
     IconDirective,
     FontAwesomeModule,
     RouterLink,
@@ -86,10 +89,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatTableModule,
     MatDialogModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatSortModule
   ],
   templateUrl: './categories.component.html',
-  styleUrl: './categories.component.scss'
+  styleUrl: './categories.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CategoriesComponent implements OnInit {
 
@@ -113,7 +118,8 @@ export class CategoriesComponent implements OnInit {
 
   filtersClicked: boolean = false;
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
 
   private dialog = inject(MatDialog);
@@ -147,6 +153,11 @@ export class CategoriesComponent implements OnInit {
       this.getAll();
   }
 
+  onSortChange(sort: Sort) {
+    this.request.orderBy = sort.active;
+    this.request.sortOrder = sort.direction;
+    this.getAll();
+  }
 
   getAll(): void {
     
@@ -175,6 +186,7 @@ export class CategoriesComponent implements OnInit {
       map(page =>{
         const ds =  new MatTableDataSource<Category>(page?.items ?? []);
         ds.paginator = this.paginator;
+        ds.sort = this.sort;
         return ds;
       })
     );
@@ -196,10 +208,11 @@ export class CategoriesComponent implements OnInit {
     );
 
     this.addError$ = this.addResult$.pipe(
-      map(r => r.status === 'failure' ? r.failure.message : null)
+      map(r => r.status === 'failure' ? r.failure.message  : null)
     );
     
-    this.addSuccess$  = this.result$.pipe(
+    this.addSuccess$  = this.addResult$.pipe(
+      filter(r => r.status === 'success'),
       map(result => result.status === 'success'),
       takeUntilDestroyed(this.destroyRef)
     );

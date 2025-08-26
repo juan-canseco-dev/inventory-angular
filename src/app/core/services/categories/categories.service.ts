@@ -31,7 +31,7 @@ export class CategoriesService {
     }
 
     if (request.sortOrder != null) {
-      params = params.append("orderBy", request.sortOrder); 
+      params = params.append("sortOrder", request.sortOrder); 
     }
 
     if (request.name != null) {
@@ -50,7 +50,7 @@ export class CategoriesService {
       catchError(error => {
         return of(Result.failure<PagedList<Category>>(new Failure(error.error)));
       }),
-      delay(1000),
+      delay(0),
       startWith(Result.loading<PagedList<Category>>()),
       shareReplay(1)
     );
