@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, Injector, OnInit, runInInjectionContext, signal, Signal, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, inject, Injector, OnInit, runInInjectionContext, signal, Signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -96,7 +96,7 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
   styleUrl: './categories.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CategoriesComponent implements OnInit {
+export class CategoriesComponent implements OnInit, AfterViewInit {
 
   private service = inject(CategoriesService);
   private destroyRef = inject(DestroyRef);
@@ -127,8 +127,8 @@ export class CategoriesComponent implements OnInit {
   request: GetCategoriesRequest = {
     pageNumber: 1,
     pageSize: 10,
-    sortOrder: null,
-    orderBy: null,
+    sortOrder: "asc",
+    orderBy: "id",
     name: null
   };
 
@@ -147,6 +147,10 @@ export class CategoriesComponent implements OnInit {
     this.getAll();
   }
 
+  ngAfterViewInit(): void {
+    
+  }
+
   onPageChange(e : PageEvent) {
       this.request.pageNumber = e.pageIndex + 1;
       this.request.pageSize = e.pageSize;
@@ -155,7 +159,7 @@ export class CategoriesComponent implements OnInit {
 
   onSortChange(sort: Sort) {
     this.request.orderBy = sort.active;
-    this.request.sortOrder = sort.direction;
+    this.request.sortOrder = sort.direction || 'asc';
     this.getAll();
   }
 
@@ -218,7 +222,6 @@ export class CategoriesComponent implements OnInit {
     );
     
     this.addSuccess$.subscribe(_ => this.getAll());
-
   }
 
   onDetailsClick(categoryId: number): void {

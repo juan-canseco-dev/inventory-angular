@@ -1,3 +1,5 @@
+import { SortDirection } from "./shared";
+
 export interface CreateCategoryRequest {
     name: string;
 }
@@ -16,6 +18,6 @@ export interface GetCategoriesRequest {
     pageNumber: number | null;
     pageSize: number | null;
     orderBy: string | null; 
-    sortOrder: string | null;
+    sortOrder: SortDirection | null; 
     name: string | null;
 }

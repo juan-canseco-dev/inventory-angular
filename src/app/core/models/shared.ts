@@ -15,3 +15,5 @@ export interface PagedList<T> {
     zipCode: string;
     street: string;
   }
+
+  export type SortDirection = 'asc' | 'desc' | '';
