@@ -82,7 +82,7 @@
                         <div class="col d-flex justify-content-end gap-2">
                             <button mat-stroked-button color="accent" type="button" (click)="onFiltersClicked()">
                                 Filters
-                                <mat-icon>filter_alt</mat-icon>
+                                <mat-icon>{{ filtersClicked ? 'filter_alt_off' : 'filter_alt' }}</mat-icon>
                             </button>
                             <button mat-stroked-button color="accent" type="button" (click)="onCreateClick()">
                                 New Category
@@ -96,10 +96,18 @@
 
 
                     @if (filtersClicked) {
-                    <div class="row align-items-center p-3" style="min-height: 128px;">
-                        My Custom filters here
+                    <div class="row p-3">
+                        <div class="col-12 d-flex justify-content-end align-items-center">
+                            <mat-form-field appearance="outline" class="w-100 w-md-50">
+                                <mat-label>Search Category</mat-label>
+                                <input matInput placeholder="Enter category name" [(ngModel)]="request.name" />
+                                <button mat-icon-button matSuffix aria-label="Clear" *ngIf="request.name"
+                                    (click)="request.name=''">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </mat-form-field>
+                        </div>
                     </div>
-
                     }
 
                     <table mat-table matSort *ngIf="dataSource$ | async as dataSource" [dataSource]="dataSource"

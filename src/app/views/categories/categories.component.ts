@@ -21,7 +21,6 @@ import {
   InputGroupTextDirective,
   FormDirective,
   FormControlDirective,
-  FormFeedbackComponent,
   ToastModule,
 } from '@coreui/angular';
 import { IconDirective, IconModule } from '@coreui/icons-angular';
@@ -81,7 +80,6 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
     InputGroupTextDirective,
     FormDirective,
     FormControlDirective,
-    FormFeedbackComponent,
     MatPaginatorModule,
     MatIconModule,
     MatButtonModule,
