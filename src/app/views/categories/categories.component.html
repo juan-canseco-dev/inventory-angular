@@ -100,9 +100,9 @@
                         <div class="col-12 d-flex justify-content-end align-items-center">
                             <mat-form-field appearance="outline" class="w-100 w-md-50">
                                 <mat-label>Search Category</mat-label>
-                                <input matInput placeholder="Enter category name" [(ngModel)]="request.name" />
-                                <button mat-icon-button matSuffix aria-label="Clear" *ngIf="request.name"
-                                    (click)="request.name=''">
+                                <input matInput placeholder="Enter category name" [formControl]="searchControl" />
+                                <button mat-icon-button matSuffix aria-label="Clear" *ngIf="searchControl.value"
+                                    (click)="searchControl.setValue('')">
                                     <mat-icon>close</mat-icon>
                                 </button>
                             </mat-form-field>

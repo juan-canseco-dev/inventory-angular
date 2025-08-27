@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, inject, Injector, OnInit, runInInjectionContext, signal, Signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import {
   ButtonDirective,
   CardBodyComponent,
@@ -26,7 +26,7 @@ import {
 import { IconDirective, IconModule } from '@coreui/icons-angular';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEye, faEdit, faTrash, faL } from '@fortawesome/free-solid-svg-icons';
-import { filter, map, Observable, of, shareReplay, single } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, map, Observable, of, shareReplay, single } from 'rxjs';
 import { Category, GetCategoriesRequest } from '../../core/models/categories';
 import { Result } from '../../core/models/result';
 import { PagedList } from '../../core/models/shared';
@@ -119,6 +119,7 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
+  searchControl = new FormControl('');
 
   private dialog = inject(MatDialog);
 
@@ -143,6 +144,7 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.getAll();
+    this.setFiltering();
   }
 
   ngAfterViewInit(): void {
@@ -159,6 +161,17 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
     this.request.orderBy = sort.active;
     this.request.sortOrder = sort.direction || 'asc';
     this.getAll();
+  }
+
+  setFiltering() {
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(value => {
+      this.request.name = value || null;
+      this.request.pageNumber = 1;
+      this.getAll();
+    });
   }
 
   getAll(): void {
