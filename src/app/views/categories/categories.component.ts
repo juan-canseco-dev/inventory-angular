@@ -165,10 +165,10 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
 
   setFiltering() {
     this.searchControl.valueChanges.pipe(
-      debounceTime(300),
+      debounceTime(50),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(value => {
-      this.request.name = value || null;
+      this.request.name = value;
       this.request.pageNumber = 1;
       this.getAll();
     });
