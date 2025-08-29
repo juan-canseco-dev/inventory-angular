@@ -79,6 +79,7 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
     InputGroupComponent,
     InputGroupTextDirective,
     FormDirective,
+    TableModule,
     FormControlDirective,
     MatPaginatorModule,
     MatIconModule,

@@ -50,7 +50,7 @@ export class CategoriesService {
       catchError(error => {
         return of(Result.failure<PagedList<Category>>(new Failure(error.error)));
       }),
-      delay(0),
+      delay(2000),
       startWith(Result.loading<PagedList<Category>>()),
       shareReplay(1)
     );

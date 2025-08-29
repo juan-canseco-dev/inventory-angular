@@ -1,58 +1,58 @@
-<c-row ngPreserveWhitespaces>
+<c-row ngPreserveWhitespaces class="g-0">
 
+    <!-- Error Toast -->
     <c-toaster *ngIf="addError$ | async as error" class="p-3" placement="bottom-center">
         <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
             class="align-items-center text-white border-0" color="danger">
-            <div class="d-flex">
+            <c-row class="d-flex g-0">
                 <c-toast-body>
                     <span>{{ error }}</span>
                 </c-toast-body>
-            </div>
+            </c-row>
         </c-toast>
     </c-toaster>
 
+    <!-- Success Toast -->
     <c-toaster *ngIf="addSuccess$ | async as success" class="p-3" placement="bottom-center">
         <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
             class="align-items-center text-white border-0" color="success">
-            <div class="d-flex">
+            <c-row class="d-flex g-0">
                 <c-toast-body>
                     <span>New category created successfully</span>
                 </c-toast-body>
-            </div>
+            </c-row>
         </c-toast>
     </c-toaster>
 
     <c-col xs="12">
-
-        <div class="min-height: 480px; width: auto; margin-left: 0; margin-right: auto;" style="min-height: 480px;">
-            <div class="card">
-                <div class="card-header">
-                    <div class="row align-items-center">
-
-                        <div class="col">
+        <c-row style="min-height: 512px;" class="g-0">
+            <c-card>
+                <c-card-header>
+                    <c-row class="align-items-center g-0">
+                        <c-col>
                             <h4>Categories</h4>
-                        </div>
+                        </c-col>
 
-                    
-                        <div class="col d-flex justify-content-end gap-2">
+                        <c-col class="d-flex justify-content-end gap-2">
                             <button mat-stroked-button color="accent" type="button" (click)="onFiltersClicked()">
                                 Filters
                                 <mat-icon>{{ filtersClicked ? 'filter_alt_off' : 'filter_alt' }}</mat-icon>
                             </button>
-                            <button *ngIf="!(loading$ | async)"  mat-stroked-button color="accent" type="button" (click)="onCreateClick()">
+                            <button *ngIf="!(loading$ | async)" mat-stroked-button color="accent" type="button"
+                                (click)="onCreateClick()">
                                 New Category
                                 <mat-icon>add</mat-icon>
                             </button>
-                        </div>
-                    </div>
-                </div>
+                        </c-col>
+                    </c-row>
+                </c-card-header>
 
-                <div class="card-body p-0">
+                <c-card-body class="p-0">
 
-
+                    <!-- Filters -->
                     @if (filtersClicked) {
-                    <div class="row p-3">
-                        <div class="col-12 d-flex justify-content-end align-items-center">
+                    <c-row class="p-3 g-0">
+                        <c-col xs="12" class="d-flex justify-content-end align-items-center">
                             <mat-form-field appearance="outline" class="w-100 w-md-50">
                                 <mat-label>Search Category</mat-label>
                                 <input matInput placeholder="Enter category name" [formControl]="searchControl" />
@@ -61,10 +61,11 @@
                                     <mat-icon>close</mat-icon>
                                 </button>
                             </mat-form-field>
-                        </div>
-                    </div>
+                        </c-col>
+                    </c-row>
                     }
 
+                    <!-- Data Table -->
                     <ng-container *ngIf="page$ | async as page">
                         <table mat-table matSort *ngIf="dataSource$ | async as dataSource" [dataSource]="dataSource"
                             class="table table-striped table-hover m-0" (matSortChange)="onSortChange($event)"
@@ -73,31 +74,22 @@
                             <!-- ID Column -->
                             <ng-container matColumnDef="id">
                                 <th mat-header-cell *matHeaderCellDef mat-sort-header="id"> Id </th>
-                                <td mat-cell *matCellDef="let element">{{element.id}}</td>
+                                <td mat-cell *matCellDef="let element">{{ element.id }}</td>
                             </ng-container>
 
                             <!-- Name Column -->
                             <ng-container matColumnDef="name">
                                 <th mat-header-cell *matHeaderCellDef mat-sort-header="name"> Name </th>
-                                <td mat-cell *matCellDef="let element">{{element.name}}</td>
+                                <td mat-cell *matCellDef="let element">{{ element.name }}</td>
                             </ng-container>
 
                             <!-- Actions Column -->
                             <ng-container matColumnDef="actions">
                                 <th mat-header-cell *matHeaderCellDef class="text-end"> Actions </th>
                                 <td mat-cell *matCellDef="let element" class="text-end">
-
-
-                                    <button mat-icon-button aria-label="View" class="mx">
-                                        <mat-icon>visibility</mat-icon>
-                                    </button>
-                                    <button mat-icon-button aria-label="Edit" class="mx">
-                                        <mat-icon>edit</mat-icon>
-                                    </button>
-                                    <button mat-icon-button aria-label="Delete" class="mx-1">
-                                        <mat-icon>delete</mat-icon>
-                                    </button>
-
+                                    <button mat-icon-button aria-label="View"><mat-icon>visibility</mat-icon></button>
+                                    <button mat-icon-button aria-label="Edit"><mat-icon>edit</mat-icon></button>
+                                    <button mat-icon-button aria-label="Delete"><mat-icon>delete</mat-icon></button>
                                 </td>
                             </ng-container>
 
@@ -106,53 +98,72 @@
                         </table>
                     </ng-container>
 
+                    <!-- Skeleton Loader -->
                     <ng-container *ngIf="loading$ | async">
-                        <table cTable class="m-2">
-                            <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col" class="text-end">Actions</th>
-                                </tr>
-                            </thead>
+                        <table mat-table class="mat-elevation-z1 w-100">
 
-                            <tbody>
-                                <tr *ngFor="item of [1,2,3,4,5,6,7]">
-                                    <td>
-                                        <ngx-skeleton-loader count="1" />
-                                    </td>
-                                    <td>
-                                        <ngx-skeleton-loader count="1" />
-                                    </td>
-                                    <td class="text-end">
-                                        <ngx-skeleton-loader count="1" />
-                                    </td>
-                                </tr>
-                            </tbody>
+                            <!-- ID Column -->
+                            <ng-container matColumnDef="id">
+                                <th mat-header-cell *matHeaderCellDef> # </th>
+                                <td mat-cell *matCellDef="let item">
+                                    <ngx-skeleton-loader count="1"></ngx-skeleton-loader>
+                                </td>
+                            </ng-container>
+
+                            <!-- Name Column -->
+                            <ng-container matColumnDef="name">
+                                <th mat-header-cell *matHeaderCellDef> Name </th>
+                                <td mat-cell *matCellDef="let item">
+                                    <ngx-skeleton-loader count="1"></ngx-skeleton-loader>
+                                </td>
+                            </ng-container>
+
+                            <!-- Actions Column -->
+                            <ng-container matColumnDef="actions">
+                                <th mat-header-cell *matHeaderCellDef class="text-end"> Actions </th>
+                                <td mat-cell *matCellDef="let item" class="text-end">
+                                    <ngx-skeleton-loader count="1"></ngx-skeleton-loader>
+                                </td>
+                            </ng-container>
+
+                            <!-- Header -->
+                            <tr mat-header-row *matHeaderRowDef="['id','name','actions']"></tr>
+
+                            <!-- Skeleton Rows -->
+                            <ng-container *ngFor="let i of [1,2,3,4,5,6,7]">
+                                <tr mat-row *matRowDef="let row; columns: ['id','name','actions'];"></tr>
+                            </ng-container>
                         </table>
-
                     </ng-container>
 
+                    <!-- Error -->
+                    <ng-container *ngIf="error$ | async">
+                        <c-row class="text-center m-2 g-0">
+                            <c-col>
+                                <img cImg align="center" height="200" rounded src="../../../assets/images/error.png"
+                                    width="200" />
+                                <p cCardText>An error occurred, please try again</p>
+                                <button cButton color="primary" (click)="onRetryClick()">Retry</button>
+                            </c-col>
+                        </c-row>
+                    </ng-container>
 
+                    <!-- Empty / No Result -->
+                    <ng-container *ngIf="empty$ | async"></ng-container>
+                    <ng-container *ngIf="noResult$ | async"></ng-container>
 
+                </c-card-body>
 
-
-
-                </div>
-
-                <div class="card-footer d-flex justify-content-end p-2">
-
+                <c-card-footer class="d-flex justify-content-end p-2">
                     <ng-container *ngIf="page$ | async as page">
                         <mat-paginator [length]="page?.totalElements || 0" [pageIndex]="request.pageNumber! - 1"
                             [pageSize]="request.pageSize" [pageSizeOptions]="[5, 10, 25, 100]"
                             (page)="onPageChange($event)" showFirstLastButtons aria-label="Select page">
                         </mat-paginator>
                     </ng-container>
+                </c-card-footer>
 
-                </div>
-
-            </div>
-        </div>
-
+            </c-card>
+        </c-row>
     </c-col>
 </c-row>
