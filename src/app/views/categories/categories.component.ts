@@ -105,7 +105,10 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
   loading$: Observable<boolean> = of(false);
   error$: Observable<boolean> = of(false);
   empty$: Observable<boolean> = of(false);
+  noResult$: Observable<boolean> = of(false);
+
   page$: Observable<PagedList<Category> | null> = of(null);
+
   dataSource$: Observable<MatTableDataSource<Category>> = of(new MatTableDataSource<Category>([]));
 
   private addResult$: Observable<Result<number>> = of(Result.empty<number>());
@@ -165,10 +168,9 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
 
   setFiltering() {
     this.searchControl.valueChanges.pipe(
-      debounceTime(50),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(value => {
-      this.request.name = value;
+      this.request.name = value  ? value : null;
       this.request.pageNumber = 1;
       this.getAll();
     });
@@ -189,8 +191,13 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
     );
 
     this.empty$ = this.result$.pipe(
-      map(result => result.status === 'empty')
+      map(result => result.status === 'empty' && !this.request.name)
     );
+
+   this.noResult$ = this.result$.pipe(
+      map(result => result.status === 'empty' && !!this.searchControl.value)
+    );
+
 
     // success will always emit a PagedList<Category>
     this.page$ = this.result$.pipe(
