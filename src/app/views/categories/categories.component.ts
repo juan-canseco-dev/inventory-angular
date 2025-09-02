@@ -47,6 +47,21 @@ import { AddComponent } from './add/add.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 
+export interface LoadingElement {
+  id: number;
+  name: string;
+  actions: string;
+}
+
+const LOADING_DATA: LoadingElement[] = [
+  { id: 1, name: "Loading 1", actions: "loading" },
+  { id: 2, name: "Loading 2", actions: "loading" },
+  { id: 3, name: "Loading 3", actions: "loading" },
+  { id: 4, name: "Loading 4", actions: "loading" },
+  { id: 5, name: "Loading 5", actions: "loading" },
+  { id: 6, name: "Loading 6", actions: "loading" },
+  { id: 7, name: "Loading 7", actions: "loading" },
+];
 
 @Component({
   selector: 'app-categories',
@@ -101,6 +116,7 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
   private destroyRef = inject(DestroyRef);
   injector = inject(Injector);
   
+  loadingSource = LOADING_DATA;
 
   private result$: Observable<Result<PagedList<Category>>> = of(Result.empty<PagedList<Category>>());
   loading$: Observable<boolean> = of(false);
