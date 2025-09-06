@@ -177,7 +177,25 @@
           </ng-container>
 
           <!-- Empty / No Result -->
-          <ng-container *ngIf="empty$ | async"></ng-container>
+          <ng-container *ngIf="empty$ | async">
+            <c-row class="text-center m-2 g-0">
+              <c-col>
+
+                <img src="../../../assets/images/no-results.png" alt="No results found" class="mx-auto mb-4"
+                  width="150" />
+
+                <p class="mb-3">
+                  No records found matching your search.
+                </p>
+                <p class="text-muted mb-4">
+                  You can try searching with different keywords, or create a new one instead.
+                </p>
+                <button mat-button color="primary" (click)="onCreateClick()">
+                  ➕ Add New Record
+                </button>
+              </c-col>
+            </c-row>
+          </ng-container>
         </c-card-body>
 
         <c-card-footer class="d-flex justify-content-end p-2">
@@ -189,8 +207,15 @@
           </ng-container>
 
           <ng-container *ngIf="loading$ | async">
-            <ngx-shimmer-loading [width]="'50%'" [height]="'32px'"></ngx-shimmer-loading>
+            <div style="width: 25%;">
+              <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+            </div>
           </ng-container>
+
+          <ng-container *ngIf="empty$ | async">
+            <strong>No Matches</strong>
+          </ng-container>
+
 
         </c-card-footer>
       </c-card>

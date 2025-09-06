@@ -188,7 +188,7 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
     );
 
     this.empty$ = this.result$.pipe(
-      map(result => result.status === 'empty' && !this.request.name)
+      map(result => result.status === 'empty')
     );
 
     // success will always emit a PagedList<Category>
