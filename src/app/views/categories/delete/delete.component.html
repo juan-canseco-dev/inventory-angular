@@ -1,1 +1,40 @@
-<p>delete works!</p>
+<h2 mat-dialog-title>
+  <ng-container *ngIf="!(loading$ | async); else deletingTitle">
+    Delete Confirmation
+  </ng-container>
+</h2>
+
+<ng-template #deletingTitle>
+  Deleting Category
+</ng-template>
+
+<mat-dialog-content>
+  <ng-container *ngIf="!(loading$ | async); else loadingContent">
+    <p>Are you sure that you want to delete
+      <strong>{{ data.category.name }}</strong>?
+    </p>
+  </ng-container>
+
+  <ng-template #loadingContent>
+    <c-row class="justify-content-center align-items-center p-3">
+      <c-col class="d-flex justify-content-center">
+        <mat-spinner
+          mode="indeterminate"
+          color="primary"
+          diameter="40">
+        </mat-spinner>
+      </c-col>
+    </c-row>
+  </ng-template>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <ng-container *ngIf="!(loading$ | async); else loadingActions">
+    <button mat-button (click)="onCancelClick()">Cancel</button>
+    <button mat-raised-button color="warn" (click)="onDeleteClick()">Delete</button>
+  </ng-container>
+
+  <ng-template #loadingActions>
+    <button mat-raised-button color="primary" (click)="onCancelClick()">Cancel</button>
+  </ng-template>
+</mat-dialog-actions>

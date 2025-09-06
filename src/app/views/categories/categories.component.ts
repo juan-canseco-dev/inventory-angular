@@ -25,7 +25,6 @@ import {
 } from '@coreui/angular';
 import { IconDirective, IconModule } from '@coreui/icons-angular';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faEye, faEdit, faTrash, faL } from '@fortawesome/free-solid-svg-icons';
 import { debounceTime, distinctUntilChanged, filter, map, Observable, of, shareReplay, single } from 'rxjs';
 import { Category, GetCategoriesRequest } from '../../core/models/categories';
 import { Result } from '../../core/models/result';
@@ -44,24 +43,9 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { AddComponent } from './add/add.component';
+import { DeleteComponent } from './delete/delete.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
-
-export interface LoadingElement {
-  id: number;
-  name: string;
-  actions: string;
-}
-
-const LOADING_DATA: LoadingElement[] = [
-  { id: 1, name: "Loading 1", actions: "loading" },
-  { id: 2, name: "Loading 2", actions: "loading" },
-  { id: 3, name: "Loading 3", actions: "loading" },
-  { id: 4, name: "Loading 4", actions: "loading" },
-  { id: 5, name: "Loading 5", actions: "loading" },
-  { id: 6, name: "Loading 6", actions: "loading" },
-  { id: 7, name: "Loading 7", actions: "loading" },
-];
 
 @Component({
   selector: 'app-categories',
@@ -115,8 +99,6 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
   private service = inject(CategoriesService);
   private destroyRef = inject(DestroyRef);
   injector = inject(Injector);
-  
-  loadingSource = LOADING_DATA;
 
   private result$: Observable<Result<PagedList<Category>>> = of(Result.empty<PagedList<Category>>());
   loading$: Observable<boolean> = of(false);
@@ -131,6 +113,10 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
   private addResult$: Observable<Result<number>> = of(Result.empty<number>());
   addError$: Observable<string | null> = of(null);
   addSuccess$: Observable<boolean> = of(false);
+
+  private deleteResult$: Observable<Result<any>> = of(Result.empty<any>());
+  deleteError$: Observable<string | null> = of(null);
+  deleteSuccess$: Observable<boolean> = of(false);
 
   displayedColumns: string[] = ['id', 'name', 'actions'];
 
@@ -151,12 +137,6 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
     name: null
   };
 
-  faEye = faEye;
-  faEdit = faEdit;
-  faTrash = faTrash;
-
-
-
   constructor() {
 
   }
@@ -168,13 +148,13 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    
+
   }
 
-  onPageChange(e : PageEvent) {
-      this.request.pageNumber = e.pageIndex + 1;
-      this.request.pageSize = e.pageSize;
-      this.getAll();
+  onPageChange(e: PageEvent) {
+    this.request.pageNumber = e.pageIndex + 1;
+    this.request.pageSize = e.pageSize;
+    this.getAll();
   }
 
   onSortChange(sort: Sort) {
@@ -187,14 +167,14 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
     this.searchControl.valueChanges.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(value => {
-      this.request.name = value  ? value : null;
+      this.request.name = value ? value : null;
       this.request.pageNumber = 1;
       this.getAll();
     });
   }
 
   getAll(): void {
-    
+
     this.result$ = this.service.getAll(this.request).pipe(
       shareReplay(1)
     );
@@ -211,7 +191,7 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
       map(result => result.status === 'empty' && !this.request.name)
     );
 
-   this.noResult$ = this.result$.pipe(
+    this.noResult$ = this.result$.pipe(
       map(result => result.status === 'empty' && !!this.searchControl.value)
     );
 
@@ -222,8 +202,8 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
     );
 
     this.dataSource$ = this.page$.pipe(
-      map(page =>{
-        const ds =  new MatTableDataSource<Category>(page?.items ?? []);
+      map(page => {
+        const ds = new MatTableDataSource<Category>(page?.items ?? []);
         ds.paginator = this.paginator;
         ds.sort = this.sort;
         return ds;
@@ -247,17 +227,42 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
     );
 
     this.addError$ = this.addResult$.pipe(
-      map(r => r.status === 'failure' ? r.failure.message  : null)
+      map(r => r.status === 'failure' ? r.failure.message : null)
     );
-    
-    this.addSuccess$  = this.addResult$.pipe(
+
+    this.addSuccess$ = this.addResult$.pipe(
       filter(r => r.status === 'success'),
       map(result => result.status === 'success'),
       takeUntilDestroyed(this.destroyRef)
     );
-    
+
     this.addSuccess$.subscribe(_ => this.getAll());
   }
+
+  onDeleteClick(category: Category) {
+
+    const dialogRef = this.dialog.open(DeleteComponent, {
+      data: { category: category },
+      disableClose: true
+    });
+
+    this.deleteResult$ = dialogRef.afterClosed().pipe(
+      shareReplay(1)
+    );
+
+    this.deleteError$ = this.deleteResult$.pipe(
+      map(r => r.status === 'failure' ? r.failure.message : null)
+    );
+
+    this.deleteSuccess$ = this.deleteResult$.pipe(
+      filter(r => r.status === 'success'),
+      map(result => result.status === 'success'),
+      takeUntilDestroyed(this.destroyRef)
+    );
+
+    this.deleteSuccess$.subscribe(_ => this.getAll());
+  }
+
 
   onDetailsClick(categoryId: number): void {
 
@@ -267,9 +272,7 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
 
   }
 
-  onDeleteClick(categoryId: number) {
 
-  }
 
   onRetryClick() {
     this.getAll();
