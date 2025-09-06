@@ -102,7 +102,7 @@ export class CategoriesService {
   delete(id: number) : Observable<Result<any>> {
     return this.http.delete<any>(`${environment.baseUrl}/categories/${id}`).pipe(
       map((_: any) => {
-        return Result.empty();
+        return Result.success(true);
       }),
       catchError(error => {
         return of(Result.failure<any>(new Failure(error.error)));
