@@ -151,16 +151,16 @@
               <tbody>
                 <tr *ngFor="let item of [].constructor(10); let i = index">
                   <th scope="row">
-                    <ngx-skeleton-loader count="1" />
+                    <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
                   </th>
                   <td>
-                    <ngx-skeleton-loader count="1" />
+                    <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
                   </td>
                   <td>
-                    <ngx-skeleton-loader count="1" />
+                    <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
                   </td>
                   <td>
-                    <ngx-skeleton-loader count="1" />
+                    <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
                   </td>
                 </tr>
               </tbody>
@@ -182,7 +182,6 @@
 
           <!-- Empty / No Result -->
           <ng-container *ngIf="empty$ | async"></ng-container>
-          <ng-container *ngIf="noResult$ | async"></ng-container>
         </c-card-body>
 
         <c-card-footer class="d-flex justify-content-end p-2">
@@ -192,6 +191,11 @@
               showFirstLastButtons aria-label="Select page">
             </mat-paginator>
           </ng-container>
+
+          <ng-container *ngIf="loading$ | async">
+            <ngx-shimmer-loading [width]="'50%'" [height]="'32px'"></ngx-shimmer-loading>
+          </ng-container>
+
         </c-card-footer>
       </c-card>
     </c-row>

@@ -30,7 +30,6 @@ import { Category, GetCategoriesRequest } from '../../core/models/categories';
 import { Result } from '../../core/models/result';
 import { PagedList } from '../../core/models/shared';
 import { CategoriesService } from '../../core/services/categories/categories.service';
-import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { ModalModule } from '@coreui/angular';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
@@ -46,6 +45,8 @@ import { AddComponent } from './add/add.component';
 import { DeleteComponent } from './delete/delete.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { NgxShimmerLoadingModule } from  'ngx-shimmer-loading';
+
 
 @Component({
   selector: 'app-categories',
@@ -71,7 +72,6 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
     GridModule,
     IconModule,
     CommonModule,
-    NgxSkeletonLoaderModule,
     ModalModule,
     FormsModule,
     ReactiveFormsModule,
@@ -88,7 +88,8 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSortModule
+    MatSortModule,
+    NgxShimmerLoadingModule
   ],
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.scss',
@@ -104,7 +105,6 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
   loading$: Observable<boolean> = of(false);
   error$: Observable<boolean> = of(false);
   empty$: Observable<boolean> = of(false);
-  noResult$: Observable<boolean> = of(false);
 
   page$: Observable<PagedList<Category> | null> = of(null);
 
@@ -190,11 +190,6 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
     this.empty$ = this.result$.pipe(
       map(result => result.status === 'empty' && !this.request.name)
     );
-
-    this.noResult$ = this.result$.pipe(
-      map(result => result.status === 'empty' && !!this.searchControl.value)
-    );
-
 
     // success will always emit a PagedList<Category>
     this.page$ = this.result$.pipe(
