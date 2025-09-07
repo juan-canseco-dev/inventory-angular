@@ -45,7 +45,8 @@ import { AddComponent } from './add/add.component';
 import { DeleteComponent } from './delete/delete.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
-import { NgxShimmerLoadingModule } from  'ngx-shimmer-loading';
+import { NgxShimmerLoadingModule } from 'ngx-shimmer-loading';
+import { EditComponent } from './edit/edit.component';
 
 
 @Component({
@@ -113,6 +114,10 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
   private addResult$: Observable<Result<number>> = of(Result.empty<number>());
   addError$: Observable<string | null> = of(null);
   addSuccess$: Observable<boolean> = of(false);
+
+  private editResult$: Observable<Result<any>> = of(Result.empty<any>());
+  editError$: Observable<string | null> = of(null);
+  editSuccess$: Observable<boolean> = of(false);
 
   private deleteResult$: Observable<Result<any>> = of(Result.empty<any>());
   deleteError$: Observable<string | null> = of(null);
@@ -258,16 +263,29 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
     this.deleteSuccess$.subscribe(_ => this.getAll());
   }
 
+  onEditClick(category: Category): void {
+    
+    const dialogRef = this.dialog.open(EditComponent, {
+      data: { category: category },
+      disableClose: true
+    });
 
-  onDetailsClick(categoryId: number): void {
+    this.editResult$ = dialogRef.afterClosed().pipe(
+      shareReplay(1)
+    );
 
+    this.editError$ = this.editResult$.pipe(
+      map(r => r.status === 'failure' ? r.failure.message : null)
+    );
+
+    this.editSuccess$ = this.editResult$.pipe(
+      filter(r => r.status === 'success'),
+      map(result => result.status === 'success'),
+      takeUntilDestroyed(this.destroyRef)
+    );
+
+    this.editSuccess$.subscribe(_ => this.getAll());
   }
-
-  onEditClick(categoryId: number): void {
-
-  }
-
-
 
   onRetryClick() {
     this.getAll();

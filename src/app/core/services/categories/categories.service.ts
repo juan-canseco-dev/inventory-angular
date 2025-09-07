@@ -50,7 +50,7 @@ export class CategoriesService {
       catchError(error => {
         return of(Result.failure<PagedList<Category>>(new Failure(error.error)));
       }),
-      delay(2000),
+      delay(0),
       startWith(Result.loading<PagedList<Category>>()),
       shareReplay(1)
     );
@@ -64,7 +64,7 @@ export class CategoriesService {
       catchError(error => {
         return of(Result.failure<Category>(new Failure(error.error)));
       }),
-      delay(1000),
+      delay(0),
       startWith(Result.loading<Category>()),
       shareReplay(1)
     );
@@ -78,7 +78,7 @@ export class CategoriesService {
       catchError(error => {
         return of(Result.failure<number>(new Failure(error.error)));
       }),
-      delay(1000),
+      delay(0),
       startWith(Result.loading<number>()),
       shareReplay(1)
     );
@@ -88,7 +88,7 @@ export class CategoriesService {
   update(request: UpdateCategoryRequest) : Observable<Result<any>> {
     return this.http.put<any>(`${environment.baseUrl}/categories/${request.categoryId}`, request).pipe(
       map((_: any) => {
-        return Result.empty();
+        return Result.success(true);
       }),
       catchError(error => {
         return of(Result.failure<any>(new Failure(error.error)));
@@ -107,7 +107,7 @@ export class CategoriesService {
       catchError(error => {
         return of(Result.failure<any>(new Failure(error.error)));
       }),
-      delay(1000),
+      delay(0),
       startWith(Result.loading<any>()),
       shareReplay(1)
     );
