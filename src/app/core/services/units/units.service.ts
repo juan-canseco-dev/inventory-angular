@@ -86,7 +86,7 @@ export class UnitsService {
 
 
   update(request: UpdateUnitRequest): Observable<Result<any>> {
-    return this.http.put<any>(`${environment.baseUrl}/units/${request.unitId}`, request).pipe(
+    return this.http.put<any>(`${environment.baseUrl}/units/${request.unitOfMeasurementId}`, request).pipe(
       map((_: any) => {
         return Result.success(true);
       }),

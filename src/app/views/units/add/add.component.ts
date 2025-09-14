@@ -1,7 +1,7 @@
 import { Component, inject, Injector, OnInit, Inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CategoriesService } from '../../../core/services/categories/categories.service';
+import { UnitsService } from 'src/app/core/services/units/units.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,8 +14,7 @@ import { filter, map, Observable, of, shareReplay, startWith, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-categories-add',
-  templateUrl: './add.component.html',
+  selector: 'app-add',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -26,10 +25,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatInputModule,
     NgxSkeletonLoaderModule
   ],
+  templateUrl: './add.component.html',
   styleUrl: './add.component.scss'
 })
-export class AddComponent implements OnInit {
-  
+export class AddComponent {
   private result$: Observable<Result<number>> = of(Result.empty<number>());
   empty$: Observable<Boolean> = of(true);
   loading$: Observable<boolean> = of(false);
@@ -40,7 +39,7 @@ export class AddComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<AddComponent, Result<number>>,
     @Inject(MAT_DIALOG_DATA) public data: AddComponent,
-    private categoryService: CategoriesService,
+    private service: UnitsService,
     private fb: FormBuilder,
     private destroyRef: DestroyRef
   ) { }
@@ -56,17 +55,17 @@ export class AddComponent implements OnInit {
     })
   }
 
-  
+
 
   onSubmit() {
-    
+
     if (!this.parent.valid) {
       return;
     }
-    
+
     const { name } = this.parent.value;
 
-    this.result$ = this.categoryService.create({name}).pipe(
+    this.result$ = this.service.create({ name }).pipe(
       shareReplay(1)
     );
 
@@ -93,5 +92,4 @@ export class AddComponent implements OnInit {
   get name() {
     return this.parent.get('name');
   }
-
 }

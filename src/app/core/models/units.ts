@@ -5,7 +5,7 @@ export interface CreateUnitRequest {
 }
 
 export interface UpdateUnitRequest {
-    unitId: number;
+    unitOfMeasurementId: number;
     name: string;
 }
 

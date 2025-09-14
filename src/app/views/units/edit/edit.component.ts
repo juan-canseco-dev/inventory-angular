@@ -1,21 +1,24 @@
-import { Component, inject, Injector, OnInit, Inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, Inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CategoriesService } from '../../../core/services/categories/categories.service';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { UnitsService } from 'src/app/core/services/units/units.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { Result } from '../../../core/models/result';
-import { filter, map, Observable, of, shareReplay, startWith, tap } from 'rxjs';
+import { filter, map, min, Observable, of, shareReplay, startWith, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Unit } from 'src/app/core/models/units';
+
+export interface EditDialogData {
+  unit: Unit;
+};
 
 @Component({
-  selector: 'app-categories-add',
-  templateUrl: './add.component.html',
+  selector: 'app-edit',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -24,30 +27,30 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    NgxSkeletonLoaderModule
   ],
-  styleUrl: './add.component.scss'
+  templateUrl: './edit.component.html',
+  styleUrl: './edit.component.scss'
 })
-export class AddComponent implements OnInit {
-  
-  private result$: Observable<Result<number>> = of(Result.empty<number>());
+export class EditComponent implements OnInit {
+  private result$: Observable<Result<any>> = of(Result.empty<any>());
   empty$: Observable<Boolean> = of(true);
   loading$: Observable<boolean> = of(false);
-  complete$: Observable<Result<number>> = of(Result.empty<number>());
+  complete$: Observable<Result<any>> = of(Result.empty<any>());
 
   parent !: FormGroup;
 
   constructor(
-    public dialogRef: MatDialogRef<AddComponent, Result<number>>,
-    @Inject(MAT_DIALOG_DATA) public data: AddComponent,
-    private categoryService: CategoriesService,
+    public dialogRef: MatDialogRef<EditComponent, Result<number>>,
+    @Inject(MAT_DIALOG_DATA) public data: EditDialogData,
+    private service: UnitsService,
     private fb: FormBuilder,
     private destroyRef: DestroyRef
   ) { }
 
   ngOnInit(): void {
     this.parent = this.fb.group({
-      name: [null, {
+      id: [this.data.unit.id, {}],
+      name: [this.data.unit.name, {
         validators: [
           Validators.required,
           Validators.maxLength(50)
@@ -56,17 +59,16 @@ export class AddComponent implements OnInit {
     })
   }
 
-  
 
   onSubmit() {
-    
+
     if (!this.parent.valid) {
       return;
     }
-    
-    const { name } = this.parent.value;
 
-    this.result$ = this.categoryService.create({name}).pipe(
+    const { id, name } = this.parent.value;
+
+    this.result$ = this.service.update({unitOfMeasurementId: id, name }).pipe(
       shareReplay(1)
     );
 

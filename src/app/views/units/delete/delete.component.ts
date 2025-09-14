@@ -1,21 +1,27 @@
 import { Component, inject, Injector, OnInit, Inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CategoriesService } from '../../../core/services/categories/categories.service';
+import { UnitsService } from 'src/app/core/services/units/units.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatInputModule } from '@angular/material/input';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { Result } from '../../../core/models/result';
 import { filter, map, Observable, of, shareReplay, startWith, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ColComponent, RowComponent } from '@coreui/angular';
+import { Unit } from 'src/app/core/models/units';
+
+export interface DeleteDialogData {
+  unit: Unit
+};
 
 @Component({
-  selector: 'app-categories-add',
-  templateUrl: './add.component.html',
+  selector: 'app-delete',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -24,49 +30,33 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    NgxSkeletonLoaderModule
+    MatProgressSpinnerModule,
+    NgxSkeletonLoaderModule,
+    RowComponent,
+    ColComponent
   ],
-  styleUrl: './add.component.scss'
+  templateUrl: './delete.component.html',
+  styleUrl: './delete.component.scss'
 })
-export class AddComponent implements OnInit {
-  
-  private result$: Observable<Result<number>> = of(Result.empty<number>());
-  empty$: Observable<Boolean> = of(true);
-  loading$: Observable<boolean> = of(false);
-  complete$: Observable<Result<number>> = of(Result.empty<number>());
+export class DeleteComponent {
 
-  parent !: FormGroup;
+  private result$: Observable<Result<any>> = of(Result.empty<any>());
+  empty$: Observable<Boolean> = of(true);
+  loading$: Observable<Boolean> = of(false);
+  complete$: Observable<Result<any>> = of(Result.empty<any>());
+
+
 
   constructor(
-    public dialogRef: MatDialogRef<AddComponent, Result<number>>,
-    @Inject(MAT_DIALOG_DATA) public data: AddComponent,
-    private categoryService: CategoriesService,
-    private fb: FormBuilder,
+    public dialogRef: MatDialogRef<DeleteComponent, Result<any>>,
+    @Inject(MAT_DIALOG_DATA) public data: DeleteDialogData,
+    private service: UnitsService,
     private destroyRef: DestroyRef
   ) { }
 
-  ngOnInit(): void {
-    this.parent = this.fb.group({
-      name: [null, {
-        validators: [
-          Validators.required,
-          Validators.maxLength(50)
-        ]
-      }]
-    })
-  }
+  onDeleteClick() {
 
-  
-
-  onSubmit() {
-    
-    if (!this.parent.valid) {
-      return;
-    }
-    
-    const { name } = this.parent.value;
-
-    this.result$ = this.categoryService.create({name}).pipe(
+    this.result$ = this.service.delete(this.data.unit.id).pipe(
       shareReplay(1)
     );
 
@@ -87,11 +77,6 @@ export class AddComponent implements OnInit {
   }
 
   onCancelClick() {
-    this.dialogRef.close(Result.empty<number>());
+    this.dialogRef.close(Result.empty<any>());
   }
-
-  get name() {
-    return this.parent.get('name');
-  }
-
 }

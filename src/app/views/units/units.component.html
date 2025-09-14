@@ -1,1 +1,245 @@
-<p>units works!</p>
+<c-row ngPreserveWhitespaces class="g-0">
+  <!-- Messages for add -->
+  <c-toaster *ngIf="addError$ | async as error" class="p-3" placement="bottom-center">
+    <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
+      class="align-items-center text-white border-0" color="danger">
+      <c-row class="d-flex g-0">
+        <c-toast-body>
+          <span>{{ error }}</span>
+        </c-toast-body>
+      </c-row>
+    </c-toast>
+  </c-toaster>
+
+  <c-toaster *ngIf="addSuccess$ | async as success" class="p-3" placement="bottom-center">
+    <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
+      class="align-items-center text-white border-0" color="success">
+      <c-row class="d-flex g-0">
+        <c-toast-body>
+          <span>New units of measurement created successfully</span>
+        </c-toast-body>
+      </c-row>
+    </c-toast>
+  </c-toaster>
+
+
+  <!-- Messages For Delete -->
+
+  <c-toaster *ngIf="deleteError$ | async as error" class="p-3" placement="bottom-center">
+    <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
+      class="align-items-center text-white border-0" color="danger">
+      <c-row class="d-flex g-0">
+        <c-toast-body>
+          <span>{{ error }}</span>
+        </c-toast-body>
+      </c-row>
+    </c-toast>
+  </c-toaster>
+
+  <c-toaster *ngIf="deleteSuccess$ | async as success" class="p-3" placement="bottom-center">
+    <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
+      class="align-items-center text-white border-0" color="success">
+      <c-row class="d-flex g-0">
+        <c-toast-body>
+          <span>Unit of Measurement deleted successfully</span>
+        </c-toast-body>
+      </c-row>
+    </c-toast>
+  </c-toaster>
+
+
+  <!-- Messages For Edit -->
+
+  <c-toaster *ngIf="editError$ | async as error" class="p-3" placement="bottom-center">
+    <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
+      class="align-items-center text-white border-0" color="danger">
+      <c-row class="d-flex g-0">
+        <c-toast-body>
+          <span>{{ error }}</span>
+        </c-toast-body>
+      </c-row>
+    </c-toast>
+  </c-toaster>
+
+  <c-toaster *ngIf="editSuccess$ | async as success" class="p-3" placement="bottom-center">
+    <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
+      class="align-items-center text-white border-0" color="success">
+      <c-row class="d-flex g-0">
+        <c-toast-body>
+          <span>Unit of Measurement Edited successfully</span>
+        </c-toast-body>
+      </c-row>
+    </c-toast>
+  </c-toaster>
+
+
+  <c-col xs="12">
+    <c-row style="min-height: 512px" class="g-0">
+      <c-card>
+        <c-card-header>
+          <c-row class="align-items-center g-0">
+            <c-col>
+              <h4>Units of Measurement</h4>
+            </c-col>
+
+            <c-col class="d-flex justify-content-end gap-2">
+              <button mat-stroked-button color="accent" type="button" (click)="onFiltersClicked()">
+                Filters
+                <mat-icon>{{
+                  filtersClicked ? "filter_alt_off" : "filter_alt"
+                  }}</mat-icon>
+              </button>
+              <button *ngIf="!(loading$ | async)" mat-stroked-button color="accent" type="button"
+                (click)="onCreateClick()">
+                New Unit of Measurement
+                <mat-icon>add</mat-icon>
+              </button>
+            </c-col>
+          </c-row>
+        </c-card-header>
+
+        <c-card-body class="p-0">
+          <!-- Filters -->
+          @if (filtersClicked) {
+          <c-row class="p-3 g-0">
+            <c-col xs="12" class="d-flex justify-content-end align-items-center">
+              <mat-form-field appearance="outline" class="w-100 w-md-50">
+                <mat-label>Search Unit of Measurement</mat-label>
+                <input matInput placeholder="Enter unit name" [formControl]="searchControl" />
+                <button mat-icon-button matSuffix aria-label="Clear" *ngIf="searchControl.value"
+                  (click)="searchControl.setValue('')">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </mat-form-field>
+            </c-col>
+          </c-row>
+          }
+
+          <!-- Data Table -->
+          <ng-container *ngIf="page$ | async as page">
+            <table mat-table matSort *ngIf="dataSource$ | async as dataSource" [dataSource]="dataSource"
+              class="table table-striped table-hover m-0" (matSortChange)="onSortChange($event)"
+              [matSortActive]="request.orderBy!" [matSortDirection]="request.sortOrder!">
+              <!-- ID Column -->
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="id">
+                  Id
+                </th>
+                <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+              </ng-container>
+
+              <!-- Name Column -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="name">
+                  Name
+                </th>
+                <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+              </ng-container>
+
+              <!-- Actions Column -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="text-end">
+                  Actions
+                </th>
+                <td mat-cell *matCellDef="let element" class="text-end">
+                  <div style="display: inline-flex; gap: 4px">
+                    <button mat-icon-button aria-label="Edit" (click)="onEditClick(element)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button aria-label="Delete" (click)="onDeleteClick(element)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          </ng-container>
+
+          <!-- Skeleton Loader -->
+          <ng-container *ngIf="loading$ | async">
+            <table [striped]="true" cTable>
+              <thead>
+                <tr>
+                  <th scope="col">Id</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of [].constructor(10); let i = index">
+                  <th scope="row">
+                    <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+                  </th>
+                  <td>
+                    <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+                  </td>
+                  <td>
+                    <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </ng-container>
+
+          <!-- Error -->
+          <ng-container *ngIf="error$ | async">
+            <c-row class="text-center m-2 g-0">
+              <c-col>
+                <img cImg align="center" height="200" rounded src="../../../assets/images/error.png" width="200" />
+                <p cCardText>An error occurred, please try again</p>
+                <button cButton color="primary" (click)="onRetryClick()">
+                  Retry
+                </button>
+              </c-col>
+            </c-row>
+          </ng-container>
+
+          <!-- Empty / No Result -->
+          <ng-container *ngIf="empty$ | async">
+            <c-row class="text-center m-2 g-0">
+              <c-col>
+
+                <img src="../../../assets/images/no-results.png" alt="No results found" class="mx-auto mb-4"
+                  width="150" />
+
+                <p class="mb-3">
+                  No records found matching your search.
+                </p>
+                <p class="text-muted mb-4">
+                  You can try searching with different keywords, or create a new one instead.
+                </p>
+                <button mat-button color="primary" (click)="onCreateClick()">
+                  ➕ Add New Record
+                </button>
+              </c-col>
+            </c-row>
+          </ng-container>
+        </c-card-body>
+
+        <c-card-footer class="d-flex justify-content-end p-2">
+          <ng-container *ngIf="page$ | async as page">
+            <mat-paginator [length]="page?.totalElements || 0" [pageIndex]="request.pageNumber! - 1"
+              [pageSize]="request.pageSize" [pageSizeOptions]="[5, 10, 25, 100]" (page)="onPageChange($event)"
+              showFirstLastButtons aria-label="Select page">
+            </mat-paginator>
+          </ng-container>
+
+          <ng-container *ngIf="loading$ | async">
+            <div style="width: 25%;">
+              <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="empty$ | async">
+            <strong>No Records</strong>
+          </ng-container>
+
+
+        </c-card-footer>
+      </c-card>
+    </c-row>
+  </c-col>
+</c-row>

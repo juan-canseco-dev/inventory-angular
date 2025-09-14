@@ -1,0 +1,40 @@
+<h2 mat-dialog-title>
+  <ng-container *ngIf="!(loading$ | async); else deletingTitle">
+    Delete Confirmation
+  </ng-container>
+</h2>
+
+<ng-template #deletingTitle>
+  Deleting Unit Of Measurement
+</ng-template>
+
+<mat-dialog-content>
+  <ng-container *ngIf="!(loading$ | async); else loadingContent">
+    <p>Are you sure that you want to delete the
+      <strong>{{ data.unit.name }}</strong>?
+    </p>
+  </ng-container>
+
+  <ng-template #loadingContent>
+    <c-row class="justify-content-center align-items-center p-3">
+      <c-col class="d-flex justify-content-center">
+        <mat-spinner
+          mode="indeterminate"
+          color="primary"
+          diameter="40">
+        </mat-spinner>
+      </c-col>
+    </c-row>
+  </ng-template>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <ng-container *ngIf="!(loading$ | async); else loadingActions">
+    <button mat-button (click)="onCancelClick()">Cancel</button>
+    <button mat-button="filled" color="primary" (click)="onDeleteClick()">Delete</button>
+  </ng-container>
+
+  <ng-template #loadingActions>
+    <button mat-button color="primary" >Loading...</button>
+  </ng-template>
+</mat-dialog-actions>
