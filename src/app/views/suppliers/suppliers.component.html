@@ -1,1 +1,295 @@
-<p>suppliers works!</p>
+<c-row ngPreserveWhitespaces class="g-0">
+    <!-- Messages for add -->
+    <c-toaster *ngIf="addError$ | async as error" class="p-3" placement="bottom-center">
+        <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
+            class="align-items-center text-white border-0" color="danger">
+            <c-row class="d-flex g-0">
+                <c-toast-body>
+                    <span>{{ error }}</span>
+                </c-toast-body>
+            </c-row>
+        </c-toast>
+    </c-toaster>
+
+    <c-toaster *ngIf="addSuccess$ | async as success" class="p-3" placement="bottom-center">
+        <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
+            class="align-items-center text-white border-0" color="success">
+            <c-row class="d-flex g-0">
+                <c-toast-body>
+                    <span>New supplier created successfully</span>
+                </c-toast-body>
+            </c-row>
+        </c-toast>
+    </c-toaster>
+
+
+    <!-- Messages For Delete -->
+
+    <c-toaster *ngIf="deleteError$ | async as error" class="p-3" placement="bottom-center">
+        <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
+            class="align-items-center text-white border-0" color="danger">
+            <c-row class="d-flex g-0">
+                <c-toast-body>
+                    <span>{{ error }}</span>
+                </c-toast-body>
+            </c-row>
+        </c-toast>
+    </c-toaster>
+
+    <c-toaster *ngIf="deleteSuccess$ | async as success" class="p-3" placement="bottom-center">
+        <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
+            class="align-items-center text-white border-0" color="success">
+            <c-row class="d-flex g-0">
+                <c-toast-body>
+                    <span>Supplier deleted successfully</span>
+                </c-toast-body>
+            </c-row>
+        </c-toast>
+    </c-toaster>
+
+
+    <!-- Messages For Edit -->
+
+    <c-toaster *ngIf="editError$ | async as error" class="p-3" placement="bottom-center">
+        <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
+            class="align-items-center text-white border-0" color="danger">
+            <c-row class="d-flex g-0">
+                <c-toast-body>
+                    <span>{{ error }}</span>
+                </c-toast-body>
+            </c-row>
+        </c-toast>
+    </c-toaster>
+
+    <c-toaster *ngIf="editSuccess$ | async as success" class="p-3" placement="bottom-center">
+        <c-toast #toast="cToast" [autohide]="true" [delay]="2000" [visible]="true"
+            class="align-items-center text-white border-0" color="success">
+            <c-row class="d-flex g-0">
+                <c-toast-body>
+                    <span>Supplier Edited successfully</span>
+                </c-toast-body>
+            </c-row>
+        </c-toast>
+    </c-toaster>
+
+
+    <c-col xs="12">
+        <c-row style="min-height: 512px" class="g-0">
+            <c-card>
+                <c-card-header>
+                    <c-row class="align-items-center g-0">
+                        <c-col>
+                            <h4>Suppliers</h4>
+                        </c-col>
+
+                        <c-col class="d-flex justify-content-end gap-2">
+                            <button mat-stroked-button color="accent" type="button" (click)="onFiltersClicked()">
+                                Filters
+                                <mat-icon>{{
+                                    filtersClicked ? "filter_alt_off" : "filter_alt"
+                                    }}</mat-icon>
+                            </button>
+                            <button *ngIf="!(loading$ | async)" mat-stroked-button color="accent" type="button"
+                                (click)="onCreateClick()">
+                                New Supplier
+                                <mat-icon>add</mat-icon>
+                            </button>
+                        </c-col>
+                    </c-row>
+                </c-card-header>
+
+                <c-card-body class="p-0">
+                    <!-- Filters -->
+                    @if (filtersClicked) {
+                    <c-row class="p-2 g-0">
+
+                        <c-col xs="12" md="4" class="d-flex justify-content-end align-items-center mb-md-0 p-2">
+                            <mat-form-field appearance="outline" class="w-100 w-md-50">
+                                <mat-label>Search Company Name</mat-label>
+                                <input matInput placeholder="Enter company name" [formControl]="searchCompany" />
+                                <button mat-icon-button matSuffix aria-label="Clear" *ngIf="searchCompany.value"
+                                    (click)="searchCompany.setValue('')">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </mat-form-field>
+                        </c-col>
+
+                        <c-col xs="12" md="4" class="d-flex justify-content-end align-items-center mb-md-0 p-2">
+                            <mat-form-field appearance="outline" class="w-100 w-md-50">
+                                <mat-label>Search Contact Name</mat-label>
+                                <input matInput placeholder="Enter Contact Name" [formControl]="searchName" />
+                                <button mat-icon-button matSuffix aria-label="Clear" *ngIf="searchName.value"
+                                    (click)="searchName.setValue('')">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </mat-form-field>
+                        </c-col>
+
+                        <c-col xs="12" md="4" class="d-flex justify-content-end align-items-center mb-md-0 p-2">
+                            <mat-form-field appearance="outline" class="w-100 w-md-50">
+                                <mat-label>Search Contact Phone</mat-label>
+                                <input matInput placeholder="Enter Contact Phone" [formControl]="searchPhone" />
+                                <button mat-icon-button matSuffix aria-label="Clear" *ngIf="searchPhone.value"
+                                    (click)="searchPhone.setValue('')">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </mat-form-field>
+                        </c-col>
+
+                    </c-row>
+                    }
+
+                    <!-- Data Table -->
+                    <ng-container *ngIf="page$ | async as page">
+                        <table mat-table matSort *ngIf="dataSource$ | async as dataSource" [dataSource]="dataSource"
+                            class="table table-striped table-hover m-0" (matSortChange)="onSortChange($event)"
+                            [matSortActive]="request.orderBy!" [matSortDirection]="request.sortOrder!">
+
+                            <!-- ID Column -->
+                            <ng-container matColumnDef="id">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header="id">
+                                    Id
+                                </th>
+                                <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+                            </ng-container>
+
+                            <!-- Company Name Column -->
+                            <ng-container matColumnDef="companyName">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header="companyName">
+                                    Company Name
+                                </th>
+                                <td mat-cell *matCellDef="let element">{{ element.companyName }}</td>
+                            </ng-container>
+
+                            <!-- ContactName Column -->
+                            <ng-container matColumnDef="contactName">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header="contactName">
+                                    Contact Name
+                                </th>
+                                <td mat-cell *matCellDef="let element">{{ element.contactName }}</td>
+                            </ng-container>
+
+                            <!-- Contact Phone Column -->
+                            <ng-container matColumnDef="companyName">
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header="contactPhone">
+                                    Contact Phone
+                                </th>
+                                <td mat-cell *matCellDef="let element">{{ element.contactPhone }}</td>
+                            </ng-container>
+
+                            <!-- Actions Column -->
+                            <ng-container matColumnDef="actions">
+                                <th mat-header-cell *matHeaderCellDef class="text-end">
+                                    Actionsx
+                                </th>
+                                <td mat-cell *matCellDef="let element" class="text-end">
+                                    <div style="display: inline-flex; gap: 4px">
+                                        <button mat-icon-button aria-label="Edit" (click)="onEditClick(element)">
+                                            <mat-icon>edit</mat-icon>
+                                        </button>
+                                        <button mat-icon-button aria-label="Delete" (click)="onDeleteClick(element)">
+                                            <mat-icon>delete</mat-icon>
+                                        </button>
+                                    </div>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                        </table>
+                    </ng-container>
+
+                    <!-- Skeleton Loader -->
+                    <ng-container *ngIf="loading$ | async">
+                        <table [striped]="true" cTable>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Id</th>
+                                    <th scope="col">Company Name</th>
+                                    <th scope="col">Contact Name</th>
+                                    <th scope="col">Contact Phone</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of [].constructor(10); let i = index">
+                                    <th scope="row">
+                                        <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+                                    </th>
+                                    <td>
+                                        <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+                                    </td>
+                                    <td>
+                                        <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+                                    </td>
+                                    <td>
+                                        <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+                                    </td>
+                                    <td>
+                                        <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </ng-container>
+
+                    <!-- Error -->
+                    <ng-container *ngIf="error$ | async">
+                        <c-row class="text-center m-2 g-0">
+                            <c-col>
+                                <img cImg align="center" height="200" rounded src="../../../assets/images/error.png"
+                                    width="200" />
+                                <p cCardText>An error occurred, please try again</p>
+                                <button cButton color="primary" (click)="onRetryClick()">
+                                    Retry
+                                </button>
+                            </c-col>
+                        </c-row>
+                    </ng-container>
+
+                    <!-- Empty / No Result -->
+                    <ng-container *ngIf="empty$ | async">
+                        <c-row class="text-center m-2 g-0">
+                            <c-col>
+
+                                <img src="../../../assets/images/no-results.png" alt="No results found"
+                                    class="mx-auto mb-4" width="150" />
+
+                                <p class="mb-3">
+                                    No records found matching your search.
+                                </p>
+                                <p class="text-muted mb-4">
+                                    You can try searching with different keywords, or create a new one instead.
+                                </p>
+                                <button mat-button color="primary" (click)="onCreateClick()">
+                                    ➕ Add New Record
+                                </button>
+                            </c-col>
+                        </c-row>
+                    </ng-container>
+                </c-card-body>
+
+                <c-card-footer class="d-flex justify-content-end p-2">
+                    <ng-container *ngIf="page$ | async as page">
+                        <mat-paginator [length]="page?.totalElements || 0" [pageIndex]="request.pageNumber! - 1"
+                            [pageSize]="request.pageSize" [pageSizeOptions]="[5, 10, 25, 100]"
+                            (page)="onPageChange($event)" showFirstLastButtons aria-label="Select page">
+                        </mat-paginator>
+                    </ng-container>
+
+                    <ng-container *ngIf="loading$ | async">
+                        <div style="width: 25%;">
+                            <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="empty$ | async">
+                        <strong>No Records</strong>
+                    </ng-container>
+
+
+                </c-card-footer>
+            </c-card>
+        </c-row>
+    </c-col>
+</c-row>

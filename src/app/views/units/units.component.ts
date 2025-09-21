@@ -202,7 +202,9 @@ export class UnitsComponent implements OnInit, AfterViewInit {
 
   onFiltersClicked(): void {
     this.filtersClicked = !this.filtersClicked;
-    console.log(this.filtersClicked);
+    if (!this.filtersClicked) {
+      this.searchControl.setValue('');
+    }
   }
 
   onCreateClick(): void {
@@ -253,7 +255,7 @@ export class UnitsComponent implements OnInit, AfterViewInit {
   }
 
   onEditClick(unit: Unit): void {
-    
+
     const dialogRef = this.dialog.open(EditComponent, {
       data: { unit: unit },
       disableClose: true

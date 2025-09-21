@@ -17,11 +17,7 @@ import {
   TableDirective,
   TableModule,
   GridModule,
-  InputGroupComponent,
-  InputGroupTextDirective,
-  FormDirective,
-  FormControlDirective,
-  ToastModule,
+  ToastModule
 } from '@coreui/angular';
 import { IconDirective, IconModule } from '@coreui/icons-angular';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -30,7 +26,6 @@ import { Category, GetCategoriesRequest } from '../../core/models/categories';
 import { Result } from '../../core/models/result';
 import { PagedList } from '../../core/models/shared';
 import { CategoriesService } from '../../core/services/categories/categories.service';
-import { ModalModule } from '@coreui/angular';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -207,7 +202,9 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
 
   onFiltersClicked(): void {
     this.filtersClicked = !this.filtersClicked;
-    console.log(this.filtersClicked);
+    if (!this.filtersClicked) {
+      this.searchControl.setValue('');
+    }
   }
 
   onCreateClick(): void {
