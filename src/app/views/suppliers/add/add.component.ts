@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, inject, Injector, OnInit, runInInjectionContext, signal, Signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormControl, FormControlName } from '@angular/forms';
 import {
   ButtonDirective,
@@ -80,10 +80,12 @@ export class AddComponent implements OnInit {
   empty$: Observable<boolean> = of(true);
   loading$: Observable<boolean> = of(false);
   success$: Observable<boolean> = of(false);
+  error$: Observable<string | null> = of(null);
 
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
   private service = inject(SuppliersService);
+  private router = inject(Router);
 
   supplierForm !: FormGroup;
 
@@ -155,12 +157,16 @@ export class AddComponent implements OnInit {
       map(r => r.status === 'loading')
     );
 
+    this.error$ = this.result$.pipe(
+       map(r => r.status === 'failure' ? r.failure.message : null)
+    );
+
     this.success$ = this.result$.pipe(
       map(r => r.status === 'success'),
       takeUntilDestroyed(this.destroyRef)
     );
 
-    this.success$.subscribe(r=> console.log(r));
+    this.success$.subscribe(_ => this.router.navigateByUrl("/suppliers"));
   }
 
   get companyName() {

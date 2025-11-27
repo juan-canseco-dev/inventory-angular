@@ -1,5 +1,47 @@
 <ng-container *ngIf="!(loading$ | async)">
   <c-row ngPreserveWhitespaces class="g-0">
+    <c-toaster
+      *ngIf="error$ | async as error"
+      class="p-3"
+      placement="bottom-center"
+    >
+      <c-toast
+        #toast="cToast"
+        [autohide]="true"
+        [delay]="2000"
+        [visible]="true"
+        class="align-items-center text-white border-0"
+        color="danger"
+      >
+        <c-row class="d-flex g-0">
+          <c-toast-body>
+            <span>{{ error }}</span>
+          </c-toast-body>
+        </c-row>
+      </c-toast>
+    </c-toaster>
+
+    <c-toaster
+      *ngIf="success$ | async as success"
+      class="p-3"
+      placement="bottom-center"
+    >
+      <c-toast
+        #toast="cToast"
+        [autohide]="true"
+        [delay]="2000"
+        [visible]="true"
+        class="align-items-center text-white border-0"
+        color="success"
+      >
+        <c-row class="d-flex g-0">
+          <c-toast-body>
+            <span>New supplier created successfully</span>
+          </c-toast-body>
+        </c-row>
+      </c-toast>
+    </c-toaster>
+
     <c-col xs="12">
       <form [formGroup]="supplierForm" (ngSubmit)="onSaveClick()">
         <c-row style="min-height: 512px" class="g-0">
@@ -168,8 +210,6 @@
   </c-row>
 </ng-container>
 
-
-
 <ng-container *ngIf="loading$ | async">
   <c-row ngPreserveWhitespaces class="g-0">
     <c-col xs="12">
@@ -183,10 +223,7 @@
                 </c-col>
 
                 <c-col class="d-flex justify-content-end gap-2">
-                  <button
-                    mat-stroked-button
-                    color="accent"
-                    type="button">
+                  <button mat-stroked-button color="accent" type="button">
                     Loading....
                   </button>
                 </c-col>
