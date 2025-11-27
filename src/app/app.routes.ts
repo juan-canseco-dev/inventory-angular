@@ -23,36 +23,57 @@ export const routes: Routes = [
       },
       {
         path: 'categories',
-        loadComponent: () => import('./views/categories').then(m => m.CategoriesComponent)
+        loadComponent: () => import('./views/categories').then(m => m.CategoriesComponent),
+        data: {
+          title: 'Categories'
+        }
       },
       {
         path: 'units',
-        loadComponent: () => import('./views/units').then(m => m.UnitsComponent)
+        loadComponent: () => import('./views/units').then(m => m.UnitsComponent),
+        data: {
+          title: 'Units Of Measurement'
+        }
       },
       {
         path: 'products',
-        loadComponent: () => import('./views/products').then(m => m.ProductsComponent)
+        loadComponent: () => import('./views/products').then(m => m.ProductsComponent),
+        data: {
+          title: 'Products'
+        }
       },
       {
         path: 'suppliers',
-        loadComponent: () => import('./views/suppliers').then(m => m.SuppliersComponent)
+        loadChildren: () => import('./views/suppliers/routes').then(m => m.routes)
       },
       {
         path: 'purchases',
-        loadComponent: () => import('./views/purchases').then(m => m.PurchasesComponent)
+        loadComponent: () => import('./views/purchases').then(m => m.PurchasesComponent),
+        data: {
+          title: 'Purchases'
+        }
       },
       {
         path: 'orders',
-        loadComponent: () => import('./views/orders').then(m => m.OrdersComponent)
+        loadComponent: () => import('./views/orders').then(m => m.OrdersComponent),
+        data: {
+          title: 'Orders'
+        }
       },
       {
         path: 'users',
-        loadComponent: () => import('./views/users').then(m => m.UsersComponent)
-        
+        loadComponent: () => import('./views/users').then(m => m.UsersComponent),
+        data: {
+          title: 'Users'
+        }
+
       },
       {
-        path: 'roles',
-        loadComponent: () => import('./views/roles').then(m => m.RolesComponent)
+        path: 'Roles',
+        loadComponent: () => import('./views/roles').then(m => m.RolesComponent),
+        data: {
+          title: 'Roles'
+        }
       },
     ]
   },

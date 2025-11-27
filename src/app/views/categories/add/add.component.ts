@@ -29,7 +29,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   styleUrl: './add.component.scss'
 })
 export class AddComponent implements OnInit {
-  
+
   private result$: Observable<Result<number>> = of(Result.empty<number>());
   empty$: Observable<Boolean> = of(true);
   loading$: Observable<boolean> = of(false);
@@ -56,14 +56,14 @@ export class AddComponent implements OnInit {
     })
   }
 
-  
+
 
   onSubmit() {
-    
+
     if (!this.parent.valid) {
       return;
     }
-    
+
     const { name } = this.parent.value;
 
     this.result$ = this.categoryService.create({name}).pipe(

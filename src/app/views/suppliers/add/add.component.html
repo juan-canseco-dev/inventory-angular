@@ -1,0 +1,345 @@
+<ng-container *ngIf="!(loading$ | async)">
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-col xs="12">
+      <form [formGroup]="supplierForm" (ngSubmit)="onSaveClick()">
+        <c-row style="min-height: 512px" class="g-0">
+          <c-card>
+            <c-card-header>
+              <c-row class="aling-items-center g-0">
+                <c-col>
+                  <h4>New Supplier</h4>
+                </c-col>
+
+                <c-col class="d-flex justify-content-end gap-2">
+                  <button
+                    mat-stroked-button
+                    color="accent"
+                    type="button"
+                    (click)="onSaveClick()"
+                  >
+                    Save
+                    <mat-icon>save</mat-icon>
+                  </button>
+                </c-col>
+              </c-row>
+            </c-card-header>
+
+            <c-card-body>
+              <c-row>
+                <c-col>
+                  <h5>Supplier Details</h5>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Company Name</mat-label>
+                    <input
+                      matInput
+                      formControlName="companyName"
+                      placeholder="Company Name"
+                    />
+                    <mat-error *ngIf="companyName.hasError('required')">
+                      Company Name is <strong>Required</strong>
+                    </mat-error>
+
+                    <mat-error *ngIf="companyName.hasError('maxlength')">
+                      The length of the Company Name is too short. The minimum
+                      length must be
+                      <strong>5 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Contact Name</mat-label>
+                    <input
+                      matInput
+                      formControlName="contactName"
+                      placeholder="Contact Name"
+                    />
+                    <mat-error *ngIf="contactName.hasError('required')">
+                      Contact Name is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="contactName.hasError('maxlength')">
+                      The length of the Contact Name is too short. The minimum
+                      length must be
+                      <strong>5 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Contact Phone</mat-label>
+                    <input
+                      matInput
+                      formControlName="contactPhone"
+                      placeholder="Contact Phone"
+                    />
+                    <mat-error *ngIf="contactPhone.hasError('required')">
+                      Contact Phone is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="contactPhone.hasError('maxlength')">
+                      The length of the Contact Phone is too long. The maximum
+                      length must be
+                      <strong>20 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+                </c-col>
+
+                <c-col formGroupName="address">
+                  <h5>Address</h5>
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Country</mat-label>
+                    <input
+                      matInput
+                      formControlName="country"
+                      placeholder="Country"
+                    />
+                    <mat-error *ngIf="country.hasError('required')">
+                      Country is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="country.hasError('maxlength')">
+                      The length of the Country is too long. The maximum length
+                      must be <strong>50 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>State</mat-label>
+                    <input
+                      matInput
+                      formControlName="state"
+                      placeholder="State"
+                    />
+                    <mat-error *ngIf="state.hasError('required')">
+                      State is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="state.hasError('maxlength')">
+                      The length of the State is too long. The maximum length
+                      must be <strong>50 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>City</mat-label>
+                    <input matInput formControlName="city" placeholder="City" />
+                    <mat-error *ngIf="city.hasError('required')">
+                      City is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="city.hasError('maxlength')">
+                      The length of the City is too long. The maximum length
+                      must be <strong>50 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Zip Code</mat-label>
+                    <input
+                      matInput
+                      formControlName="zipCode"
+                      placeholder="Zip Code"
+                    />
+                    <mat-error *ngIf="zipCode.hasError('required')">
+                      Zip Code is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="zipCode.hasError('maxlength')">
+                      The length of the Zip Code is too long. The maximum length
+                      must be <strong>10 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Street</mat-label>
+                    <input
+                      matInput
+                      formControlName="street"
+                      placeholder="Street"
+                    />
+                    <mat-error *ngIf="street.hasError('required')">
+                      Street is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="zipCode.hasError('maxlength')">
+                      The length of the Steet is too long. The maximum length
+                      must be <strong>10 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+                </c-col>
+              </c-row>
+            </c-card-body>
+
+            <c-card-footer> </c-card-footer>
+          </c-card>
+        </c-row>
+      </form>
+    </c-col>
+  </c-row>
+</ng-container>
+
+
+
+<ng-container *ngIf="loading$ | async">
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-col xs="12">
+      <form [formGroup]="supplierForm">
+        <c-row style="min-height: 512px" class="g-0">
+          <c-card>
+            <c-card-header>
+              <c-row class="aling-items-center g-0">
+                <c-col>
+                  <h4>New Supplier</h4>
+                </c-col>
+
+                <c-col class="d-flex justify-content-end gap-2">
+                  <button
+                    mat-stroked-button
+                    color="accent"
+                    type="button">
+                    Loading....
+                  </button>
+                </c-col>
+              </c-row>
+            </c-card-header>
+
+            <c-card-body>
+              <c-row>
+                <c-col>
+                  <h5>Supplier Details</h5>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Company Name</mat-label>
+                    <input
+                      matInput
+                      formControlName="companyName"
+                      placeholder="Company Name"
+                      readonly
+                    />
+                    <mat-error *ngIf="companyName.hasError('required')">
+                      Company Name is <strong>Required</strong>
+                    </mat-error>
+
+                    <mat-error *ngIf="companyName.hasError('maxlength')">
+                      The length of the Company Name is too short. The minimum
+                      length must be
+                      <strong>5 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Contact Name</mat-label>
+                    <input
+                      matInput
+                      formControlName="contactName"
+                      placeholder="Contact Name"
+                      readonly
+                    />
+                    <mat-error *ngIf="contactName.hasError('required')">
+                      Contact Name is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="contactName.hasError('maxlength')">
+                      The length of the Contact Name is too short. The minimum
+                      length must be
+                      <strong>5 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Contact Phone</mat-label>
+                    <input
+                      matInput
+                      formControlName="contactPhone"
+                      placeholder="Contact Phone"
+                      readonly
+                    />
+                    <mat-error *ngIf="contactPhone.hasError('required')">
+                      Contact Phone is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="contactPhone.hasError('maxlength')">
+                      The length of the Contact Phone is too long. The maximum
+                      length must be
+                      <strong>20 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+                </c-col>
+
+                <c-col formGroupName="address">
+                  <h5>Address</h5>
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Country</mat-label>
+                    <input
+                      matInput
+                      formControlName="country"
+                      placeholder="Country"
+                      readonly
+                    />
+                    <mat-error *ngIf="country.hasError('required')">
+                      Country is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="country.hasError('maxlength')">
+                      The length of the Country is too long. The maximum length
+                      must be <strong>50 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>State</mat-label>
+                    <input
+                      matInput
+                      formControlName="state"
+                      placeholder="State"
+                      readonly
+                    />
+                    <mat-error *ngIf="state.hasError('required')">
+                      State is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="state.hasError('maxlength')">
+                      The length of the State is too long. The maximum length
+                      must be <strong>50 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>City</mat-label>
+                    <input matInput formControlName="city" placeholder="City" />
+                    <mat-error *ngIf="city.hasError('required')">
+                      City is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="city.hasError('maxlength')">
+                      The length of the City is too long. The maximum length
+                      must be <strong>50 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Zip Code</mat-label>
+                    <input
+                      matInput
+                      formControlName="zipCode"
+                      placeholder="Zip Code"
+                      readonly
+                    />
+                    <mat-error *ngIf="zipCode.hasError('required')">
+                      Zip Code is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="zipCode.hasError('maxlength')">
+                      The length of the Zip Code is too long. The maximum length
+                      must be <strong>10 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Street</mat-label>
+                    <input
+                      matInput
+                      formControlName="street"
+                      placeholder="Street"
+                      readonly
+                    />
+                    <mat-error *ngIf="street.hasError('required')">
+                      Street is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="zipCode.hasError('maxlength')">
+                      The length of the Steet is too long. The maximum length
+                      must be <strong>10 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+                </c-col>
+              </c-row>
+            </c-card-body>
+
+            <c-card-footer> </c-card-footer>
+          </c-card>
+        </c-row>
+      </form>
+    </c-col>
+  </c-row>
+</ng-container>

@@ -84,7 +84,7 @@ export class SuppliersService {
       catchError(error => {
         return of(Result.failure<number>(new Failure(error.error)));
       }),
-      delay(0),
+      delay(1500),
       startWith(Result.loading<number>()),
       shareReplay(1)
     );

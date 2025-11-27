@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, inject, Injector, OnInit, runInInjectionContext, signal, Signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import {
   ButtonDirective,
@@ -84,6 +84,7 @@ import { NgxShimmerLoadingModule } from 'ngx-shimmer-loading';
 export class SuppliersComponent implements OnInit, AfterViewInit {
 
   private service = inject(SuppliersService);
+  private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   injector = inject(Injector);
   private result$: Observable<Result<PagedList<Supplier>>> = of(Result.empty<PagedList<Supplier>>());
@@ -217,34 +218,11 @@ export class SuppliersComponent implements OnInit, AfterViewInit {
   }
 
   onCreateClick(): void {
-    /*
-    const dialogRef = this.dialog.open(AddComponent, {
-      data: {},
-      disableClose: true
-    });
-
-    this.addResult$ = dialogRef.afterClosed().pipe(
-      shareReplay(1)
-    );
-
-    this.addError$ = this.addResult$.pipe(
-      map(r => r.status === 'failure' ? r.failure.message : null)
-    );
-
-    this.addSuccess$ = this.addResult$.pipe(
-      filter(r => r.status === 'success'),
-      map(result => result.status === 'success'),
-      takeUntilDestroyed(this.destroyRef)
-    );
-
-    this.addSuccess$.subscribe(_ => this.getAll());
-    */
+    this.router.navigateByUrl("/suppliers/create");
   }
 
   onDeleteClick(supplier: Supplier) {
-
     /*
-
     const dialogRef = this.dialog.open(DeleteComponent, {
       data: { supplier: supplier },
       disableClose: true
