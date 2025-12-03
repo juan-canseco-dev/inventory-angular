@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, inject, Injector, OnInit, runInInjectionContext, signal, Signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import {
   ButtonDirective,
@@ -21,7 +21,7 @@ import {
 } from '@coreui/angular';
 import { IconDirective, IconModule } from '@coreui/icons-angular';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { debounceTime, distinctUntilChanged, filter, map, Observable, of, shareReplay, single } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, map, Observable, of, shareReplay, single, tap } from 'rxjs';
 import { Supplier, GetSuppliersRequest } from 'src/app/core/models/supplier';
 import { Result } from '../../core/models/result';
 import { PagedList } from '../../core/models/shared';
@@ -39,6 +39,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { NgxShimmerLoadingModule } from 'ngx-shimmer-loading';
+import { add } from 'lodash-es';
+
 
 @Component({
   selector: 'app-suppliers',
@@ -86,6 +88,7 @@ export class SuppliersComponent implements OnInit, AfterViewInit {
   private service = inject(SuppliersService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private route = inject(ActivatedRoute);
   injector = inject(Injector);
   private result$: Observable<Result<PagedList<Supplier>>> = of(Result.empty<PagedList<Supplier>>());
   loading$: Observable<boolean> = of(false);
@@ -95,10 +98,7 @@ export class SuppliersComponent implements OnInit, AfterViewInit {
   page$: Observable<PagedList<Supplier> | null> = of(null);
 
   dataSource$: Observable<MatTableDataSource<Supplier>> = of(new MatTableDataSource<Supplier>([]));
-
-  private addResult$: Observable<Result<number>> = of(Result.empty<number>());
-  addError$: Observable<string | null> = of(null);
-  addSuccess$: Observable<boolean> = of(false);
+  addSuccess : boolean = false;
 
   private editResult$: Observable<Result<any>> = of(Result.empty<any>());
   editError$: Observable<string | null> = of(null);
@@ -146,6 +146,12 @@ export class SuppliersComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.getAll();
     this.setFiltering();
+    this.route.queryParamMap.subscribe(params => {
+      let added = params.get('added');
+      if (added !== null) {
+        this.addSuccess = (added === "true");
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -213,7 +219,7 @@ export class SuppliersComponent implements OnInit, AfterViewInit {
   onFiltersClicked(): void {
     this.filtersClicked = !this.filtersClicked;
     if (!this.filtersClicked) {
-      this.searchForm.patchValue({name: '', company: '', phone: ''});
+      this.searchForm.patchValue({ name: '', company: '', phone: '' });
     }
   }
 

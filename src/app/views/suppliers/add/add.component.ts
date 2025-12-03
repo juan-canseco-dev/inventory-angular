@@ -33,6 +33,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { NgxShimmerLoadingModule } from 'ngx-shimmer-loading';
 import { SuppliersService } from '../../../core/services/suppliers';
+import { result } from 'lodash-es';
 
 @Component({
   selector: 'app-add',
@@ -79,14 +80,13 @@ export class AddComponent implements OnInit {
 
   empty$: Observable<boolean> = of(true);
   loading$: Observable<boolean> = of(false);
-  success$: Observable<boolean> = of(false);
+  success$: Observable<number> = of(0);
   error$: Observable<string | null> = of(null);
 
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
   private service = inject(SuppliersService);
   private router = inject(Router);
-
   supplierForm !: FormGroup;
 
   ngOnInit(): void {
@@ -162,13 +162,18 @@ export class AddComponent implements OnInit {
     );
 
     this.success$ = this.result$.pipe(
-      map(r => r.status === 'success'),
+      filter(r => r.status === 'success'),
+      map(r => r.value),
       takeUntilDestroyed(this.destroyRef)
     );
 
-    this.success$.subscribe(_ => this.router.navigateByUrl("/suppliers"));
+    this.success$.subscribe(_ => {
+      this.router.navigate(['/suppliers'], {
+        queryParams: {added: true}
+      });
+    });
   }
-
+  
   get companyName() {
     return this.supplierForm.get('companyName') as FormControl;
   }
