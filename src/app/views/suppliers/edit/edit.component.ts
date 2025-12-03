@@ -1,6 +1,7 @@
+import { result } from 'lodash-es';
 import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, inject, Injector, OnInit, runInInjectionContext, signal, Signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormControl, FormControlName } from '@angular/forms';
 import {
   ButtonDirective,
@@ -21,7 +22,7 @@ import {
 } from '@coreui/angular';
 import { IconDirective, IconModule } from '@coreui/icons-angular';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { debounceTime, distinctUntilChanged, filter, map, Observable, of, retryWhen, shareReplay, single } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, map, Observable, of, retryWhen, shareReplay, single, switchMap } from 'rxjs';
 import { Result } from '../../../core/models/result';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
@@ -33,9 +34,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { NgxShimmerLoadingModule } from 'ngx-shimmer-loading';
 import { SuppliersService } from '../../../core/services/suppliers';
+import { Supplier } from 'src/app/core/models/supplier';
+import { faL } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'app-add',
+  selector: 'app-edit',
   imports: [
     RowComponent,
     ColComponent,
@@ -60,27 +63,35 @@ import { SuppliersService } from '../../../core/services/suppliers';
     MatSortModule,
     NgxShimmerLoadingModule
   ],
-  templateUrl: './add.component.html',
-  styleUrl: './add.component.scss',
+  templateUrl: './edit.component.html',
+  styleUrl: './edit.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AddComponent implements OnInit {
-
-  private result$: Observable<Result<number>> = of(Result.empty<number>());
-
-  empty$: Observable<boolean> = of(true);
-  loading$: Observable<boolean> = of(false);
-  success$: Observable<number> = of(0);
-  error$: Observable<string | null> = of(null);
+export class EditComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
   private service = inject(SuppliersService);
   private router = inject(Router);
-  supplierForm !: FormGroup;
+  private route = inject(ActivatedRoute);
+
+  private supplierForm !: FormGroup;
+  private editResult$: Observable<Result<any>> = of(Result.empty<any>());
+  private fetchResult$: Observable<Result<Supplier>> = of(Result.empty<Supplier>());
+
+  idle$: Observable<boolean> = of(true);
+  fetching$: Observable<boolean> = of(false);
+  supplier$: Observable<Supplier | null> = of(null);
+  fetchError$: Observable<string | null> = of(null);
+  editing$: Observable<boolean> = of(false);
+  edited$: Observable<boolean> = of(false);
+  editError$: Observable<string | null> = of(null);
 
   ngOnInit(): void {
     this.supplierForm = this.fb.group({
+      id: [null, [
+        Validators.required
+      ]],
       companyName: [null,
         [Validators.required,
         Validators.maxLength(50)]
@@ -131,72 +142,23 @@ export class AddComponent implements OnInit {
   }
 
 
-  onSaveClick() {
 
-    if (!this.supplierForm.valid) return;
+  getSupplier() : void {
 
-    this.result$ = this.service.create(this.supplierForm.value).pipe(
+    this.getResult$ = this.route.queryParamMap.pipe(
+      map(params => params.get('supplierId') !== null? +!params.get('supplierId') : 0),
+      switchMap(id => this.service.getById(id)),
       shareReplay(1)
     );
 
-    this.empty$ = this.result$.pipe(
-      map(r => r.status === 'empty')
-    );
-
-    this.loading$ = this.result$.pipe(
+    this.fetching$ = this.getResult$.pipe(
       map(r => r.status === 'loading')
     );
 
-    this.error$ = this.result$.pipe(
-       map(r => r.status === 'failure' ? r.failure.message : null)
-    );
-
-    this.success$ = this.result$.pipe(
-      filter(r => r.status === 'success'),
-      map(r => r.value),
-      takeUntilDestroyed(this.destroyRef)
-    );
-
-    this.success$.subscribe(_ => {
-      this.router.navigate(['/suppliers'], {
-        queryParams: {added: true}
-      });
-    });
   }
 
-  get companyName() {
-    return this.supplierForm.get('companyName') as FormControl;
+  onEditClick() : void {
+
   }
 
-  get contactName() {
-    return this.supplierForm.get('contactName') as FormControl;
-  }
-
-  get contactPhone() {
-    return this.supplierForm.get('contactPhone') as FormControl;
-  }
-
-  get address() {
-    return this.supplierForm.get('address') as FormGroup;
-  }
-
-  get country() {
-    return this.address.get('country') as FormControl;
-  }
-
-  get state() {
-    return this.address.get('state') as FormControl;
-  }
-
-  get city() {
-    return this.address.get('city') as FormControl;
-  }
-
-  get zipCode() {
-    return this.address.get('zipCode') as FormControl;
-  }
-
-  get street() {
-    return this.address.get('street') as FormControl;
-  }
 }
