@@ -1,4 +1,3 @@
-import { result } from 'lodash-es';
 import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, inject, Injector, OnInit, runInInjectionContext, signal, Signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -171,12 +170,25 @@ export class EditComponent implements OnInit {
     );
 
     this.supplier$.subscribe(supplier => {
-
+      this.supplierForm.patchValue({
+        id: supplier.id,
+        companyName: supplier.companyName,
+        contactName: supplier.contactName,
+        contactPhone: supplier.contactPhone,
+        address: {
+          country: supplier.address.country,
+          state: supplier.address.state,
+          city: supplier.address.city,
+          zipCode: supplier.address.zipCode, 
+          street: supplier.address.street
+        }
+      });
     });
   } 
 
   onEditClick() : void {
-
+    this.idle$ = of(false);
+    
   }
 
 }
