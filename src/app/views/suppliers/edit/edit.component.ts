@@ -79,7 +79,7 @@ export class EditComponent implements OnInit {
   private editResult$: Observable<Result<any>> = of(Result.empty<any>());
   private fetchResult$: Observable<Result<Supplier>> = of(Result.empty<Supplier>());
 
-  idle$: Observable<boolean> = of(true);
+  idle$: Observable<boolean> = of(false);
   fetching$: Observable<boolean> = of(false);
   supplier$: Observable<Supplier | null> = of(null);
   fetchError$: Observable<string | null> = of(null);
@@ -145,17 +145,35 @@ export class EditComponent implements OnInit {
 
   getSupplier() : void {
 
-    this.getResult$ = this.route.queryParamMap.pipe(
+    this.fetchResult$ = this.route.queryParamMap.pipe(
       map(params => params.get('supplierId') !== null? +!params.get('supplierId') : 0),
       switchMap(id => this.service.getById(id)),
       shareReplay(1)
     );
 
-    this.fetching$ = this.getResult$.pipe(
+    this.fetching$ = this.fetchResult$.pipe(
       map(r => r.status === 'loading')
     );
 
-  }
+    this.fetchError$ = this.fetchResult$.pipe(
+      map(r => r.status === 'failure' ? r.failure.message : null)
+    );
+
+    this.supplier$ = this.fetchResult$.pipe(
+      filter(r => r.status === 'success'),
+      map(r => r.value),
+      takeUntilDestroyed(this.destroyRef)
+    );
+
+    this.idle$ = this.fetchResult$.pipe(
+      filter(r => r.status === 'success'),
+      map(_ => true)
+    );
+
+    this.supplier$.subscribe(supplier => {
+
+    });
+  } 
 
   onEditClick() : void {
 
