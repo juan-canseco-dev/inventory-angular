@@ -63,10 +63,7 @@ export const routes: Routes = [
       },
       {
         path: 'orders',
-        loadComponent: () => import('./features/orders').then(m => m.OrdersComponent),
-        data: {
-          title: 'Orders'
-        }
+        loadChildren: () => import('./features/orders/routes').then(m => m.routes)
       },
       {
         path: 'users',
