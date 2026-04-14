@@ -59,10 +59,7 @@ export const routes: Routes = [
       },
       {
         path: 'purchases',
-        loadComponent: () => import('./features/purchases').then(m => m.PurchasesComponent),
-        data: {
-          title: 'Purchases'
-        }
+        loadChildren: () => import('./features/purchases/routes').then(m => m.routes)
       },
       {
         path: 'orders',
