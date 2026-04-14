@@ -44,10 +44,7 @@ export const routes: Routes = [
       },
       {
         path: 'products',
-        loadComponent: () => import('./features/products').then(m => m.ProductsComponent),
-        data: {
-          title: 'Products'
-        }
+        loadChildren: () => import('./features/products/routes').then(m => m.routes)
       },
       {
         path: 'suppliers',
