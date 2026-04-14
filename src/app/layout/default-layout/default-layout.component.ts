@@ -1,7 +1,9 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { selectAuthPermissions, selectAuthUser, AuthActions  } from '../../core/auth/store';
+import { AuthService } from '../../core/auth/service';
+import { Store } from '@ngrx/store';
+import { Component, inject, input, signal, effect } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NgScrollbar } from 'ngx-scrollbar';
-import { AuthService } from '../../core/services/auth';
 import { IconDirective } from '@coreui/icons-angular';
 import {
   ButtonCloseDirective,
@@ -22,13 +24,8 @@ import {
   SidebarToggleDirective,
   SidebarTogglerDirective
 } from '@coreui/angular';
-
-import { Permissions } from '../../core/models/permissions';
-
 import { DefaultFooterComponent, DefaultHeaderComponent } from './';
-import { INavDataWithPermissions, navItems } from './_nav';
-import { UserDetails } from '../../core/models/auth';
-import { NgStyle } from '@angular/common';
+import { INavDataWithPermissions, defaultNavItems } from './_nav';
 
 function isOverflown(element: HTMLElement) {
   return (
@@ -68,36 +65,25 @@ function isOverflown(element: HTMLElement) {
 })
 export class DefaultLayoutComponent {
 
+  public navItems : INavDataWithPermissions[] = defaultNavItems;
 
-  private permissions : string[] =  [
-    Permissions.Dashboard_View,
-    Permissions.Categories_View,
-    Permissions.Products_View,
-    Permissions.Suppliers_View,
-    Permissions.Units_View,
-    Permissions.Customers_View,
-    Permissions.Orders_View,
-    Permissions.Purchases_View,
-    Permissions.Users_View,
-    Permissions.Roles_View
-  ];
+  showSignOutModal = false;
 
-  public navItems : INavDataWithPermissions[] = navItems;
-
-  showLogOutModal = false;
-  
   authService = inject(AuthService);
+  private store = inject(Store);
 
-  userDetails !: UserDetails;
+  readonly user = this.store.selectSignal(selectAuthUser);
+  readonly userPermissions = this.store.selectSignal(selectAuthPermissions);
 
   constructor() {
-    this.userDetails = this.authService.getUser();
-    this.permissions = this.permissions.filter(p => this.userDetails.permissions.includes(p));
-    this.navItems = this.navItems.filter(item => {
-      if (!item.permission) return true;
-      return this.permissions.includes(item.permission);
-    });
+      effect(() => {
+      const permissions = this.userPermissions();
 
+      this.navItems = defaultNavItems.filter(item => {
+        if (!item.permission) return true;
+        return permissions.includes(item.permission);
+      });
+    });
   }
 
   onScrollbarUpdate($event: any) {
@@ -106,16 +92,16 @@ export class DefaultLayoutComponent {
     // }
   }
 
-  onLogOut(event : any) {
-    this.showLogOutModal = true;
+  onSignOutClick(event : any) {
+    this.showSignOutModal = true;
   }
 
-  onLogOutCancel() {
-    this.showLogOutModal = false;
+  onSignOutCancelClick() {
+    this.showSignOutModal = false;
   }
 
-  onLogOutConfirm() {
-    this.showLogOutModal = true;
-    this.authService.logOut();
+  onSignOutConfirmed() {
+    this.showSignOutModal = true;
+    this.store.dispatch(AuthActions.signOut());
   }
 }

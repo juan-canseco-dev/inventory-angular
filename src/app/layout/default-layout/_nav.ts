@@ -1,40 +1,40 @@
 import { INavData } from '@coreui/angular';
-import { Permissions } from '../../core/models/permissions';
+import { PermissionCatalog } from '../../core/permissions';
 
 
 export interface INavDataWithPermissions extends INavData {
   permission?: string;
 }
 
-export const navItems: INavDataWithPermissions[] = [
+export const defaultNavItems: INavDataWithPermissions[] = [
   {
     name: 'Dashboard',
     url: '/dashboard',
     iconComponent: { name: 'cil-speedometer' },
-    permission: Permissions.Dashboard_View
+    permission: PermissionCatalog.Dashboard_View
   },
   {
     title: true,
     name: 'Catalog',
- 
+
   },
   {
     name: 'Category',
     url: '/categories',
     iconComponent: { name: 'cilTags' },
-    permission: Permissions.Categories_View
+    permission: PermissionCatalog.Categories_View
   },
   {
     name: 'Units Of Measurement',
     url: '/units',
     iconComponent: { name: 'cilList' },
-    permission: Permissions.Units_View
+    permission: PermissionCatalog.Units_View
   },
   {
     name: 'Products',
     url: '/products',
     iconComponent: { name: 'cil-clipboard' },
-    permission: Permissions.Products_View
+    permission: PermissionCatalog.Products_View
   },
   {
     name: 'Inventory',
@@ -44,19 +44,25 @@ export const navItems: INavDataWithPermissions[] = [
     name: 'Suppliers',
     url: '/suppliers',
     iconComponent: { name: 'cilTruck' },
-    permission: Permissions.Suppliers_View
+    permission: PermissionCatalog.Suppliers_View
+  },
+  {
+    name: 'Customers',
+    url: '/customers',
+    iconComponent: {name: 'cilUserFollow' },
+    permission: PermissionCatalog.Customers_View
   },
   {
     name: 'Purchases',
     url: '/purchases',
     iconComponent: { name: 'cilBasket' },
-    permission: Permissions.Purchases_View
+    permission: PermissionCatalog.Purchases_View
   },
   {
     name: 'Orders',
     url: '/orders',
     iconComponent: { name: 'cilCart' },
-    permission: Permissions.Orders_View 
+    permission: PermissionCatalog.Orders_View
   },
   {
     name: 'Users & Roles',
@@ -66,12 +72,12 @@ export const navItems: INavDataWithPermissions[] = [
     name: 'Users',
     url: '/users',
     iconComponent: { name: 'cilUserPlus' },
-    permission: Permissions.Users_View
+    permission: PermissionCatalog.Users_View
   },
   {
     name: 'Roles',
     url: '/roles',
     iconComponent: { name: 'cilPeople' },
-    permission: Permissions.Roles_View
+    permission: PermissionCatalog.Roles_View
   }
 ];

@@ -1,0 +1,154 @@
+<ng-container *ngIf="!detailsLoading() && !permissionGroupsLoading() && !updateLoading() && !detailsError() && !permissionGroupsError(); else loadingOrErrorTpl">
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-toaster *ngIf="updateError() as error" class="p-3" placement="bottom-center">
+      <c-toast
+        [autohide]="true"
+        [delay]="2000"
+        [visible]="true"
+        class="align-items-center text-white border-0"
+        color="danger">
+        <c-row class="d-flex g-0">
+          <c-toast-body>
+            <span>{{ error.message }}</span>
+          </c-toast-body>
+        </c-row>
+      </c-toast>
+    </c-toaster>
+
+    <c-col xs="12">
+      <form [formGroup]="roleForm" (ngSubmit)="onSaveClick()">
+        <c-row style="min-height: 512px" class="g-0">
+          <c-card>
+            <c-card-header>
+              <c-row class="aling-items-center g-0">
+                <c-col>
+                  <h4>Edit Role</h4>
+                </c-col>
+
+                <c-col class="d-flex justify-content-end gap-2">
+                  <button mat-stroked-button color="accent" type="button" (click)="onSaveClick()">
+                    Save
+                    <mat-icon>save</mat-icon>
+                  </button>
+                </c-col>
+              </c-row>
+            </c-card-header>
+
+            <c-card-body>
+              <c-row>
+                <c-col xs="12">
+                  <h5>Role Details</h5>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Name</mat-label>
+                    <input matInput formControlName="name" placeholder="Role Name" />
+                    <mat-error *ngIf="name.hasError('required')">
+                      Name is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="name.hasError('maxlength')">
+                      The length of the Name is too long. The maximum length must be
+                      <strong>50 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+                </c-col>
+              </c-row>
+
+              <c-row>
+                <c-col xs="12">
+                  <h5>Permissions</h5>
+
+                  <div
+                    *ngIf="permissions.touched && permissions.hasError('atLeastOnePermissionSelected')"
+                    class="text-danger mb-3">
+                    At least one permission group must be selected.
+                  </div>
+                </c-col>
+
+                <c-col xs="12" md="6" class="mb-4" *ngFor="let group of permissionGroups()">
+                  <mat-card class="mb-3 h-100 permission-group-card">
+                    <mat-card-header>
+                      <mat-card-title>{{ group.name }}</mat-card-title>
+                    </mat-card-header>
+
+                    <mat-card-content>
+                      <div class="d-flex flex-column gap-2 py-2">
+                        <mat-checkbox
+                          *ngFor="let action of group.actions"
+                          [checked]="isPermissionSelected(action)"
+                          [disabled]="isPermissionDisabled(action)"
+                          (change)="onPermissionChange(action, $event.checked)">
+                          {{ action.description }}
+                          <span *ngIf="action.required" class="text-muted">(Required)</span>
+                        </mat-checkbox>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                </c-col>
+              </c-row>
+            </c-card-body>
+
+            <c-card-footer></c-card-footer>
+          </c-card>
+        </c-row>
+      </form>
+    </c-col>
+  </c-row>
+</ng-container>
+
+<ng-template #loadingOrErrorTpl>
+  <ng-container *ngIf="detailsError() || permissionGroupsError(); else loadingTpl">
+    <c-row class="text-center m-2 g-0">
+      <c-col>
+        <img cImg align="center" height="200" rounded src="../../../../assets/images/error.png" width="200" />
+        <p cCardText>An error occurred, please try again</p>
+        <button cButton color="primary" (click)="onRetryClick()">
+          Retry
+        </button>
+      </c-col>
+    </c-row>
+  </ng-container>
+</ng-template>
+
+<ng-template #loadingTpl>
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-col xs="12">
+      <form [formGroup]="roleForm">
+        <c-row style="min-height: 512px" class="g-0">
+          <c-card>
+            <c-card-header>
+              <c-row class="aling-items-center g-0">
+                <c-col>
+                  <h4>Edit Role</h4>
+                </c-col>
+
+                <c-col class="d-flex justify-content-end gap-2">
+                  <button mat-stroked-button color="accent" type="button" disabled>
+                    Loading...
+                  </button>
+                </c-col>
+              </c-row>
+            </c-card-header>
+
+            <c-card-body>
+              <c-row>
+                <c-col xs="12">
+                  <h5>Role Details</h5>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                </c-col>
+              </c-row>
+
+              <c-row>
+                <c-col xs="12" md="6" *ngFor="let item of [].constructor(6)">
+                  <h5><ngx-shimmer-loading [width]="'50%'" [height]="'20px'"></ngx-shimmer-loading></h5>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'160px'"></ngx-shimmer-loading>
+                </c-col>
+              </c-row>
+            </c-card-body>
+
+            <c-card-footer></c-card-footer>
+          </c-card>
+        </c-row>
+      </form>
+    </c-col>
+  </c-row>
+</ng-template>

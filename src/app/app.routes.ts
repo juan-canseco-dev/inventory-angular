@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
 import { DefaultLayoutComponent } from './layout';
-import { loggedInGuard } from './core/guards/logged-in';
-import { notLoggedInGuard } from './core/guards/not-logged-in';
+import { loggedInGuard, notLoggedInGuard } from './core/auth/guards';
+import { CategoriesFacade } from './features/categories/store';
+import { UnitsFacade } from './features/units/store';
 
 export const routes: Routes = [
   {
@@ -19,79 +20,82 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
-        loadChildren: () => import('./views/dashboard/routes').then((m) => m.routes)
+        loadChildren: () => import('./features/dashboard/routes').then((m) => m.routes)
       },
       {
         path: 'categories',
-        loadComponent: () => import('./views/categories').then(m => m.CategoriesComponent),
+        loadComponent: () => import('./features/categories').then(m => m.CategoriesComponent),
         data: {
           title: 'Categories'
-        }
+        },
+        providers: [
+          CategoriesFacade
+        ]
       },
       {
         path: 'units',
-        loadComponent: () => import('./views/units').then(m => m.UnitsComponent),
+        loadComponent: () => import('./features/units').then(m => m.UnitsComponent),
         data: {
           title: 'Units Of Measurement'
-        }
+        },
+        providers: [
+          UnitsFacade
+        ]
       },
       {
         path: 'products',
-        loadComponent: () => import('./views/products').then(m => m.ProductsComponent),
+        loadComponent: () => import('./features/products').then(m => m.ProductsComponent),
         data: {
           title: 'Products'
         }
       },
       {
         path: 'suppliers',
-        loadChildren: () => import('./views/suppliers/routes').then(m => m.routes)
+        loadChildren: () => import('./features/suppliers/routes').then(m => m.routes)
+      },
+      {
+        path: 'customers',
+        loadChildren: () => import('./features/customers/routes').then(m => m.routes)
       },
       {
         path: 'purchases',
-        loadComponent: () => import('./views/purchases').then(m => m.PurchasesComponent),
+        loadComponent: () => import('./features/purchases').then(m => m.PurchasesComponent),
         data: {
           title: 'Purchases'
         }
       },
       {
         path: 'orders',
-        loadComponent: () => import('./views/orders').then(m => m.OrdersComponent),
+        loadComponent: () => import('./features/orders').then(m => m.OrdersComponent),
         data: {
           title: 'Orders'
         }
       },
       {
         path: 'users',
-        loadComponent: () => import('./views/users').then(m => m.UsersComponent),
-        data: {
-          title: 'Users'
-        }
-
+        loadChildren: () => import('./features/users').then(m => m.routes)
       },
       {
-        path: 'Roles',
-        loadComponent: () => import('./views/roles').then(m => m.RolesComponent),
-        data: {
-          title: 'Roles'
-        }
+        path: 'roles',
+        loadChildren: () => import('./features/roles').then(m => m.routes)
       },
     ]
   },
   {
     path: 'auth',
-    loadComponent: () => import('./views/auth/sign-in').then(m => m.SignInComponent),
+    loadComponent: () => import('./features/auth/pages/sign-in').then(m => m.SignInComponent),
     canActivate: [notLoggedInGuard]
   },
   {
     path: '404',
-    loadComponent: () => import('./views/pages/page404/page404.component').then(m => m.Page404Component),
+    loadComponent: () => import('./features/system/pages/page404').then(m => m.Page404Component),
     data: {
       title: 'Page 404'
     }
   },
   {
     path: '500',
-    loadComponent: () => import('./views/pages/page500/page500.component').then(m => m.Page500Component),
+    loadComponent: () => import('./features/system/pages/page500').then(m => m.Page500Component),
     data: {
       title: 'Page 500'
     }

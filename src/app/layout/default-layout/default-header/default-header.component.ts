@@ -23,7 +23,7 @@ import {
 } from '@coreui/angular';
 
 import { IconDirective } from '@coreui/icons-angular';
-import { UserDetails } from '../../../core/models/auth';
+import { UserDetails } from '../../../core/auth/models';
 
 @Component({
     selector: 'app-default-header',
@@ -51,9 +51,8 @@ export class DefaultHeaderComponent extends HeaderComponent {
   }
 
   sidebarId = input('sidebar1');
-  
-  @Input()
-  userDetails !: UserDetails;
 
-  @Output() logOut = new EventEmitter<any>();
+  userDetails = input.required<UserDetails | null>();
+
+  @Output() signOut = new EventEmitter<any>();
 }

@@ -1,0 +1,148 @@
+<ng-container *ngIf="detailsLoading()">
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-col xs="12">
+      <form [formGroup]="customerForm">
+        <c-row style="min-height: 512px" class="g-0">
+          <c-card>
+            <c-card-header>
+              <c-row class="aling-items-center g-0">
+                <c-col>
+                  <h4>Customer Details</h4>
+                </c-col>
+
+                <c-col class="d-flex justify-content-end gap-2">
+                  <button mat-stroked-button color="accent" type="button" disabled>
+                    Loading...
+                  </button>
+                </c-col>
+              </c-row>
+            </c-card-header>
+
+            <c-card-body>
+              <c-row>
+                <c-col>
+                  <h5>Customer Details</h5>
+
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                </c-col>
+
+                <c-col>
+                  <h5>Address</h5>
+
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                </c-col>
+              </c-row>
+            </c-card-body>
+
+            <c-card-footer></c-card-footer>
+          </c-card>
+        </c-row>
+      </form>
+    </c-col>
+  </c-row>
+</ng-container>
+
+<ng-container *ngIf="!detailsLoading() && detailsError()">
+  <c-row class="text-center m-2 g-0">
+    <c-col>
+      <img cImg align="center" height="200" rounded src="../../../assets/images/error.png" width="200" />
+      <p cCardText>An error occurred, please try again</p>
+      <button cButton color="primary" (click)="onRetryClick()">
+        Retry
+      </button>
+    </c-col>
+  </c-row>
+</ng-container>
+
+<ng-container *ngIf="!detailsLoading() && !detailsError()">
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-col xs="12">
+      <form [formGroup]="customerForm">
+        <c-row style="min-height: 512px" class="g-0">
+          <c-card>
+            <c-card-header>
+              <c-row class="aling-items-center g-0">
+                <c-col>
+                  <h4>Customer Details</h4>
+                </c-col>
+
+                <c-col class="d-flex justify-content-end gap-2">
+                  <button mat-stroked-button color="accent" type="button" (click)="onBackClick()">
+                    Back
+                    <mat-icon>arrow_back</mat-icon>
+                  </button>
+                </c-col>
+              </c-row>
+            </c-card-header>
+
+            <c-card-body>
+              <c-row>
+                <c-col>
+                  <h5>Customer Details</h5>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Id</mat-label>
+                    <input matInput formControlName="id" readonly />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>DNI</mat-label>
+                    <input matInput formControlName="dni" readonly />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Phone</mat-label>
+                    <input matInput formControlName="phone" readonly />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Full Name</mat-label>
+                    <input matInput formControlName="fullName" readonly />
+                  </mat-form-field>
+                </c-col>
+
+                <c-col formGroupName="address">
+                  <h5>Address</h5>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Country</mat-label>
+                    <input matInput formControlName="country" readonly />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>State</mat-label>
+                    <input matInput formControlName="state" readonly />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>City</mat-label>
+                    <input matInput formControlName="city" readonly />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Zip Code</mat-label>
+                    <input matInput formControlName="zipCode" readonly />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Street</mat-label>
+                    <input matInput formControlName="street" readonly />
+                  </mat-form-field>
+                </c-col>
+              </c-row>
+            </c-card-body>
+
+            <c-card-footer></c-card-footer>
+          </c-card>
+        </c-row>
+      </form>
+    </c-col>
+  </c-row>
+</ng-container>

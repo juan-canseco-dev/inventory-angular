@@ -8,8 +8,14 @@
 >
   <c-sidebar-header class="border-bottom">
     <c-sidebar-brand [routerLink]="[]">
+      <!--
       <svg [class]="{icon: false}" cIcon class="sidebar-brand-full" height="32" name="logo" title="CoreUI Logo"></svg>
       <svg cIcon class="sidebar-brand-narrow" height="32" name="signet" title="CoreUI Logo"></svg>
+      -->
+
+      <span class="sidebar-brand-full fw-bold fs-5">Inventory App</span>
+      <span class="sidebar-brand-narrow fw-bold fs-5">Inventory App</span>
+
     </c-sidebar-brand>
   </c-sidebar-header>
 
@@ -31,25 +37,25 @@
     class="mb-4 d-print-none header header-sticky p-0 shadow-sm"
     position="sticky"
     sidebarId="sidebar1"
-    [userDetails]="userDetails"
-    (logOut)="onLogOut($event)"
-    
+    [userDetails]="user()"
+    (signOut)="onSignOutClick($event)"
+
   />
   <!--app-body-->
   <div class="body flex-grow-1">
     <c-container breakpoint="lg" class="h-auto px-4">
 
-      <c-modal id="logOutModal" [visible]="showLogOutModal">
+      <c-modal id="signOutModal" [visible]="showSignOutModal">
         <c-modal-header>
           <h5 cModalTitle>Confirm Logout</h5>
-          <button (click)="onLogOutCancel()" cButtonClose></button>
+          <button (click)="onSignOutCancelClick()" cButtonClose></button>
         </c-modal-header>
         <c-modal-body>Do you really want to log out?</c-modal-body>
         <c-modal-footer>
-          <button (click)="onLogOutCancel()" cButton color="secondary">
+          <button (click)="onSignOutCancelClick()" cButton color="secondary">
             Cancel
           </button>
-          <button cButton color="primary" (click)="onLogOutConfirm()">Yes</button>
+          <button cButton color="primary" (click)="onSignOutConfirmed()">Yes</button>
         </c-modal-footer>
       </c-modal>
 
