@@ -1,1 +1,163 @@
-<p>details works!</p>
+<ng-container *ngIf="!detailsLoading() && !permissionGroupsLoading() && !detailsError() && !permissionGroupsError(); else loadingOrErrorTpl">
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-col xs="12">
+      <c-row style="min-height: 512px" class="g-0">
+        <c-card>
+          <c-card-header>
+            <c-row class="aling-items-center g-0">
+              <c-col>
+                <h4>User Details</h4>
+              </c-col>
+
+              <c-col class="d-flex justify-content-end gap-2">
+                <button mat-stroked-button color="accent" type="button" (click)="onBackClick()">
+                  Back
+                  <mat-icon>arrow_back</mat-icon>
+                </button>
+              </c-col>
+            </c-row>
+          </c-card-header>
+
+          <c-card-body>
+            <ng-container *ngIf="details() as user">
+              <c-row>
+                <c-col xs="12">
+                  <h5>General</h5>
+                </c-col>
+
+                <c-col xs="12" md="6">
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Id</mat-label>
+                    <input matInput [value]="user.id" readonly />
+                  </mat-form-field>
+                </c-col>
+
+                <c-col xs="12" md="6">
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Full Name</mat-label>
+                    <input matInput [value]="user.fullName" readonly />
+                  </mat-form-field>
+                </c-col>
+
+                <c-col xs="12" md="6">
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Email</mat-label>
+                    <input matInput [value]="user.email" readonly />
+                  </mat-form-field>
+                </c-col>
+
+                <c-col xs="12" md="6">
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Role</mat-label>
+                    <input matInput [value]="user.role.name" readonly />
+                  </mat-form-field>
+                </c-col>
+
+                <c-col xs="12" md="6">
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Created At</mat-label>
+                    <input matInput [value]="user.createdAt | date:'medium'" readonly />
+                  </mat-form-field>
+                </c-col>
+
+                <c-col xs="12" md="6">
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Updated At</mat-label>
+                    <input matInput [value]="user.updatedAt ? (user.updatedAt | date:'medium') : '-'" readonly />
+                  </mat-form-field>
+                </c-col>
+              </c-row>
+
+              <c-row>
+                <c-col xs="12">
+                  <h5>Permissions</h5>
+                </c-col>
+
+                <c-col xs="12" md="6" class="mb-4" *ngFor="let group of permissionGroups()">
+                  <mat-card class="mb-3 h-100 permission-group-card">
+                    <mat-card-header>
+                      <mat-card-title>{{ group.name }}</mat-card-title>
+                    </mat-card-header>
+
+                    <mat-card-content>
+                      <div class="d-flex flex-column gap-2 py-2">
+                        <mat-checkbox
+                          *ngFor="let action of group.actions"
+                          [checked]="hasPermission(action)"
+                          (click)="$event.preventDefault()"
+                        >
+                          {{ action.description }}
+                        </mat-checkbox>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                </c-col>
+              </c-row>
+            </ng-container>
+          </c-card-body>
+
+          <c-card-footer></c-card-footer>
+        </c-card>
+      </c-row>
+    </c-col>
+  </c-row>
+</ng-container>
+
+<ng-template #loadingOrErrorTpl>
+  <ng-container *ngIf="detailsError() || permissionGroupsError(); else loadingTpl">
+    <c-row class="text-center m-2 g-0">
+      <c-col>
+        <img cImg align="center" height="200" rounded src="../../../assets/images/error.png" width="200" />
+        <p cCardText>An error occurred, please try again</p>
+        <button cButton color="primary" (click)="onRetryClick()">Retry</button>
+      </c-col>
+    </c-row>
+  </ng-container>
+</ng-template>
+
+<ng-template #loadingTpl>
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-col xs="12">
+      <c-row style="min-height: 512px" class="g-0">
+        <c-card>
+          <c-card-header>
+            <h4>User Details</h4>
+          </c-card-header>
+
+          <c-card-body>
+            <c-row>
+              <c-col xs="12">
+                <h5>User Details</h5>
+              </c-col>
+
+              <c-col xs="12" md="6">
+                <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+              </c-col>
+              <c-col xs="12" md="6">
+                <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+              </c-col>
+              <c-col xs="12" md="6">
+                <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+              </c-col>
+              <c-col xs="12" md="6">
+                <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+              </c-col>
+            </c-row>
+
+            <c-row>
+              <c-col xs="12">
+                <h5>Permissions</h5>
+              </c-col>
+
+              <c-col xs="12" md="6" *ngFor="let item of [].constructor(6)">
+                <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'160px'"></ngx-shimmer-loading>
+              </c-col>
+            </c-row>
+          </c-card-body>
+
+          <c-card-footer></c-card-footer>
+        </c-card>
+      </c-row>
+    </c-col>
+  </c-row>
+</ng-template>

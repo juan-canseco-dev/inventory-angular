@@ -1,1 +1,239 @@
-<p>add works!</p>
+<ng-container *ngIf="!createLoading(); else loadingTpl">
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-toaster *ngIf="createError() as error" class="p-3" placement="bottom-center">
+      <c-toast
+        [autohide]="true"
+        [delay]="2000"
+        [visible]="true"
+        class="align-items-center text-white border-0"
+        color="danger">
+        <c-row class="d-flex g-0">
+          <c-toast-body>
+            <span>{{ error.message }}</span>
+          </c-toast-body>
+        </c-row>
+      </c-toast>
+    </c-toaster>
+
+    <c-col xs="12">
+      <form [formGroup]="userForm" (ngSubmit)="onSaveClick()">
+        <c-row style="min-height: 512px" class="g-0">
+          <c-card>
+            <c-card-header>
+              <c-row class="aling-items-center g-0">
+                <c-col>
+                  <h4>New User</h4>
+                </c-col>
+
+                <c-col class="d-flex justify-content-end gap-2">
+                  <button mat-stroked-button color="accent" type="submit">
+                    Save
+                    <mat-icon>save</mat-icon>
+                  </button>
+                </c-col>
+              </c-row>
+            </c-card-header>
+
+            <c-card-body>
+              <c-row>
+                <c-col xs="12" md="6">
+                  <h5>User Details</h5>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Full Name</mat-label>
+                    <input matInput formControlName="fullName" placeholder="Full Name" />
+                    <mat-error *ngIf="fullName.hasError('required')">
+                      Full Name is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="fullName.hasError('maxlength')">
+                      The length of the Full Name is too long. The maximum length must be
+                      <strong>50 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Email</mat-label>
+                    <input matInput formControlName="email" placeholder="Email" />
+                    <mat-error *ngIf="email.hasError('required')">
+                      Email is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="email.hasError('email')">
+                      Email format is <strong>Invalid</strong>
+                    </mat-error>
+                    <mat-error *ngIf="email.hasError('maxlength')">
+                      The length of the Email is too long. The maximum length must be
+                      <strong>100 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Password</mat-label>
+                    <input
+                      matInput
+                      [type]="hidePassword.value ? 'password' : 'text'"
+                      formControlName="password"
+                      placeholder="Password"
+                    />
+                    <button
+                      mat-icon-button
+                      matSuffix
+                      type="button"
+                      [attr.aria-label]="hidePassword.value ? 'Show password' : 'Hide password'"
+                      (click)="togglePasswordVisibility()"
+                    >
+                      <mat-icon>{{ hidePassword.value ? 'visibility' : 'visibility_off' }}</mat-icon>
+                    </button>
+                    <mat-error *ngIf="password.hasError('required')">
+                      Password is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="password.hasError('minlength')">
+                      Password must have at least <strong>6 characters</strong>
+                    </mat-error>
+                    <mat-error *ngIf="password.hasError('maxlength')">
+                      The length of the Password is too long. The maximum length must be
+                      <strong>100 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+                </c-col>
+
+                <c-col xs="12" md="6">
+                  <h5>Role</h5>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Role</mat-label>
+                    <input
+                      matInput
+                      [formControl]="roleSearch"
+                      [matAutocomplete]="roleAuto"
+                      placeholder="Search Role"
+                      (focus)="onRoleFocus()"
+                    />
+                    <mat-autocomplete
+                      #roleAuto="matAutocomplete"
+                      [displayWith]="displayLookupOption"
+                      (optionSelected)="onRoleSelected($event)"
+                    >
+                      <mat-option
+                        *ngFor="let option of roleOptions()"
+                        [value]="option"
+                      >
+                        {{ option.label }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error *ngIf="roleId.hasError('required') && roleId.touched">
+                      Role is <strong>Required</strong>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <div *ngIf="roleOptionsLoading()" class="text-muted mb-3">
+                    Loading roles...
+                  </div>
+
+                  <div *ngIf="roleOptionsError() as error" class="text-danger mb-3">
+                    {{ error.message }}
+                  </div>
+                </c-col>
+              </c-row>
+
+              <c-row *ngIf="roleId.value">
+                <c-col xs="12">
+                  <h5>Permissions</h5>
+                </c-col>
+
+                <ng-container *ngIf="!roleDetailsLoading() && !permissionGroupsLoading() && !roleDetailsError() && !permissionGroupsError(); else permissionsStateTpl">
+                  <c-col xs="12" md="6" class="mb-4" *ngFor="let group of permissionGroups()">
+                    <mat-card class="mb-3 h-100 permission-group-card">
+                      <mat-card-header>
+                        <mat-card-title>{{ group.name }}</mat-card-title>
+                      </mat-card-header>
+
+                      <mat-card-content>
+                        <div class="d-flex flex-column gap-2 py-2">
+                          <mat-checkbox
+                            *ngFor="let action of group.actions"
+                            [checked]="hasPermission(action)"
+                            (click)="$event.preventDefault()"
+                          >
+                            {{ action.description }}
+                          </mat-checkbox>
+                        </div>
+                      </mat-card-content>
+                    </mat-card>
+                  </c-col>
+                </ng-container>
+              </c-row>
+            </c-card-body>
+
+            <c-card-footer></c-card-footer>
+          </c-card>
+        </c-row>
+      </form>
+    </c-col>
+  </c-row>
+</ng-container>
+
+<ng-template #loadingTpl>
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-col xs="12">
+      <form [formGroup]="userForm">
+        <c-row style="min-height: 512px" class="g-0">
+          <c-card>
+            <c-card-header>
+              <c-row class="aling-items-center g-0">
+                <c-col>
+                  <h4>New User</h4>
+                </c-col>
+
+                <c-col class="d-flex justify-content-end gap-2">
+                  <button mat-stroked-button color="accent" type="button" disabled>
+                    Loading...
+                  </button>
+                </c-col>
+              </c-row>
+            </c-card-header>
+
+            <c-card-body>
+              <c-row>
+                <c-col xs="12" md="6">
+                  <h5>User Details</h5>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                </c-col>
+
+                <c-col xs="12" md="6">
+                  <h5>Role</h5>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                </c-col>
+              </c-row>
+            </c-card-body>
+
+            <c-card-footer></c-card-footer>
+          </c-card>
+        </c-row>
+      </form>
+    </c-col>
+  </c-row>
+</ng-template>
+
+<ng-template #permissionsStateTpl>
+  <ng-container *ngIf="roleDetailsError() || permissionGroupsError(); else permissionsLoadingTpl">
+    <c-col xs="12">
+      <c-row class="text-center m-2 g-0">
+        <c-col>
+          <img cImg align="center" height="200" rounded src="../../../../assets/images/error.png" width="200" />
+          <p cCardText>An error occurred, please try again</p>
+          <button cButton color="primary" type="button" (click)="retryRolePermissions()">
+            Retry
+          </button>
+        </c-col>
+      </c-row>
+    </c-col>
+  </ng-container>
+</ng-template>
+
+<ng-template #permissionsLoadingTpl>
+  <c-col xs="12" md="6" *ngFor="let item of [].constructor(6)">
+    <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'160px'"></ngx-shimmer-loading>
+  </c-col>
+</ng-template>

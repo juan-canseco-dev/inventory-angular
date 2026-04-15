@@ -1,1 +1,167 @@
-<p>edit works!</p>
+<ng-container *ngIf="detailsLoading()">
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-col xs="12">
+      <form [formGroup]="userForm">
+        <c-row style="min-height: 512px" class="g-0">
+          <c-card>
+            <c-card-header>
+              <c-row class="aling-items-center g-0">
+                <c-col>
+                  <h4>Edit User</h4>
+                </c-col>
+
+                <c-col class="d-flex justify-content-end gap-2">
+                  <button mat-stroked-button color="accent" type="button" disabled>
+                    Loading...
+                  </button>
+                </c-col>
+              </c-row>
+            </c-card-header>
+
+            <c-card-body>
+              <c-row>
+                <c-col xs="12" md="6">
+                  <h5>User Details</h5>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                </c-col>
+
+                <c-col xs="12" md="6">
+                  <h5>Role</h5>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                </c-col>
+              </c-row>
+            </c-card-body>
+
+            <c-card-footer></c-card-footer>
+          </c-card>
+        </c-row>
+      </form>
+    </c-col>
+  </c-row>
+</ng-container>
+
+<ng-container *ngIf="!detailsLoading() && detailsError()">
+  <c-row class="text-center m-2 g-0">
+    <c-col>
+      <img cImg align="center" height="200" rounded src="../../../assets/images/error.png" width="200" />
+      <p cCardText>An error occurred, please try again</p>
+      <button cButton color="primary" (click)="onRetryClick()">
+        Retry
+      </button>
+    </c-col>
+  </c-row>
+</ng-container>
+
+<ng-container *ngIf="!detailsLoading() && !detailsError()">
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-toaster *ngIf="(updateError() || changeRoleError()) as error" class="p-3" placement="bottom-center">
+      <c-toast
+        [autohide]="true"
+        [delay]="2000"
+        [visible]="true"
+        class="align-items-center text-white border-0"
+        color="danger">
+        <c-row class="d-flex g-0">
+          <c-toast-body>
+            <span>{{ error.message }}</span>
+          </c-toast-body>
+        </c-row>
+      </c-toast>
+    </c-toaster>
+
+    <c-col xs="12">
+      <form [formGroup]="userForm" (ngSubmit)="onSaveClick()">
+        <c-row style="min-height: 512px" class="g-0">
+          <c-card>
+            <c-card-header>
+              <c-row class="aling-items-center g-0">
+                <c-col>
+                  <h4>Edit User</h4>
+                </c-col>
+
+                <c-col class="d-flex justify-content-end gap-2">
+                  <button mat-stroked-button color="accent" type="button" (click)="onSaveClick()">
+                    {{ updateLoading() || changeRoleLoading() ? 'Updating...' : 'Update' }}
+                    <mat-icon>save</mat-icon>
+                  </button>
+                </c-col>
+              </c-row>
+            </c-card-header>
+
+            <c-card-body>
+              <c-row>
+                <c-col xs="12" md="6">
+                  <h5>User Details</h5>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Id</mat-label>
+                    <input matInput formControlName="id" readonly />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Full Name</mat-label>
+                    <input matInput formControlName="fullName" placeholder="Full Name" />
+                    <mat-error *ngIf="fullName.hasError('required')">
+                      Full Name is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="fullName.hasError('maxlength')">
+                      The length of the Full Name is too long. The maximum length must be
+                      <strong>50 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Email</mat-label>
+                    <input matInput formControlName="email" readonly />
+                  </mat-form-field>
+                </c-col>
+
+                <c-col xs="12" md="6">
+                  <h5>Role</h5>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Role</mat-label>
+                    <input
+                      matInput
+                      [formControl]="roleSearch"
+                      [matAutocomplete]="roleAuto"
+                      placeholder="Search Role"
+                      (focus)="onRoleFocus()"
+                    />
+                    <mat-autocomplete
+                      #roleAuto="matAutocomplete"
+                      [displayWith]="displayLookupOption"
+                      (optionSelected)="onRoleSelected($event)"
+                    >
+                      <mat-option
+                        *ngFor="let option of roleOptions()"
+                        [value]="option"
+                      >
+                        {{ option.label }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error *ngIf="roleId.hasError('required') && roleId.touched">
+                      Role is <strong>Required</strong>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <div *ngIf="roleOptionsLoading()" class="text-muted mb-3">
+                    Loading roles...
+                  </div>
+
+                  <div *ngIf="roleOptionsError() as error" class="text-danger mb-3">
+                    {{ error.message }}
+                  </div>
+                </c-col>
+              </c-row>
+            </c-card-body>
+
+            <c-card-footer></c-card-footer>
+          </c-card>
+        </c-row>
+      </form>
+    </c-col>
+  </c-row>
+</ng-container>
