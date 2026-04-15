@@ -6,7 +6,6 @@ import {
   Injector,
   OnInit,
   ViewChild,
-  WritableSignal,
   effect,
   inject,
   signal
@@ -44,6 +43,7 @@ import { NgxShimmerLoadingModule } from 'ngx-shimmer-loading';
 import { EditComponent } from '../../components/edit';
 import { CategoriesFacade } from '../../store';
 import { CategoryDialogResult } from '../../models/category-dialog-result';
+import { flashError, flashSuccess } from '../../../../shared/utils/signal-flash.util';
 
 @Component({
   selector: 'app-categories',
@@ -118,9 +118,8 @@ export class CategoriesComponent implements OnInit {
     effect(() => {
       const isLoading = this.loading();
       const hasLoadError = this.loadError();
-      const isEmpty = this.empty();
 
-      if (this.filtersClicked && !isLoading && !hasLoadError && !isEmpty) {
+      if (this.filtersClicked && !isLoading && !hasLoadError) {
         this.focusSearchInput();
       }
     });
@@ -197,12 +196,12 @@ export class CategoriesComponent implements OnInit {
         if (!result) return;
 
         if (result.success) {
-          this.flashSuccess(this.addSuccess);
+          flashSuccess(this.addSuccess);
           return;
         }
 
         if (result.error) {
-          this.flashError(this.addError, result.error);
+          flashError(this.addError, result.error);
         }
       });
   }
@@ -220,12 +219,12 @@ export class CategoriesComponent implements OnInit {
         if (!result) return;
 
         if (result.success) {
-          this.flashSuccess(this.deleteSuccess);
+          flashSuccess(this.deleteSuccess);
           return;
         }
 
         if (result.error) {
-          this.flashError(this.deleteError, result.error);
+          flashError(this.deleteError, result.error);
         }
       });
   }
@@ -243,12 +242,12 @@ export class CategoriesComponent implements OnInit {
         if (!result) return;
 
         if (result.success) {
-          this.flashSuccess(this.editSuccess);
+          flashSuccess(this.editSuccess);
           return;
         }
 
         if (result.error) {
-          this.flashError(this.editError, result.error);
+          flashError(this.editError, result.error);
         }
       });
   }
@@ -261,15 +260,5 @@ export class CategoriesComponent implements OnInit {
     setTimeout(() => {
       this.searchInput?.nativeElement.focus();
     });
-  }
-
-  private flashSuccess(target: WritableSignal<boolean>, durationMs = 2000): void {
-    target.set(true);
-    setTimeout(() => target.set(false), durationMs);
-  }
-
-  private flashError(target: WritableSignal<string | null>, message: string, durationMs = 2000): void {
-    target.set(message);
-    setTimeout(() => target.set(null), durationMs);
   }
 }

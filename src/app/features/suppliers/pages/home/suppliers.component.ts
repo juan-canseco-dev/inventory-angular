@@ -47,6 +47,7 @@ import {
   DeleteComponent,
   DeleteSupplierDialogResult
 } from '../../components/delete';
+import { flashError, flashSuccess } from '../../../../shared/utils';
 
 type SupplierFilterKey = 'company' | 'name' | 'phone';
 
@@ -223,13 +224,12 @@ export class SuppliersComponent implements OnInit {
         if (!result) return;
 
         if (result.success) {
-          this.deleteSuccess.set(true);
-          this.actionError.set(null);
+          flashSuccess(this.deleteSuccess);
           return;
         }
 
         if (result.error) {
-          this.actionError.set(result.error);
+          flashError(this.actionError, result.error);
         }
       });
   }

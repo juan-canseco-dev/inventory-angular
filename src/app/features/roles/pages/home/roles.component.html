@@ -78,6 +78,7 @@
 
             <c-col class="d-flex justify-content-end gap-2">
               <button
+                *ngIf="canShowToolbarActions()"
                 mat-stroked-button
                 color="accent"
                 type="button"
@@ -90,7 +91,7 @@
               </button>
 
               <button
-                *ngIf="!loading()"
+                *ngIf="canShowToolbarActions()"
                 mat-stroked-button
                 color="accent"
                 type="button"
@@ -104,7 +105,7 @@
         </c-card-header>
 
         <c-card-body class="p-0">
-          @if (filtersClicked) {
+          @if (filtersClicked && canShowToolbarActions()) {
             <c-row class="p-3 g-0">
               <c-col
                 xs="12"
@@ -132,7 +133,7 @@
             </c-row>
           }
 
-          <ng-container *ngIf="!loading() && !error() && !empty()">
+          <ng-container *ngIf="isSuccess()">
             <table
               mat-table
               matSort
@@ -315,7 +316,7 @@
         </c-card-body>
 
         <c-card-footer class="d-flex justify-content-end p-2">
-          <ng-container *ngIf="page() as page">
+          <ng-container *ngIf="isSuccess() && page() as page">
             <mat-paginator
               [length]="page.totalElements || 0"
               [pageIndex]="request.pageNumber! - 1"

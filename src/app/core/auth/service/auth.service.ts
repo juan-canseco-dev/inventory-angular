@@ -31,7 +31,7 @@ export class AuthService {
 
   clearSession(): void {
     this.removeJwt();
-    this.router.navigateByUrl('/auth');
+    this.navigateToLogin();
   }
 
   navigateToLogin() : void {

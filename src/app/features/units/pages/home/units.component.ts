@@ -1,5 +1,4 @@
 import {
-  AfterViewChecked,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
@@ -7,8 +6,8 @@ import {
   Injector,
   OnInit,
   ViewChild,
-  WritableSignal,
   computed,
+  effect,
   inject,
   signal
 } from '@angular/core';
@@ -43,6 +42,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { NgxShimmerLoadingModule } from 'ngx-shimmer-loading';
 import { UnitsFacade } from '../../store';
+import { flashError, flashSuccess } from '../../../../shared/utils';
 
 @Component({
   selector: 'app-units',
@@ -77,7 +77,7 @@ import { UnitsFacade } from '../../store';
   styleUrl: './units.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UnitsComponent implements OnInit, AfterViewChecked {
+export class UnitsComponent implements OnInit {
   private readonly facade = inject(UnitsFacade);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
@@ -113,7 +113,6 @@ export class UnitsComponent implements OnInit, AfterViewChecked {
   filtersClicked = false;
 
   searchControl = new FormControl('');
-  private shouldFocusSearch = false;
 
   request: GetUnitsRequest = {
     pageNumber: 1,
@@ -123,6 +122,16 @@ export class UnitsComponent implements OnInit, AfterViewChecked {
     name: null
   };
 
+  constructor() {
+    effect(() => {
+      const isLoading = this.loading();
+      const hasLoadError = this.loadError();
+      if (this.filtersClicked && !isLoading && !hasLoadError) {
+        this.focusSearchInput();
+      }
+    });
+  }
+
   get sortDirection(): 'asc' | 'desc' {
     return this.request.sortOrder === 'desc' ? 'desc' : 'asc';
   }
@@ -130,13 +139,6 @@ export class UnitsComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     this.getAll();
     this.setFiltering();
-  }
-
-  ngAfterViewChecked(): void {
-    if (this.shouldFocusSearch && this.filtersClicked && this.success()) {
-      this.shouldFocusSearch = false;
-      this.focusSearchControl();
-    }
   }
 
   onPageChange(e: PageEvent): void {
@@ -166,26 +168,19 @@ export class UnitsComponent implements OnInit, AfterViewChecked {
   }
 
   getAll(): void {
-    this.shouldFocusSearch = this.filtersClicked;
     this.facade.loadPage({ ...this.request });
   }
-
   onFiltersClicked(): void {
     this.filtersClicked = !this.filtersClicked;
 
-    if (this.filtersClicked) {
-      this.shouldFocusSearch = true;
-
-      if (this.showHeaderActions()) {
-        this.focusSearchControl();
-      }
-
+    if (!this.filtersClicked) {
+      this.searchControl.setValue('');
       return;
     }
 
-    this.shouldFocusSearch = false;
-    this.searchControl.setValue('');
+    this.focusSearchInput();
   }
+
 
   onCreateClick(): void {
     const dialogRef = this.dialog.open(AddComponent, {
@@ -200,12 +195,12 @@ export class UnitsComponent implements OnInit, AfterViewChecked {
         if (!result) return;
 
         if (result.success) {
-          this.flashSuccess(this.addSuccess);
+          flashSuccess(this.addSuccess);
           return;
         }
 
         if (result.error) {
-          this.flashError(this.addError, result.error);
+          flashError(this.addError, result.error);
         }
       });
   }
@@ -223,12 +218,12 @@ export class UnitsComponent implements OnInit, AfterViewChecked {
         if (!result) return;
 
         if (result.success) {
-          this.flashSuccess(this.deleteSuccess);
+          flashSuccess(this.deleteSuccess);
           return;
         }
 
         if (result.error) {
-          this.flashError(this.deleteError, result.error);
+          flashError(this.deleteError, result.error);
         }
       });
   }
@@ -246,12 +241,12 @@ export class UnitsComponent implements OnInit, AfterViewChecked {
         if (!result) return;
 
         if (result.success) {
-          this.flashSuccess(this.editSuccess);
+          flashSuccess(this.editSuccess);
           return;
         }
 
         if (result.error) {
-          this.flashError(this.editError, result.error);
+          flashError(this.editError, result.error);
         }
       });
   }
@@ -260,19 +255,9 @@ export class UnitsComponent implements OnInit, AfterViewChecked {
     this.getAll();
   }
 
-  private focusSearchControl(): void {
+  private focusSearchInput(): void {
     setTimeout(() => {
       this.searchInput?.nativeElement.focus();
     });
-  }
-
-  private flashSuccess(target: WritableSignal<boolean>, durationMs = 2000): void {
-    target.set(true);
-    setTimeout(() => target.set(false), durationMs);
-  }
-
-  private flashError(target: WritableSignal<string | null>, message: string, durationMs = 2000): void {
-    target.set(message);
-    setTimeout(() => target.set(null), durationMs);
   }
 }

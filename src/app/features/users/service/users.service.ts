@@ -63,7 +63,7 @@ export class UsersService {
   }
 
   changeRole(request: ChangeUserRoleRequest): Observable<void> {
-    return this.http.put<void>(`${environment.baseUrl}/users/${request.userId}/role`, request);
+    return this.http.put<void>(`${environment.baseUrl}/users/${request.userId}/changeRole`, request);
   }
 
   delete(id: number): Observable<void> {

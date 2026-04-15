@@ -7,7 +7,8 @@ import {
   OnInit,
   inject,
   signal,
-  effect
+  effect,
+  computed
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -45,6 +46,7 @@ import {
   DeleteComponent,
   DeleteRoleDialogResult
 } from '../../components/delete';
+import { debounceTime, distinctUntilChanged } from "rxjs";
 
 @Component({
   selector: 'app-roles',
@@ -98,6 +100,9 @@ export class RolesComponent implements OnInit {
   readonly error = this.fecade.loadError;
   readonly empty = this.fecade.empty;
 
+  readonly isSuccess = computed(() => !this.loading() && !this.error() && !this.empty());
+  readonly canShowToolbarActions = computed(() => this.isSuccess() || this.empty());
+
   readonly addSuccess = signal(false);
   readonly updateSuccess = signal(false);
   readonly deleteSuccess = signal(false);
@@ -124,11 +129,9 @@ export class RolesComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      const isLoading = this.loading;
-      const hasLoadError = this.error;
-      const isEmpty = this.empty;
-
-      if (this.filtersClicked && !isLoading && !hasLoadError) {
+      const isSuccess = this.isSuccess();
+      const isEmpty = this.empty();
+      if (this.filtersClicked && (isSuccess || isEmpty)) {
         this.focusSearchInput();
       }
     });
@@ -233,7 +236,11 @@ export class RolesComponent implements OnInit {
 
   private setFiltering(): void {
     this.searchForm.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe(value => {
         this.request.name = value.name ? value.name : null;
         this.request.pageNumber = 1;

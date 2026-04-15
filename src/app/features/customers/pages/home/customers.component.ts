@@ -47,6 +47,7 @@ import {
   DeleteCustomerComponent,
   DeleteCustomerDialogResult
 } from '../../components/delete';
+import { flashError, flashSuccess} from '../../../../shared/utils';
 
 type CustomerFilterKey = 'dni' | 'name' | 'phone';
 
@@ -225,13 +226,12 @@ export class CustomersComponent implements OnInit {
         if (!result) return;
 
         if (result.success) {
-          this.deleteSuccess.set(true);
-          this.actionError.set(null);
+          flashSuccess(this.deleteSuccess);
           return;
         }
 
         if (result.error) {
-          this.actionError.set(result.error);
+          flashError(this.actionError, result.error);
         }
       });
   }

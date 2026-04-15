@@ -102,9 +102,9 @@ export class EditComponent {
   readonly roleOptionsError = this.autocompleteFacade.roleOptionsError;
 
   readonly userForm = this.fb.group({
-    id: this.fb.control<number | null>({ value: null, disabled: true }, [Validators.required]),
+    id: this.fb.control<number | null>({ value: null, disabled: false }, [Validators.required]),
     fullName: this.fb.control<string | null>(null, [Validators.required, Validators.maxLength(50)]),
-    email: this.fb.control<string | null>({ value: null, disabled: true }, [Validators.required, Validators.email, Validators.maxLength(100)]),
+    email: this.fb.control<string | null>({ value: null, disabled: false }, [Validators.required, Validators.email, Validators.maxLength(100)]),
     roleId: this.fb.control<number | null>(null, [Validators.required])
   });
 
