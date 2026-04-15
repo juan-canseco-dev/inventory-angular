@@ -86,7 +86,7 @@
               </button>
 
               <button
-                *ngIf="showFiltersAndCreateActions"
+                *ngIf="hasCreatePermission() && showFiltersAndCreateActions"
                 mat-stroked-button
                 color="accent"
                 type="button"
@@ -143,10 +143,10 @@
                 <th mat-header-cell *matHeaderCellDef class="text-end">Actions</th>
                 <td mat-cell *matCellDef="let element" class="text-end">
                   <div style="display: inline-flex; gap: 4px">
-                    <button mat-icon-button aria-label="Edit" (click)="onEditClick(element)">
+                    <button mat-icon-button aria-label="Edit" (click)="onEditClick(element)" [disabled]="!hasEditPermission()">
                       <mat-icon>edit</mat-icon>
                     </button>
-                    <button mat-icon-button aria-label="Delete" (click)="onDeleteClick(element)">
+                    <button mat-icon-button aria-label="Delete" (click)="onDeleteClick(element)" [disabled]="!hasDeletePermission()">
                       <mat-icon>delete</mat-icon>
                     </button>
                   </div>

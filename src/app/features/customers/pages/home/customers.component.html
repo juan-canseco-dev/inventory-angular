@@ -91,7 +91,7 @@
               </button>
 
               <button
-                *ngIf="canShowToolbarActions()"
+                *ngIf="hasCreatePermission() && canShowToolbarActions()"
                 mat-stroked-button
                 color="accent"
                 type="button"
@@ -248,6 +248,7 @@
                       mat-icon-button
                       aria-label="Edit"
                       (click)="onEditClick(element)"
+                      [disabled]="!hasEditPermission()"
                     >
                       <mat-icon>edit</mat-icon>
                     </button>
@@ -255,6 +256,7 @@
                       mat-icon-button
                       aria-label="Delete"
                       (click)="onDeleteClick(element)"
+                      [disabled]="!hasDeletePermission()"
                     >
                       <mat-icon>delete</mat-icon>
                     </button>

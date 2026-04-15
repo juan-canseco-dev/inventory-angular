@@ -22,7 +22,7 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<unknown>, next: HttpHandler) : Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401 || error.status === 403)  {
+        if (error.status === 401)  {
           this.store.dispatch(AuthActions.signOut());
         }
         return throwError(() => error); // Re-throw the error for other handlers or components

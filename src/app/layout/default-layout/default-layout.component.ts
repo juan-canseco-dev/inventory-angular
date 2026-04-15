@@ -1,15 +1,12 @@
-import { selectAuthPermissions, selectAuthUser, AuthActions  } from '../../core/auth/store';
-import { AuthService } from '../../core/auth/service';
-import { Store } from '@ngrx/store';
-import { Component, inject, input, signal, effect } from '@angular/core';
+import { AuthActions, PermissionsFacade, selectAuthUser } from '../../core/auth/store';
+import { Component, effect, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NgScrollbar } from 'ngx-scrollbar';
-import { IconDirective } from '@coreui/icons-angular';
+import { Store } from '@ngrx/store';
 import {
   ButtonCloseDirective,
   ButtonDirective,
   ContainerComponent,
-  INavData,
   ModalBodyComponent,
   ModalComponent,
   ModalFooterComponent,
@@ -27,13 +24,6 @@ import {
 import { DefaultFooterComponent, DefaultHeaderComponent } from './';
 import { INavDataWithPermissions, defaultNavItems } from './_nav';
 
-function isOverflown(element: HTMLElement) {
-  return (
-    element.scrollHeight > element.clientHeight ||
-    element.scrollWidth > element.clientWidth
-  );
-}
-
 @Component({
     selector: 'app-dashboard',
     templateUrl: './default-layout.component.html',
@@ -43,7 +33,6 @@ function isOverflown(element: HTMLElement) {
         SidebarHeaderComponent,
         SidebarBrandComponent,
         RouterLink,
-        IconDirective,
         NgScrollbar,
         SidebarNavComponent,
         SidebarFooterComponent,
@@ -69,19 +58,17 @@ export class DefaultLayoutComponent {
 
   showSignOutModal = false;
 
-  authService = inject(AuthService);
-  private store = inject(Store);
+  private readonly store = inject(Store);
+  private readonly permissionsFacade = inject(PermissionsFacade);
 
   readonly user = this.store.selectSignal(selectAuthUser);
-  readonly userPermissions = this.store.selectSignal(selectAuthPermissions);
+  readonly userPermissions = this.permissionsFacade.permissions;
 
   constructor() {
       effect(() => {
-      const permissions = this.userPermissions();
-
       this.navItems = defaultNavItems.filter(item => {
         if (!item.permission) return true;
-        return permissions.includes(item.permission);
+        return this.permissionsFacade.hasPermission(item.permission);
       });
     });
   }

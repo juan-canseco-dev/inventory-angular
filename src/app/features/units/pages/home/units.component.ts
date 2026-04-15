@@ -43,6 +43,8 @@ import { MatSortModule, Sort } from '@angular/material/sort';
 import { NgxShimmerLoadingModule } from 'ngx-shimmer-loading';
 import { UnitsFacade } from '../../store';
 import { flashError, flashSuccess } from '../../../../shared/utils';
+import { PermissionsFacade } from 'src/app/core/auth/store';
+import { PermissionCatalog } from 'src/app/core/permissions';
 
 @Component({
   selector: 'app-units',
@@ -79,6 +81,7 @@ import { flashError, flashSuccess } from '../../../../shared/utils';
 })
 export class UnitsComponent implements OnInit {
   private readonly facade = inject(UnitsFacade);
+  private readonly permissionsFacade = inject(PermissionsFacade);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
 
@@ -98,6 +101,18 @@ export class UnitsComponent implements OnInit {
 
   readonly deleteError = signal<string | null>(null);
   readonly deleteSuccess = signal(false);
+
+  readonly hasCreatePermission = computed(() =>
+    this.permissionsFacade.hasPermission(PermissionCatalog.Units_Create)
+  );
+
+  readonly hasDeletePermission = computed(() =>
+    this.permissionsFacade.hasPermission(PermissionCatalog.Units_Delete)
+  );
+
+  readonly hasEditPermission = computed(() =>
+    this.permissionsFacade.hasPermission(PermissionCatalog.Units_Update)
+  );
 
   readonly success = computed(() =>
     !!this.page() && !this.loading() && !this.loadError() && !this.empty()

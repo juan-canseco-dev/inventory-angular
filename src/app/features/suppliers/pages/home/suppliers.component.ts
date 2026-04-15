@@ -48,6 +48,8 @@ import {
   DeleteSupplierDialogResult
 } from '../../components/delete';
 import { flashError, flashSuccess } from '../../../../shared/utils';
+import { PermissionsFacade } from 'src/app/core/auth/store';
+import { PermissionCatalog } from 'src/app/core/permissions';
 
 type SupplierFilterKey = 'company' | 'name' | 'phone';
 
@@ -90,6 +92,7 @@ type SupplierFilterKey = 'company' | 'name' | 'phone';
 })
 export class SuppliersComponent implements OnInit {
   private readonly facade = inject(SuppliersFecade);
+  private readonly permissionsFacade = inject(PermissionsFacade);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
@@ -112,6 +115,16 @@ export class SuppliersComponent implements OnInit {
   readonly updateSuccess = signal(false);
   readonly deleteSuccess = signal(false);
   readonly actionError = signal<string | null>(null);
+
+  readonly hasCreatePermission = computed(() =>
+    this.permissionsFacade.hasPermission(PermissionCatalog.Suppliers_Create)
+  );
+  readonly hasEditPermission = computed(() =>
+    this.permissionsFacade.hasPermission(PermissionCatalog.Suppliers_Update)
+  );
+  readonly hasDeletePermission = computed(() =>
+    this.permissionsFacade.hasPermission(PermissionCatalog.Suppliers_Delete)
+  );
 
   displayedColumns: string[] = ['id', 'companyName', 'contactName' ,'contactPhone', 'actions'];
 

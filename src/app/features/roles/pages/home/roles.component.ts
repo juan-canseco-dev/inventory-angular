@@ -47,6 +47,8 @@ import {
   DeleteRoleDialogResult
 } from '../../components/delete';
 import { debounceTime, distinctUntilChanged } from "rxjs";
+import { PermissionsFacade } from 'src/app/core/auth/store';
+import { PermissionCatalog } from 'src/app/core/permissions';
 
 @Component({
   selector: 'app-roles',
@@ -89,6 +91,7 @@ import { debounceTime, distinctUntilChanged } from "rxjs";
 export class RolesComponent implements OnInit {
 
   private readonly fecade = inject(RolesFecade);
+  private readonly permissionsFacade = inject(PermissionsFacade);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
@@ -107,6 +110,16 @@ export class RolesComponent implements OnInit {
   readonly updateSuccess = signal(false);
   readonly deleteSuccess = signal(false);
   readonly actionError = signal<string | null>(null);
+
+  readonly hasCreatePermission = computed(() =>
+    this.permissionsFacade.hasPermission(PermissionCatalog.Roles_Create)
+  );
+  readonly hasEditPermission = computed(() =>
+    this.permissionsFacade.hasPermission(PermissionCatalog.Roles_Update)
+  );
+  readonly hasDeletePermission = computed(() =>
+    this.permissionsFacade.hasPermission(PermissionCatalog.Roles_Delete)
+  );
 
   @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
 

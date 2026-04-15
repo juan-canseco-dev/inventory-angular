@@ -6,6 +6,7 @@ import {
   Injector,
   OnInit,
   ViewChild,
+  computed,
   effect,
   inject,
   signal
@@ -44,6 +45,8 @@ import { EditComponent } from '../../components/edit';
 import { CategoriesFacade } from '../../store';
 import { CategoryDialogResult } from '../../models/category-dialog-result';
 import { flashError, flashSuccess } from '../../../../shared/utils/signal-flash.util';
+import { PermissionsFacade } from '../../../../core/auth/store';
+import { PermissionCatalog } from '../../../../core/permissions';
 
 @Component({
   selector: 'app-categories',
@@ -79,6 +82,7 @@ import { flashError, flashSuccess } from '../../../../shared/utils/signal-flash.
 })
 export class CategoriesComponent implements OnInit {
   private readonly facade = inject(CategoriesFacade);
+  private readonly permissionsFacade = inject(PermissionsFacade);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
 
@@ -100,6 +104,18 @@ export class CategoriesComponent implements OnInit {
 
   readonly deleteError = signal<string | null>(null);
   readonly deleteSuccess = signal(false);
+
+  readonly hasCreatePermission = computed(() =>{
+    return this.permissionsFacade.hasPermission(PermissionCatalog.Categories_Create);
+  });
+
+  readonly hasDeletePermission = computed(() => {
+    return this.permissionsFacade.hasPermission(PermissionCatalog.Categories_Delete);
+  });
+
+  readonly hasEditPermission = computed(() => {
+    return this.permissionsFacade.hasPermission(PermissionCatalog.Categories_Update);
+  });
 
   displayedColumns: string[] = ['id', 'name', 'actions'];
   filtersClicked = false;

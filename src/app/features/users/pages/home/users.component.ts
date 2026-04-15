@@ -43,6 +43,8 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { GetUsersRequest, User } from '../../models';
 import { DeleteComponent, DeleteUserDialogResult } from '../../components/delete';
 import { UsersFacade } from '../../store';
+import { PermissionsFacade } from 'src/app/core/auth/store';
+import { PermissionCatalog } from 'src/app/core/permissions';
 
 type UserFilterKey = 'fullName' | 'email';
 
@@ -81,6 +83,7 @@ type UserFilterKey = 'fullName' | 'email';
 })
 export class UsersComponent implements OnInit {
   private readonly facade = inject(UsersFacade);
+  private readonly permissionsFacade = inject(PermissionsFacade);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
@@ -102,6 +105,16 @@ export class UsersComponent implements OnInit {
   readonly updateSuccess = signal(false);
   readonly deleteSuccess = signal(false);
   readonly actionError = signal<string | null>(null);
+
+  readonly hasCreatePermission = computed(() =>
+    this.permissionsFacade.hasPermission(PermissionCatalog.Users_Create)
+  );
+  readonly hasEditPermission = computed(() =>
+    this.permissionsFacade.hasPermission(PermissionCatalog.Users_Update)
+  );
+  readonly hasDeletePermission = computed(() =>
+    this.permissionsFacade.hasPermission(PermissionCatalog.Users_Delete)
+  );
 
   displayedColumns: string[] = ['id', 'fullName', 'email', 'role', 'actions'];
 
