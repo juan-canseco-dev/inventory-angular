@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   effect,
   inject
@@ -45,6 +46,8 @@ import {
   UserWithDetails
 } from '../../models';
 import { UsersFacade } from '../../store';
+import { PermissionsFacade } from 'src/app/core/auth/store';
+import { PermissionCatalog } from 'src/app/core/permissions';
 
 @Component({
   selector: 'app-edit-user',
@@ -78,6 +81,7 @@ export class EditComponent {
   private readonly fb = inject(FormBuilder);
   private readonly facade = inject(UsersFacade);
   private readonly autocompleteFacade = inject(AutocompleteFacade);
+  private readonly permissionFacade = inject(PermissionsFacade);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -110,6 +114,10 @@ export class EditComponent {
 
   readonly roleSearch = new FormControl<string | LookupOption>('', { nonNullable: true });
 
+  readonly hasChangeRolePermission = computed(() => {
+    return this.permissionFacade.hasPermission(PermissionCatalog.Users_ChangeRole)
+  });
+
   constructor() {
     this.facade.resetUserDetailsState();
     this.facade.resetUpdateState();
@@ -117,6 +125,17 @@ export class EditComponent {
     this.autocompleteFacade.clearRoleOptions();
     this.loadDependencies();
     this.setRoleAutocomplete();
+
+    effect(() => {
+      if (this.hasChangeRolePermission()) {
+        this.roleSearch.enable({ emitEvent: false });
+        this.roleId.enable({ emitEvent: false });
+        return;
+      }
+
+      this.roleSearch.disable({ emitEvent: false });
+      this.roleId.disable({ emitEvent: false });
+    });
 
     effect(() => {
       const details = this.details();
@@ -184,7 +203,7 @@ export class EditComponent {
       return;
     }
 
-    if (hasRoleChange) {
+    if (hasRoleChange && this.hasChangeRolePermission()) {
       this.facade.changeUserRole(roleRequest);
     }
   }
@@ -194,6 +213,8 @@ export class EditComponent {
   }
 
   onRoleFocus(): void {
+    if (!this.hasChangeRolePermission()) return;
+
     const query = typeof this.roleSearch.value === 'string'
       ? this.roleSearch.value
       : this.roleSearch.value?.label ?? '';
@@ -217,7 +238,10 @@ export class EditComponent {
     if (!this.userId) return;
 
     this.facade.loadUserDetails(this.userId);
-    this.autocompleteFacade.loadRoleOptions('');
+
+    if (this.hasChangeRolePermission()) {
+      this.autocompleteFacade.loadRoleOptions('');
+    }
   }
 
   private setRoleAutocomplete(): void {
@@ -228,6 +252,10 @@ export class EditComponent {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(value => {
+        if (!this.hasChangeRolePermission()) {
+          return;
+        }
+
         if (typeof value !== 'string') {
           return;
         }

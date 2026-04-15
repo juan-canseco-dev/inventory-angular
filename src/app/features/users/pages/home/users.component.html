@@ -85,7 +85,7 @@
               </button>
 
               <button
-                *ngIf="canShowToolbarActions()"
+                *ngIf="hasCreatePermission() && canShowToolbarActions()"
                 mat-stroked-button
                 color="accent"
                 type="button"
