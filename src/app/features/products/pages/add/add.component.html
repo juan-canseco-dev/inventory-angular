@@ -1,1 +1,241 @@
-<p>add works!</p>
+<ng-container *ngIf="!createLoading(); else loadingTpl">
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-toaster *ngIf="createError() as error" class="p-3" placement="bottom-center">
+      <c-toast [autohide]="true" [delay]="2000" [visible]="true" class="align-items-center text-white border-0"
+        color="danger">
+        <c-row class="d-flex g-0">
+          <c-toast-body>
+            <div>{{ error.message }}</div>
+            <div *ngIf="error.errors?.length" class="mt-2">
+              <div *ngFor="let validationError of error.errors">
+                <strong>{{ getValidationErrorLabel(validationError.field) }}:</strong>
+                {{ validationError.message }}
+              </div>
+            </div>
+          </c-toast-body>
+        </c-row>
+      </c-toast>
+    </c-toaster>
+
+    <c-col xs="12">
+      <form [formGroup]="productForm" (ngSubmit)="onSaveClick()">
+        <c-row style="min-height: 512px" class="g-0">
+          <c-card>
+            <c-card-header>
+              <c-row class="aling-items-center g-0">
+                <c-col>
+                  <h4>New Product</h4>
+                </c-col>
+
+                <c-col class="d-flex justify-content-end gap-2">
+                  <button mat-stroked-button color="accent" type="submit">
+                    Save
+                    <mat-icon>save</mat-icon>
+                  </button>
+                </c-col>
+              </c-row>
+            </c-card-header>
+
+            <c-card-body>
+              <c-row>
+                <c-col xs="12" md="6">
+                  <h5>Product Details</h5>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Name</mat-label>
+                    <input matInput formControlName="name" placeholder="Product Name" />
+                    <mat-error *ngIf="name.hasError('required')">
+                      Name is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="name.hasError('maxlength')">
+                      The length of the Name is too long. The maximum length
+                      must be
+                      <strong>50 characters</strong>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Purchase Price</mat-label>
+                    <input matInput type="number" min="0.01" step="0.01" formControlName="purchasePrice"
+                      placeholder="Purchase Price" />
+                    <mat-error *ngIf="purchasePrice.hasError('required')">
+                      Purchase Price is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="purchasePrice.hasError('min')">
+                      Purchase Price must be greater than <strong>0.00</strong>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Sale Price</mat-label>
+                    <input matInput type="number" min="0.01" step="0.01" formControlName="salePrice"
+                      placeholder="Sale Price" />
+                    <mat-error *ngIf="salePrice.hasError('required')">
+                      Sale Price is <strong>Required</strong>
+                    </mat-error>
+                    <mat-error *ngIf="salePrice.hasError('min')">
+                      Sale Price must be greater than <strong>0.00</strong>
+                    </mat-error>
+                  </mat-form-field>
+
+                  <div *ngIf="
+                      productForm.hasError(
+                        'salePriceMustBeGreaterThanPurchasePrice'
+                      ) &&
+                      (salePrice.touched || purchasePrice.touched)
+                    " class="text-danger mt-1">
+                    Sale Price must be
+                    <strong>greater than Purchase Price</strong>
+                  </div>
+                </c-col>
+
+                <c-col xs="12" md="6">
+                  <h5>Related Information</h5>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Supplier</mat-label>
+                    <input matInput [formControl]="searchSupplier" [matAutocomplete]="supplierAuto"
+                      placeholder="Search Supplier" (focus)="onSupplierFocus()" />
+                    <mat-autocomplete #supplierAuto="matAutocomplete" [displayWith]="displayLookupOption"
+                      (optionSelected)="onSupplierSelected($event)">
+                      <mat-option *ngFor="let option of supplierOptions()" [value]="option">
+                        {{ option.label }}
+                      </mat-option>
+                    </mat-autocomplete>
+
+                    <button mat-icon-button matSuffix aria-label="Clear" *ngIf="searchSupplier.value"
+                      (click)="clearOptionsFormControl('supplier')">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </mat-form-field>
+
+                  <div *ngIf="supplierOptionsLoading()" class="text-muted mb-3">
+                    Loading suppliers...
+                  </div>
+
+                  <div *ngIf="supplierOptionsError() as error" class="text-danger mb-3">
+                    {{ error.message }}
+                  </div>
+
+                  <div *ngIf="
+                      supplierId.hasError('required') && supplierId.touched
+                    " class="text-danger">
+                    Supplier is <strong>Required</strong>
+                  </div>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Category</mat-label>
+                    <input matInput [formControl]="searchCategory" [matAutocomplete]="categoryAuto"
+                      placeholder="Search Category" (focus)="onCategoryFocus()" />
+                    <mat-autocomplete #categoryAuto="matAutocomplete" [displayWith]="displayLookupOption"
+                      (optionSelected)="onCategorySelected($event)">
+                      <mat-option *ngFor="let option of categoryOptions()" [value]="option">
+                        {{ option.label }}
+                      </mat-option>
+                    </mat-autocomplete>
+
+                    <button mat-icon-button matSuffix aria-label="Clear" *ngIf="searchCategory.value"
+                      (click)="clearOptionsFormControl('category')">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </mat-form-field>
+
+                  <div *ngIf="categoryOptionsLoading()" class="text-muted mb-3">
+                    Loading categories...
+                  </div>
+
+                  <div *ngIf="categoryOptionsError() as error" class="text-danger mb-3">
+                    {{ error.message }}
+                  </div>
+
+                  <div *ngIf="
+                      categoryId.hasError('required') && categoryId.touched
+                    " class="text-danger">
+                    Category is <strong>Required</strong>
+                  </div>
+
+                  <mat-form-field appearance="fill" class="w-100">
+                    <mat-label>Unit</mat-label>
+                    <input matInput [formControl]="searchUnit" [matAutocomplete]="unitAuto" placeholder="Search Unit"
+                      (focus)="onUnitFocus()" />
+                    <mat-autocomplete #unitAuto="matAutocomplete" [displayWith]="displayLookupOption"
+                      (optionSelected)="onUnitSelected($event)">
+                      <mat-option *ngFor="let option of unitOptions()" [value]="option">
+                        {{ option.label }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <button mat-icon-button matSuffix aria-label="Clear" *ngIf="searchUnit.value"
+                      (click)="clearOptionsFormControl('unit')">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </mat-form-field>
+
+                  <div *ngIf="unitOptionsLoading()" class="text-muted mb-3">
+                    Loading units...
+                  </div>
+
+                  <div *ngIf="unitOptionsError() as error" class="text-danger mb-3">
+                    {{ error.message }}
+                  </div>
+                  <div *ngIf="unitId.hasError('required') && unitId.touched" class="text-danger">
+                    Unit is <strong>Required</strong>
+                  </div>
+                </c-col>
+              </c-row>
+            </c-card-body>
+
+            <c-card-footer></c-card-footer>
+          </c-card>
+        </c-row>
+      </form>
+    </c-col>
+  </c-row>
+</ng-container>
+
+<ng-template #loadingTpl>
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-col xs="12">
+      <form [formGroup]="productForm">
+        <c-row style="min-height: 512px" class="g-0">
+          <c-card>
+            <c-card-header>
+              <c-row class="aling-items-center g-0">
+                <c-col>
+                  <h4>New Product</h4>
+                </c-col>
+
+                <c-col class="d-flex justify-content-end gap-2">
+                  <button mat-stroked-button color="accent" type="button" disabled>
+                    Loading...
+                  </button>
+                </c-col>
+              </c-row>
+            </c-card-header>
+
+            <c-card-body>
+              <c-row>
+                <c-col xs="12" md="6">
+                  <h5>Product Details</h5>
+
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                </c-col>
+
+                <c-col xs="12" md="6">
+                  <h5>Relationships</h5>
+
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                  <ngx-shimmer-loading class="w-100 mb-3" [width]="'100%'" [height]="'56px'"></ngx-shimmer-loading>
+                </c-col>
+              </c-row>
+            </c-card-body>
+
+            <c-card-footer></c-card-footer>
+          </c-card>
+        </c-row>
+      </form>
+    </c-col>
+  </c-row>
+</ng-template>

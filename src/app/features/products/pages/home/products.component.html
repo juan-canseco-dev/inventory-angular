@@ -1,1 +1,391 @@
-<p>products works!</p>
+<c-row ngPreserveWhitespaces class="g-0">
+  <c-toaster *ngIf="addSuccess()" class="p-3" placement="bottom-center">
+    <c-toast
+      [autohide]="true"
+      [delay]="2000"
+      [visible]="true"
+      class="align-items-center text-white border-0"
+      color="success">
+      <c-row class="d-flex g-0">
+        <c-toast-body>
+          <span>New product created successfully</span>
+        </c-toast-body>
+      </c-row>
+    </c-toast>
+  </c-toaster>
+
+  <c-toaster *ngIf="updateSuccess()" class="p-3" placement="bottom-center">
+    <c-toast
+      [autohide]="true"
+      [delay]="2000"
+      [visible]="true"
+      class="align-items-center text-white border-0"
+      color="success">
+      <c-row class="d-flex g-0">
+        <c-toast-body>
+          <span>Product updated successfully</span>
+        </c-toast-body>
+      </c-row>
+    </c-toast>
+  </c-toaster>
+
+  <c-toaster *ngIf="deleteSuccess()" class="p-3" placement="bottom-center">
+    <c-toast
+      [autohide]="true"
+      [delay]="2000"
+      [visible]="true"
+      class="align-items-center text-white border-0"
+      color="success">
+      <c-row class="d-flex g-0">
+        <c-toast-body>
+          <span>Product deleted successfully</span>
+        </c-toast-body>
+      </c-row>
+    </c-toast>
+  </c-toaster>
+
+  <c-toaster *ngIf="actionError() as error" class="p-3" placement="bottom-center">
+    <c-toast
+      [autohide]="true"
+      [delay]="2000"
+      [visible]="true"
+      class="align-items-center text-white border-0"
+      color="danger">
+      <c-row class="d-flex g-0">
+        <c-toast-body>
+          <span>{{ error }}</span>
+        </c-toast-body>
+      </c-row>
+    </c-toast>
+  </c-toaster>
+
+  <c-col xs="12">
+    <c-row style="min-height: 512px" class="g-0">
+      <c-card>
+        <c-card-header>
+          <c-row class="align-items-center g-0">
+            <c-col>
+              <h4>Products</h4>
+            </c-col>
+
+            <c-col class="d-flex justify-content-end gap-2">
+              <button
+                *ngIf="canShowToolbarActions()"
+                mat-stroked-button
+                color="accent"
+                type="button"
+                (click)="onFiltersClicked()">
+                Filters
+                <mat-icon>{{ filtersClicked ? 'filter_alt_off' : 'filter_alt' }}</mat-icon>
+              </button>
+
+              <button
+                *ngIf="hasCreatePermission() && canShowToolbarActions()"
+                mat-stroked-button
+                color="accent"
+                type="button"
+                (click)="onCreateClick()">
+                New Product
+                <mat-icon>add</mat-icon>
+              </button>
+            </c-col>
+          </c-row>
+        </c-card-header>
+
+        <c-card-body class="p-0">
+          @if (filtersClicked && canShowToolbarActions()) {
+            <c-row class="p-2 g-0">
+              <c-col xs="12" md="6" class="p-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Search Product Name</mat-label>
+                  <input
+                    #nameInput
+                    matInput
+                    placeholder="Enter product name"
+                    [formControl]="searchName"
+                    (focus)="onFilterFocus('name')" />
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    aria-label="Clear"
+                    *ngIf="searchName.value"
+                    (click)="searchName.setValue('')">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </mat-form-field>
+              </c-col>
+
+              <c-col xs="12" md="6" class="p-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Search Supplier</mat-label>
+                  <input
+                    #supplierInput
+                    matInput
+                    placeholder="Enter supplier"
+                    [formControl]="searchSupplier"
+                    [matAutocomplete]="supplierAuto"
+                    (focus)="onSupplierFocus()" />
+                  <mat-autocomplete
+                    #supplierAuto="matAutocomplete"
+                    [displayWith]="displayLookupOption"
+                    (optionSelected)="onSupplierSelected($event)">
+                    <mat-option *ngFor="let option of supplierOptions()" [value]="option">
+                      {{ option.label }}
+                    </mat-option>
+                  </mat-autocomplete>
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    aria-label="Clear"
+                    *ngIf="searchSupplier.value"
+                    (click)="searchSupplier.setValue('')">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </mat-form-field>
+
+                <div *ngIf="supplierOptionsLoading()" class="text-muted small px-1">
+                  Loading suppliers...
+                </div>
+
+                <div *ngIf="supplierOptionsError() as error" class="text-danger small px-1">
+                  {{ error.message }}
+                </div>
+              </c-col>
+
+              <c-col xs="12" md="6" class="p-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Search Category</mat-label>
+                  <input
+                    #categoryInput
+                    matInput
+                    placeholder="Enter category"
+                    [formControl]="searchCategory"
+                    [matAutocomplete]="categoryAuto"
+                    (focus)="onCategoryFocus()" />
+                  <mat-autocomplete
+                    #categoryAuto="matAutocomplete"
+                    [displayWith]="displayLookupOption"
+                    (optionSelected)="onCategorySelected($event)">
+                    <mat-option *ngFor="let option of categoryOptions()" [value]="option">
+                      {{ option.label }}
+                    </mat-option>
+                  </mat-autocomplete>
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    aria-label="Clear"
+                    *ngIf="searchCategory.value"
+                    (click)="searchCategory.setValue('')">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </mat-form-field>
+
+                <div *ngIf="categoryOptionsLoading()" class="text-muted small px-1">
+                  Loading categories...
+                </div>
+
+                <div *ngIf="categoryOptionsError() as error" class="text-danger small px-1">
+                  {{ error.message }}
+                </div>
+              </c-col>
+
+              <c-col xs="12" md="6" class="p-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Search Unit</mat-label>
+                  <input
+                    #unitInput
+                    matInput
+                    placeholder="Enter unit"
+                    [formControl]="searchUnit"
+                    [matAutocomplete]="unitAuto"
+                    (focus)="onUnitFocus()" />
+                  <mat-autocomplete
+                    #unitAuto="matAutocomplete"
+                    [displayWith]="displayLookupOption"
+                    (optionSelected)="onUnitSelected($event)">
+                    <mat-option *ngFor="let option of unitOptions()" [value]="option">
+                      {{ option.label }}
+                    </mat-option>
+                  </mat-autocomplete>
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    aria-label="Clear"
+                    *ngIf="searchUnit.value"
+                    (click)="searchUnit.setValue('')">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </mat-form-field>
+
+                <div *ngIf="unitOptionsLoading()" class="text-muted small px-1">
+                  Loading units...
+                </div>
+
+                <div *ngIf="unitOptionsError() as error" class="text-danger small px-1">
+                  {{ error.message }}
+                </div>
+              </c-col>
+            </c-row>
+          }
+
+          <ng-container *ngIf="isSuccess()">
+            <table
+              mat-table
+              matSort
+              [dataSource]="products()"
+              class="table table-striped table-hover m-0"
+              (matSortChange)="onSortChange($event)"
+              [matSortActive]="request.orderBy!"
+              [matSortDirection]="request.sortOrder!">
+
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="id">Id</th>
+                <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="name">Name</th>
+                <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="supplier">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="supplier">Supplier</th>
+                <td mat-cell *matCellDef="let element">{{ element.supplier }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="category">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="category">Category</th>
+                <td mat-cell *matCellDef="let element">{{ element.category }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="unit">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="unit">Unit</th>
+                <td mat-cell *matCellDef="let element">{{ element.unit }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="stock">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="stock">Stock</th>
+                <td mat-cell *matCellDef="let element">{{ element.stock }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="purchasePrice">
+                <th mat-header-cell *matHeaderCellDef>Purchase Price</th>
+                <td mat-cell *matCellDef="let element">{{ element.purchasePrice | number:'1.2-2' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="salePrice">
+                <th mat-header-cell *matHeaderCellDef>Sale Price</th>
+                <td mat-cell *matCellDef="let element">{{ element.salePrice | number:'1.2-2' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="text-end">Actions</th>
+                <td mat-cell *matCellDef="let element" class="text-end">
+                  <div style="display: inline-flex; gap: 4px">
+                    <button mat-icon-button aria-label="Details" (click)="onDetailsClick(element)">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                    <button mat-icon-button aria-label="Edit" (click)="onEditClick(element)" [disabled]="!hasEditPermission()">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button aria-label="Delete" (click)="onDeleteClick(element)" [disabled]="!hasDeletePermission()">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          </ng-container>
+
+          <ng-container *ngIf="loading()">
+            <table [striped]="true" cTable>
+              <thead>
+                <tr>
+                  <th scope="col">Id</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Supplier</th>
+                  <th scope="col">Category</th>
+                  <th scope="col">Unit</th>
+                  <th scope="col">Stock</th>
+                  <th scope="col">Purchase Price</th>
+                  <th scope="col">Sale Price</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of [].constructor(10); let i = index">
+                  <td *ngFor="let column of [].constructor(9)">
+                    <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </ng-container>
+
+          <ng-container *ngIf="error()">
+            <c-row
+              class="text-center m-2 g-0 align-items-center justify-content-center"
+              style="min-height: 320px;">
+              <c-col>
+                <img cImg align="center" height="200" rounded src="../../../assets/images/error.png" width="200" />
+                <p cCardText>An error occurred, please try again</p>
+                <button cButton color="primary" (click)="onRetryClick()">
+                  Retry
+                </button>
+              </c-col>
+            </c-row>
+          </ng-container>
+
+          <ng-container *ngIf="empty()">
+            <c-row
+              class="text-center m-2 g-0 align-items-center justify-content-center"
+              style="min-height: 320px;">
+              <c-col>
+                <img src="../../../assets/images/no-results.png" alt="No results found" class="mx-auto mb-4" width="150" />
+
+                <p class="mb-3">
+                  No records found matching your search.
+                </p>
+
+                <p class="text-muted mb-4">
+                  You can try searching with different keywords, or create a new one instead.
+                </p>
+
+                <button *ngIf="hasCreatePermission()" mat-button color="primary" (click)="onCreateClick()">
+                  Add New Record
+                </button>
+              </c-col>
+            </c-row>
+          </ng-container>
+        </c-card-body>
+
+        <c-card-footer class="d-flex justify-content-end p-2">
+          <ng-container *ngIf="isSuccess() && page() as pageValue">
+            <mat-paginator
+              [length]="pageValue.totalElements || 0"
+              [pageIndex]="request.pageNumber! - 1"
+              [pageSize]="request.pageSize!"
+              [pageSizeOptions]="[5, 10, 25, 100]"
+              (page)="onPageChange($event)"
+              showFirstLastButtons
+              aria-label="Select page">
+            </mat-paginator>
+          </ng-container>
+
+          <ng-container *ngIf="loading()">
+            <div style="width: 25%;">
+              <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="empty()">
+            <strong>No Records</strong>
+          </ng-container>
+        </c-card-footer>
+      </c-card>
+    </c-row>
+  </c-col>
+</c-row>
