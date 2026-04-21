@@ -96,6 +96,17 @@ export class CategoriesComponent implements OnInit {
   readonly loadError = this.facade.loadError;
   readonly empty = this.facade.empty;
 
+  readonly hasLoadedPage = computed(() => !!this.page());
+  readonly hasRenderedData = computed(() => this.categories().length > 0);
+  readonly showInitialLoading = computed(() => this.loading() && !this.hasLoadedPage());
+  readonly showInitialError = computed(() => !!this.loadError() && !this.hasLoadedPage());
+  readonly isRefreshing = computed(() => this.loading() && this.hasLoadedPage());
+  readonly showContentTable = computed(() => this.hasRenderedData());
+  readonly showEmptyState = computed(() =>
+    this.hasLoadedPage() && !this.hasRenderedData() && !this.showInitialError()
+  );
+  readonly showRefreshError = computed(() => !!this.loadError() && this.hasLoadedPage());
+
   readonly addError = signal<string | null>(null);
   readonly addSuccess = signal(false);
 
@@ -117,6 +128,8 @@ export class CategoriesComponent implements OnInit {
     return this.permissionsFacade.hasPermission(PermissionCatalog.Categories_Update);
   });
 
+  readonly showFiltersAndCreateActions = computed(() => this.hasLoadedPage());
+
   displayedColumns: string[] = ['id', 'name', 'actions'];
   filtersClicked = false;
 
@@ -132,10 +145,7 @@ export class CategoriesComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      const isLoading = this.loading();
-      const hasLoadError = this.loadError();
-
-      if (this.filtersClicked && !isLoading && !hasLoadError) {
+      if (this.filtersClicked && this.showFiltersAndCreateActions()) {
         this.focusSearchInput();
       }
     });
@@ -143,14 +153,6 @@ export class CategoriesComponent implements OnInit {
 
   get sortDirection(): 'asc' | 'desc' {
     return this.request.sortOrder === 'desc' ? 'desc' : 'asc';
-  }
-
-  get showSuccessState(): boolean {
-    return !this.loading() && !this.loadError() && !this.empty();
-  }
-
-  get showFiltersAndCreateActions(): boolean {
-    return this.showSuccessState || this.empty();
   }
 
   ngOnInit(): void {

@@ -93,6 +93,13 @@ export class UnitsComponent implements OnInit {
   readonly loadError = this.facade.loadError;
   readonly empty = this.facade.empty;
 
+  readonly hasLoadedPage = computed(() => !!this.page());
+  readonly hasRenderedData = computed(() => this.units().length > 0);
+  readonly showInitialLoading = computed(() => this.loading() && !this.hasLoadedPage());
+  readonly showInitialError = computed(() => !!this.loadError() && !this.hasLoadedPage());
+  readonly isRefreshing = computed(() => this.loading() && this.hasLoadedPage());
+  readonly showRefreshError = computed(() => !!this.loadError() && this.hasLoadedPage());
+
   readonly addError = signal<string | null>(null);
   readonly addSuccess = signal(false);
 
@@ -115,11 +122,15 @@ export class UnitsComponent implements OnInit {
   );
 
   readonly success = computed(() =>
-    !!this.page() && !this.loading() && !this.loadError() && !this.empty()
+    this.hasRenderedData()
   );
 
   readonly showHeaderActions = computed(() =>
-    this.success() || this.empty()
+    this.hasLoadedPage()
+  );
+
+  readonly showEmptyState = computed(() =>
+    this.hasLoadedPage() && !this.hasRenderedData() && !this.showInitialError()
   );
 
   @ViewChild('searchInput') private searchInput?: ElementRef<HTMLInputElement>;
@@ -139,9 +150,7 @@ export class UnitsComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      const isLoading = this.loading();
-      const hasLoadError = this.loadError();
-      if (this.filtersClicked && !isLoading && !hasLoadError) {
+      if (this.filtersClicked && this.showHeaderActions()) {
         this.focusSearchInput();
       }
     });

@@ -108,8 +108,17 @@ export class SuppliersComponent implements OnInit {
   readonly error = this.facade.loadError;
   readonly empty = this.facade.empty;
 
-  readonly isSuccess = computed(() => !this.loading() && !this.error() && !this.empty());
-  readonly canShowToolbarActions = computed(() => this.isSuccess() || this.empty());
+  readonly hasLoadedPage = computed(() => !!this.page());
+  readonly hasRenderedData = computed(() => this.suppliers().length > 0);
+  readonly isSuccess = computed(() => this.hasRenderedData());
+  readonly showInitialLoading = computed(() => this.loading() && !this.hasLoadedPage());
+  readonly showInitialError = computed(() => !!this.error() && !this.hasLoadedPage());
+  readonly isRefreshing = computed(() => this.loading() && this.hasLoadedPage());
+  readonly showEmptyState = computed(() =>
+    this.hasLoadedPage() && !this.hasRenderedData() && !this.showInitialError()
+  );
+  readonly showRefreshError = computed(() => !!this.error() && this.hasLoadedPage());
+  readonly canShowToolbarActions = computed(() => this.hasLoadedPage());
 
   readonly addSuccess = signal(false);
   readonly updateSuccess = signal(false);

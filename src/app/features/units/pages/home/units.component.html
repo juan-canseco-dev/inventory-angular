@@ -122,6 +122,13 @@
             </c-row>
           }
 
+          <ng-container *ngIf="isRefreshing()">
+            <div class="px-3 py-2 border-bottom text-muted small d-flex align-items-center gap-2">
+              <ngx-shimmer-loading [width]="'24px'" [height]="'12px'"></ngx-shimmer-loading>
+              <span>Updating results...</span>
+            </div>
+          </ng-container>
+
           <ng-container *ngIf="page() as page">
             <table
               mat-table
@@ -174,7 +181,7 @@
             </c-card-footer>
           </ng-container>
 
-          <ng-container *ngIf="loading()">
+          <ng-container *ngIf="showInitialLoading()">
             <table [striped]="true" cTable>
               <thead>
                 <tr>
@@ -205,7 +212,7 @@
             </c-card-footer>
           </ng-container>
 
-          <ng-container *ngIf="loadError()">
+          <ng-container *ngIf="showInitialError()">
             <c-row
               class="text-center m-2 g-0 align-items-center justify-content-center"
               style="min-height: 320px">
@@ -217,7 +224,14 @@
             </c-row>
           </ng-container>
 
-          <ng-container *ngIf="empty()">
+          <ng-container *ngIf="showRefreshError()">
+            <div class="px-3 py-2 text-danger small border-top">
+              Couldn't update results. Try again.
+              <button mat-button color="warn" type="button" (click)="onRetryClick()">Retry</button>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="showEmptyState()">
             <c-row
               class="text-center m-2 g-0 align-items-center justify-content-center"
               style="min-height: 320px">

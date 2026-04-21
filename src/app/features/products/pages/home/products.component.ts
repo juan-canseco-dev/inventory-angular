@@ -44,7 +44,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { NgxShimmerLoadingModule } from 'ngx-shimmer-loading';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, isEmpty } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { PermissionCatalog } from '../../../..//core/permissions';
 import { PermissionsFacade } from '../../../../core/auth/store';
 import { flashError, flashSuccess } from '../../../../shared/utils';
@@ -91,7 +91,6 @@ type ProductFilterKey = 'name' | 'supplier' | 'category' | 'unit';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductsComponent implements OnInit, OnDestroy {
-
   private readonly facade = inject(ProductsFacade);
   private readonly autocompleteFacade = inject(AutocompleteFacade);
   private readonly permissionsFacade = inject(PermissionsFacade);
@@ -116,8 +115,61 @@ export class ProductsComponent implements OnInit, OnDestroy {
   readonly deleteSuccess = signal(false);
   readonly actionError = signal<string | null>(null);
 
-  readonly isSuccess = computed(() => !this.loading() && !this.error() && !this.empty());
-  readonly canShowToolbarActions = computed(() => this.isSuccess() || this.empty());
+  /**
+   * The page has been loaded at least once, including empty responses.
+   */
+  readonly hasLoadedPage = computed(() => !!this.page());
+
+  /**
+   * There is already rendered data available.
+   * This allows the table to remain visible while refreshing.
+   */
+  readonly hasRenderedData = computed(() => this.products().length > 0);
+
+  /**
+   * Full-page loading only for first load.
+   */
+  readonly showInitialLoading = computed(() =>
+    this.loading() && !this.hasLoadedPage()
+  );
+
+  /**
+   * Full-page error only when there is no previous data to keep visible.
+   */
+  readonly showInitialError = computed(() =>
+    !!this.error() && !this.hasLoadedPage()
+  );
+
+  /**
+   * Refreshing state for search, sort, pagination, etc.
+   * Keeps the last loaded state visible.
+   */
+  readonly isRefreshing = computed(() =>
+    this.loading() && this.hasLoadedPage()
+  );
+
+  /**
+   * Table remains visible whenever data exists.
+   */
+  readonly showContentTable = computed(() => this.hasRenderedData());
+
+  /**
+   * Keep the empty state visible while refreshing or after refresh errors.
+   */
+  readonly showEmptyState = computed(() =>
+    this.hasLoadedPage() && !this.hasRenderedData() && !this.showInitialError()
+  );
+
+  readonly showRefreshError = computed(() =>
+    !!this.error() && this.hasLoadedPage()
+  );
+
+  /**
+   * Toolbar actions stay visible after the first successful load.
+   */
+  readonly canShowToolbarActions = computed(() =>
+    this.hasLoadedPage()
+  );
 
   readonly hasCreatePermission = computed(() =>
     this.permissionsFacade.hasPermission(PermissionCatalog.Products_Create)
@@ -181,7 +233,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   constructor() {
     effect(() => {
-      if (this.filtersClicked && this.lastFocusedFilter === 'name' && (this.isSuccess() || this.empty())) {
+      if (
+        this.filtersClicked &&
+        this.canShowToolbarActions()
+      ) {
         this.focusLastUsedFilter();
       }
     });
@@ -194,9 +249,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-     this.autocompleteFacade.clearSupplierOptions();
-      this.autocompleteFacade.clearCategoryOptions();
-      this.autocompleteFacade.clearUnitOptions();
+    this.autocompleteFacade.clearSupplierOptions();
+    this.autocompleteFacade.clearCategoryOptions();
+    this.autocompleteFacade.clearUnitOptions();
   }
 
   onPageChange(event: PageEvent): void {
@@ -224,11 +279,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
         },
         { emitEvent: false }
       );
+
       this.request.name = null;
       this.request.supplierId = null;
       this.request.categoryId = null;
       this.request.unitId = null;
       this.request.pageNumber = 1;
+
       this.loadPage();
       return;
     }
@@ -325,11 +382,27 @@ export class ProductsComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(value => {
-        this.request.name = value.name ? value.name : null;
-        this.request.supplierId = typeof value.supplier === 'string' ? null : this.request.supplierId;
-        this.request.categoryId = typeof value.category === 'string' ? null : this.request.categoryId;
-        this.request.unitId = typeof value.unit === 'string' ? null : this.request.unitId;
-        this.request.pageNumber = 1;
+        const nextRequest: GetProductsRequest = {
+          ...this.request,
+          pageNumber: 1,
+          name: value.name ? value.name : null,
+          supplierId: typeof value.supplier === 'string' ? null : this.request.supplierId,
+          categoryId: typeof value.category === 'string' ? null : this.request.categoryId,
+          unitId: typeof value.unit === 'string' ? null : this.request.unitId
+        };
+
+        const hasChanged =
+          nextRequest.name !== this.request.name ||
+          nextRequest.supplierId !== this.request.supplierId ||
+          nextRequest.categoryId !== this.request.categoryId ||
+          nextRequest.unitId !== this.request.unitId ||
+          nextRequest.pageNumber !== this.request.pageNumber;
+
+        if (!hasChanged) {
+          return;
+        }
+
+        this.request = nextRequest;
         this.loadPage();
       });
 

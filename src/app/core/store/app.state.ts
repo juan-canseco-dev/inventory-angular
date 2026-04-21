@@ -8,6 +8,7 @@ import { autocompleteFeature, AutocompleteState } from '../../shared/autocomplet
 import { UnitsState, unitsFeature } from '../../features/units/store';
 import { suppliersFeature, SuppliersState  } from '../../features/suppliers/store';
 import { ProductsState, productsFeature } from '../../features/products/store';
+import { OrdersState, ordersFeature } from '../../features/orders/store';
 
 export interface AppState {
   auth: AuthState;
@@ -16,6 +17,7 @@ export interface AppState {
   units: UnitsState;
   suppliers: SuppliersState;
   products: ProductsState;
+  orders: OrdersState;
   customers: CustomersState;
   roles: RolesState;
   users: UsersState;
@@ -28,6 +30,7 @@ export const ROOT_REDUCERS : ActionReducerMap<AppState> = {
   units: unitsFeature.reducer,
   suppliers: suppliersFeature.reducer,
   products: productsFeature.reducer,
+  orders: ordersFeature.reducer,
   customers: customersFeature.reducer,
   roles: rolesFeature.reducer,
   users: usersFeature.reducer

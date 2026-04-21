@@ -1,1 +1,376 @@
-<p>orders works!</p>
+<c-row ngPreserveWhitespaces class="g-0">
+  <c-toaster *ngIf="addSuccess()" class="p-3" placement="bottom-center">
+    <c-toast
+      [autohide]="true"
+      [delay]="2000"
+      [visible]="true"
+      class="align-items-center text-white border-0"
+      color="success">
+      <c-row class="d-flex g-0">
+        <c-toast-body>
+          <span>New order created successfully</span>
+        </c-toast-body>
+      </c-row>
+    </c-toast>
+  </c-toaster>
+
+  <c-toaster *ngIf="updateSuccess()" class="p-3" placement="bottom-center">
+    <c-toast
+      [autohide]="true"
+      [delay]="2000"
+      [visible]="true"
+      class="align-items-center text-white border-0"
+      color="success">
+      <c-row class="d-flex g-0">
+        <c-toast-body>
+          <span>Order updated successfully</span>
+        </c-toast-body>
+      </c-row>
+    </c-toast>
+  </c-toaster>
+
+  <c-toaster *ngIf="deleteSuccess()" class="p-3" placement="bottom-center">
+    <c-toast
+      [autohide]="true"
+      [delay]="2000"
+      [visible]="true"
+      class="align-items-center text-white border-0"
+      color="success">
+      <c-row class="d-flex g-0">
+        <c-toast-body>
+          <span>Order deleted successfully</span>
+        </c-toast-body>
+      </c-row>
+    </c-toast>
+  </c-toaster>
+
+  <c-toaster *ngIf="actionError() as error" class="p-3" placement="bottom-center">
+    <c-toast
+      [autohide]="true"
+      [delay]="2000"
+      [visible]="true"
+      class="align-items-center text-white border-0"
+      color="danger">
+      <c-row class="d-flex g-0">
+        <c-toast-body>
+          <span>{{ error }}</span>
+        </c-toast-body>
+      </c-row>
+    </c-toast>
+  </c-toaster>
+
+  <c-col xs="12">
+    <c-row style="min-height: 512px" class="g-0">
+      <c-card>
+        <c-card-header>
+          <c-row class="align-items-center g-0">
+            <c-col>
+              <h4>Orders</h4>
+            </c-col>
+
+            <c-col class="d-flex justify-content-end gap-2">
+              <button
+                *ngIf="canShowToolbarActions()"
+                mat-stroked-button
+                color="accent"
+                type="button"
+                (click)="onFiltersClicked()">
+                Filters
+                <mat-icon>{{ filtersClicked ? 'filter_alt_off' : 'filter_alt' }}</mat-icon>
+              </button>
+
+              <button
+                *ngIf="hasCreatePermission() && canShowToolbarActions()"
+                mat-stroked-button
+                color="accent"
+                type="button"
+                (click)="onCreateClick()">
+                New Order
+                <mat-icon>add</mat-icon>
+              </button>
+            </c-col>
+          </c-row>
+        </c-card-header>
+
+        <c-card-body class="p-0">
+          @if (filtersClicked && canShowToolbarActions()) {
+            <c-row class="p-2 g-0">
+              <c-col xs="12" md="6" class="d-flex justify-content-end align-items-center mb-md-0 p-2">
+                <div class="w-100">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Search Customer</mat-label>
+                    <input
+                      #customerInput
+                      matInput
+                      placeholder="Enter customer"
+                      [formControl]="searchCustomer"
+                      [matAutocomplete]="customerAuto"
+                      (focus)="onCustomerFocus()" />
+                    <mat-autocomplete
+                      #customerAuto="matAutocomplete"
+                      [displayWith]="displayLookupOption"
+                      (optionSelected)="onCustomerSelected($event)">
+                      <mat-option *ngFor="let option of customerOptions()" [value]="option">
+                        {{ option.label }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <button
+                      mat-icon-button
+                      matSuffix
+                      aria-label="Clear"
+                      *ngIf="searchCustomer.value"
+                      (click)="searchCustomer.setValue('')">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </mat-form-field>
+
+                  <div *ngIf="customerOptionsLoading()" class="text-muted small px-1">
+                    Loading customers...
+                  </div>
+
+                  <div *ngIf="customerOptionsError() as error" class="text-danger small px-1">
+                    {{ error.message }}
+                  </div>
+                </div>
+              </c-col>
+
+              <c-col xs="12" md="6" class="d-flex justify-content-end align-items-center mb-md-0 p-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Delivered</mat-label>
+                  <select
+                    #deliveredInput
+                    matNativeControl
+                    [formControl]="searchDelivered"
+                    (focus)="onFilterFocus('delivered')">
+                    <option value="">All</option>
+                    <option value="true">Delivered</option>
+                    <option value="false">Pending</option>
+                  </select>
+                </mat-form-field>
+              </c-col>
+
+              <c-col xs="12" md="6" class="d-flex justify-content-end align-items-center mb-md-0 p-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Ordered At</mat-label>
+                  <mat-date-range-input [rangePicker]="orderedAtPicker">
+                    <input
+                      #orderedAtStartDateInput
+                      matStartDate
+                      placeholder="Start date"
+                      [formControl]="searchOrderedAtStartDate"
+                      (focus)="onFilterFocus('orderedAt')" />
+                    <input
+                      matEndDate
+                      placeholder="End date"
+                      [formControl]="searchOrderedAtEndDate"
+                      (focus)="onFilterFocus('orderedAt')" />
+                  </mat-date-range-input>
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    aria-label="Clear ordered at range"
+                    *ngIf="searchOrderedAtStartDate.value || searchOrderedAtEndDate.value"
+                    (click)="clearOrderedAtRange()">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                  <mat-datepicker-toggle matSuffix [for]="orderedAtPicker"></mat-datepicker-toggle>
+                  <mat-date-range-picker #orderedAtPicker></mat-date-range-picker>
+                </mat-form-field>
+              </c-col>
+
+              <c-col xs="12" md="6" class="d-flex justify-content-end align-items-center mb-md-0 p-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Delivered At</mat-label>
+                  <mat-date-range-input [rangePicker]="deliveredAtPicker">
+                    <input
+                      #deliveredAtStartDateInput
+                      matStartDate
+                      placeholder="Start date"
+                      [formControl]="searchDeliveredAtStartDate"
+                      (focus)="onFilterFocus('deliveredAt')" />
+                    <input
+                      matEndDate
+                      placeholder="End date"
+                      [formControl]="searchDeliveredAtEndDate"
+                      (focus)="onFilterFocus('deliveredAt')" />
+                  </mat-date-range-input>
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    aria-label="Clear delivered at range"
+                    *ngIf="searchDeliveredAtStartDate.value || searchDeliveredAtEndDate.value"
+                    (click)="clearDeliveredAtRange()">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                  <mat-datepicker-toggle matSuffix [for]="deliveredAtPicker"></mat-datepicker-toggle>
+                  <mat-date-range-picker #deliveredAtPicker></mat-date-range-picker>
+                </mat-form-field>
+              </c-col>
+            </c-row>
+          }
+
+          <ng-container *ngIf="isRefreshing()">
+            <div class="px-3 py-2 border-bottom text-muted small d-flex align-items-center gap-2">
+              <ngx-shimmer-loading [width]="'24px'" [height]="'12px'"></ngx-shimmer-loading>
+              <span>Updating results...</span>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="isSuccess()">
+            <table
+              mat-table
+              matSort
+              [dataSource]="orders()"
+              class="table table-striped table-hover m-0"
+              (matSortChange)="onSortChange($event)"
+              [matSortActive]="request.orderBy!"
+              [matSortDirection]="request.sortOrder!">
+
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="id">Id</th>
+                <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="customer">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="customer">Customer</th>
+                <td mat-cell *matCellDef="let element">{{ element.customer }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="total">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="total">Total</th>
+                <td mat-cell *matCellDef="let element">{{ element.total | number:'1.2-2' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="delivered">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="delivered">Delivered</th>
+                <td mat-cell *matCellDef="let element">{{ element.delivered ? 'Yes' : 'No' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="orderedAt">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="orderedAt">Ordered At</th>
+                <td mat-cell *matCellDef="let element">{{ element.orderedAt | date:'short' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="deliveredAt">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="deliveredAt">Delivered At</th>
+                <td mat-cell *matCellDef="let element">
+                  {{ element.deliveredAt ? (element.deliveredAt | date:'short') : '-' }}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="text-end">Actions</th>
+                <td mat-cell *matCellDef="let element" class="text-end">
+                  <div style="display: inline-flex; gap: 4px">
+                    <button mat-icon-button aria-label="Details" (click)="onDetailsClick(element)" [disabled]="!hasViewPermission()">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                    <button mat-icon-button aria-label="Edit" (click)="onEditClick(element)" [disabled]="!hasEditPermission()">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button aria-label="Delete" (click)="onDeleteClick(element)" [disabled]="!hasDeletePermission()">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          </ng-container>
+
+          <ng-container *ngIf="showInitialLoading()">
+            <table [striped]="true" cTable>
+              <thead>
+                <tr>
+                  <th scope="col">Id</th>
+                  <th scope="col">Customer</th>
+                  <th scope="col">Total</th>
+                  <th scope="col">Delivered</th>
+                  <th scope="col">Ordered At</th>
+                  <th scope="col">Delivered At</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of [].constructor(10); let i = index">
+                  <td *ngFor="let column of [].constructor(7)">
+                    <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </ng-container>
+
+          <ng-container *ngIf="showInitialError()">
+            <c-row
+              class="text-center m-2 g-0 align-items-center justify-content-center"
+              style="min-height: 320px;">
+              <c-col>
+                <img cImg align="center" height="200" rounded src="../../../assets/images/error.png" width="200" />
+                <p cCardText>An error occurred, please try again</p>
+                <button cButton color="primary" (click)="onRetryClick()">
+                  Retry
+                </button>
+              </c-col>
+            </c-row>
+          </ng-container>
+
+          <ng-container *ngIf="showRefreshError()">
+            <div class="px-3 py-2 text-danger small border-top">
+              Couldn't update results. Try again.
+              <button mat-button color="warn" type="button" (click)="onRetryClick()">Retry</button>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="showEmptyState()">
+            <c-row
+              class="text-center m-2 g-0 align-items-center justify-content-center"
+              style="min-height: 320px;">
+              <c-col>
+                <img src="../../../assets/images/no-results.png" alt="No results found" class="mx-auto mb-4" width="150" />
+
+                <p class="mb-3">
+                  No records found matching your search.
+                </p>
+
+                <p class="text-muted mb-4">
+                  You can try searching with different filters, or create a new one instead.
+                </p>
+
+                <button *ngIf="hasCreatePermission()" mat-button color="primary" (click)="onCreateClick()">
+                  Add New Record
+                </button>
+              </c-col>
+            </c-row>
+          </ng-container>
+        </c-card-body>
+
+        <c-card-footer class="d-flex justify-content-end p-2">
+          <ng-container *ngIf="isSuccess() && page() as pageValue">
+            <mat-paginator
+              [length]="pageValue.totalElements || 0"
+              [pageIndex]="request.pageNumber! - 1"
+              [pageSize]="request.pageSize!"
+              [pageSizeOptions]="[5, 10, 25, 100]"
+              (page)="onPageChange($event)"
+              showFirstLastButtons
+              aria-label="Select page">
+            </mat-paginator>
+          </ng-container>
+
+          <ng-container *ngIf="showInitialLoading()">
+            <div style="width: 25%;">
+              <ngx-shimmer-loading [width]="'100%'" [height]="'20px'"></ngx-shimmer-loading>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="showEmptyState()">
+            <strong>No Records</strong>
+          </ng-container>
+        </c-card-footer>
+      </c-card>
+    </c-row>
+  </c-col>
+</c-row>

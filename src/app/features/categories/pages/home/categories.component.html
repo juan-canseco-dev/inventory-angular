@@ -76,7 +76,7 @@
 
             <c-col class="d-flex justify-content-end gap-2">
               <button
-                *ngIf="showFiltersAndCreateActions"
+                *ngIf="showFiltersAndCreateActions()"
                 mat-stroked-button
                 color="accent"
                 type="button"
@@ -86,7 +86,7 @@
               </button>
 
               <button
-                *ngIf="hasCreatePermission() && showFiltersAndCreateActions"
+                *ngIf="hasCreatePermission() && showFiltersAndCreateActions()"
                 mat-stroked-button
                 color="accent"
                 type="button"
@@ -99,7 +99,7 @@
         </c-card-header>
 
         <c-card-body class="p-0">
-          @if (filtersClicked && showFiltersAndCreateActions) {
+          @if (filtersClicked && showFiltersAndCreateActions()) {
             <c-row class="p-3 g-0">
               <c-col xs="12" class="d-flex justify-content-end align-items-center">
                 <mat-form-field appearance="outline" class="w-100 w-md-50">
@@ -118,11 +118,18 @@
             </c-row>
           }
 
+          <ng-container *ngIf="isRefreshing()">
+            <div class="px-3 py-2 border-bottom text-muted small d-flex align-items-center gap-2">
+              <ngx-shimmer-loading [width]="'24px'" [height]="'12px'"></ngx-shimmer-loading>
+              <span>Updating results...</span>
+            </div>
+          </ng-container>
+
           <ng-container *ngIf="page() as page">
             <table
               mat-table
               matSort
-              *ngIf="showSuccessState"
+              *ngIf="showContentTable()"
               [dataSource]="categories()"
               class="table table-striped table-hover m-0"
               (matSortChange)="onSortChange($event)"
@@ -157,7 +164,7 @@
               <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
             </table>
 
-            <c-card-footer class="d-flex justify-content-end p-2" *ngIf="showSuccessState">
+            <c-card-footer class="d-flex justify-content-end p-2" *ngIf="showContentTable()">
               <mat-paginator
                 [length]="page.totalElements || 0"
                 [pageIndex]="(request.pageNumber ?? 1) - 1"
@@ -170,7 +177,7 @@
             </c-card-footer>
           </ng-container>
 
-          <ng-container *ngIf="loading()">
+          <ng-container *ngIf="showInitialLoading()">
             <table [striped]="true" cTable>
               <thead>
                 <tr>
@@ -201,7 +208,7 @@
             </c-card-footer>
           </ng-container>
 
-          <ng-container *ngIf="loadError()">
+          <ng-container *ngIf="showInitialError()">
             <c-row class="text-center m-2 g-0" style="min-height: 320px;">
               <c-col class="d-flex flex-column justify-content-center align-items-center">
                 <img cImg align="center" height="200" rounded src="../../../assets/images/error.png" width="200" />
@@ -211,7 +218,14 @@
             </c-row>
           </ng-container>
 
-          <ng-container *ngIf="empty()">
+          <ng-container *ngIf="showRefreshError()">
+            <div class="px-3 py-2 text-danger small border-top">
+              Couldn't update results. Try again.
+              <button mat-button color="warn" type="button" (click)="onRetryClick()">Retry</button>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="showEmptyState()">
             <c-row class="text-center m-2 g-0" style="min-height: 320px;">
               <c-col class="d-flex flex-column justify-content-center align-items-center">
                 <img src="../../../assets/images/no-results.png" alt="No results found" class="mx-auto mb-4" width="150" />

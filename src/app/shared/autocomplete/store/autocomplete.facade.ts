@@ -9,6 +9,13 @@ import { autocompleteFeature } from './autocomplete.feature';
 export class AutocompleteFacade {
   private readonly store = inject(Store);
 
+  readonly customerOptions = this.store.selectSignal(autocompleteFeature.selectCustomerOptions);
+  readonly customerOptionsQuery = this.store.selectSignal(autocompleteFeature.selectCustomerOptionsQuery);
+  readonly customerOptionsLoading = this.store.selectSignal(autocompleteFeature.selectCustomerOptionsLoading);
+  readonly customerOptionsLoaded = this.store.selectSignal(autocompleteFeature.selectCustomerOptionsLoaded);
+  readonly customerOptionsError = this.store.selectSignal(autocompleteFeature.selectCustomerOptionsError);
+  readonly customerOptionsLoadedAt = this.store.selectSignal(autocompleteFeature.selectCustomerOptionsLoadedAt);
+
   readonly categoryOptions = this.store.selectSignal(autocompleteFeature.selectCategoryOptions);
   readonly categoryOptionsQuery = this.store.selectSignal(autocompleteFeature.selectCategoryOptionsQuery);
   readonly categoryOptionsLoading = this.store.selectSignal(autocompleteFeature.selectCategoryOptionsLoading);
@@ -23,6 +30,13 @@ export class AutocompleteFacade {
   readonly roleOptionsError = this.store.selectSignal(autocompleteFeature.selectRoleOptionsError);
   readonly roleOptionsLoadedAt = this.store.selectSignal(autocompleteFeature.selectRoleOptionsLoadedAt);
 
+  readonly productOptions = this.store.selectSignal(autocompleteFeature.selectProductOptions);
+  readonly productOptionsQuery = this.store.selectSignal(autocompleteFeature.selectProductOptionsQuery);
+  readonly productOptionsLoading = this.store.selectSignal(autocompleteFeature.selectProductOptionsLoading);
+  readonly productOptionsLoaded = this.store.selectSignal(autocompleteFeature.selectProductOptionsLoaded);
+  readonly productOptionsError = this.store.selectSignal(autocompleteFeature.selectProductOptionsError);
+  readonly productOptionsLoadedAt = this.store.selectSignal(autocompleteFeature.selectProductOptionsLoadedAt);
+
   readonly supplierOptions = this.store.selectSignal(autocompleteFeature.selectSupplierOptions);
   readonly supplierOptionsQuery = this.store.selectSignal(autocompleteFeature.selectSupplierOptionsQuery);
   readonly supplierOptionsLoading = this.store.selectSignal(autocompleteFeature.selectSupplierOptionsLoading);
@@ -36,6 +50,18 @@ export class AutocompleteFacade {
   readonly unitOptionsLoaded = this.store.selectSignal(autocompleteFeature.selectUnitOptionsLoaded);
   readonly unitOptionsError = this.store.selectSignal(autocompleteFeature.selectUnitOptionsError);
   readonly unitOptionsLoadedAt = this.store.selectSignal(autocompleteFeature.selectUnitOptionsLoadedAt);
+
+  loadCustomerOptions(query = ''): void {
+    this.store.dispatch(AutocompleteActions.loadCustomerOptions({ query }));
+  }
+
+  searchCustomers(query: string): void {
+    this.loadCustomerOptions(query);
+  }
+
+  clearCustomerOptions(): void {
+    this.store.dispatch(AutocompleteActions.clearCustomerOptions());
+  }
 
   loadCategoryOptions(query = ''): void {
     this.store.dispatch(AutocompleteActions.loadCategoryOptions({ query }));
@@ -59,6 +85,18 @@ export class AutocompleteFacade {
 
   clearRoleOptions(): void {
     this.store.dispatch(AutocompleteActions.clearRoleOptions());
+  }
+
+  loadProductOptions(query = ''): void {
+    this.store.dispatch(AutocompleteActions.loadProductOptions({ query }));
+  }
+
+  searchProducts(query: string): void {
+    this.loadProductOptions(query);
+  }
+
+  clearProductOptions(): void {
+    this.store.dispatch(AutocompleteActions.clearProductOptions());
   }
 
   loadSupplierOptions(query = ''): void {

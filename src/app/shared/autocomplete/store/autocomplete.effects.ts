@@ -6,19 +6,64 @@ import { CategoriesService } from '../../../features/categories/service/categori
 import { toApiError } from '../../utils';
 import { GetRolesRequest } from '../../../features/roles/models';
 import { RolesService } from '../../../features/roles/service';
+import { GetProductsRequest } from '../../../features/products/models';
+import { ProductsService } from '../../../features/products/service';
 import { GetSuppliersRequest } from '../../../features/suppliers/models';
 import { SuppliersService } from '../../../features/suppliers/service/suppliers.service';
 import { GetUnitsRequest } from '../../../features/units/models';
 import { UnitsService } from '../../../features/units/service/units.service';
 import { AutocompleteActions } from './autocomplete.actions';
+import { CustomersService } from '../../../features/customers/service';
+import { GetCustomersRequest } from '../../../features/customers/models';
 
 @Injectable()
 export class AutocompleteEffects {
   private readonly actions$ = inject(Actions);
+  private readonly customersService = inject(CustomersService);
   private readonly categoriesService = inject(CategoriesService);
   private readonly rolesService = inject(RolesService);
+  private readonly productsService = inject(ProductsService);
   private readonly suppliersService = inject(SuppliersService);
   private readonly unitsService = inject(UnitsService);
+
+  loadCustomerOptions$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AutocompleteActions.loadCustomerOptions),
+      switchMap(({ query }) => {
+        const request: GetCustomersRequest = {
+          pageNumber: 1,
+          pageSize: 20,
+          orderBy: 'fullName',
+          sortOrder: 'asc',
+          dni: null,
+          fullName: query.trim() || null,
+          phone: null
+        };
+
+        return this.customersService.getAll(request).pipe(
+          map((page) => {
+            const items = (page.items ?? []).map((customer) => ({
+              value: customer.id,
+              label: customer.fullName
+            }));
+
+            return AutocompleteActions.loadCustomerOptionsSuccess({
+              query,
+              items
+            });
+          }),
+          catchError((error) =>
+            of(
+              AutocompleteActions.loadCustomerOptionsFailure({
+                query,
+                error: toApiError(error)
+              })
+            )
+          )
+        );
+      })
+    )
+  );
 
   loadCategoryOptions$ = createEffect(() =>
     this.actions$.pipe(
@@ -84,6 +129,46 @@ export class AutocompleteEffects {
           catchError((error) =>
             of(
               AutocompleteActions.loadRoleOptionsFailure({
+                query,
+                error: toApiError(error)
+              })
+            )
+          )
+        );
+      })
+    )
+  );
+
+  loadProductOptions$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AutocompleteActions.loadProductOptions),
+      switchMap(({ query }) => {
+        const request: GetProductsRequest = {
+          pageNumber: 1,
+          pageSize: 20,
+          orderBy: 'name',
+          sortOrder: 'asc',
+          name: query.trim() || null,
+          supplierId: null,
+          categoryId: null,
+          unitId: null
+        };
+
+        return this.productsService.getAll(request).pipe(
+          map((page) => {
+            const items = (page.items ?? []).map((product) => ({
+              value: product.id,
+              label: product.name
+            }));
+
+            return AutocompleteActions.loadProductOptionsSuccess({
+              query,
+              items
+            });
+          }),
+          catchError((error) =>
+            of(
+              AutocompleteActions.loadProductOptionsFailure({
                 query,
                 error: toApiError(error)
               })

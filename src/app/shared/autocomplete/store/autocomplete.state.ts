@@ -10,8 +10,10 @@ export interface AutocompleteSliceState {
 }
 
 export interface AutocompleteState {
+  customers: AutocompleteSliceState;
   categories: AutocompleteSliceState;
   roles: AutocompleteSliceState;
+  products: AutocompleteSliceState;
   suppliers: AutocompleteSliceState;
   units: AutocompleteSliceState;
 }
@@ -25,8 +27,10 @@ export const initialAutocompleteSliceState: AutocompleteSliceState = {
 };
 
 export const initialAutocompleteState: AutocompleteState = {
+  customers: initialAutocompleteSliceState,
   categories: initialAutocompleteSliceState,
   roles: initialAutocompleteSliceState,
+  products: initialAutocompleteSliceState,
   suppliers: initialAutocompleteSliceState,
   units: initialAutocompleteSliceState
 };

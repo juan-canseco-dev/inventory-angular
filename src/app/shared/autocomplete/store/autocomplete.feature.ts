@@ -11,6 +11,43 @@ export const autocompleteFeature = createFeature({
   reducer: createReducer(
     initialAutocompleteState,
 
+    on(AutocompleteActions.loadCustomerOptions, (state, { query }): AutocompleteState => ({
+      ...state,
+      customers: {
+        ...state.customers,
+        query,
+        status: 'loading',
+        error: null
+      }
+    })),
+
+    on(AutocompleteActions.loadCustomerOptionsSuccess, (state, { query, items }): AutocompleteState => ({
+      ...state,
+      customers: {
+        items,
+        query,
+        status: 'success',
+        error: null,
+        loadedAt: new Date().toISOString()
+      }
+    })),
+
+    on(AutocompleteActions.loadCustomerOptionsFailure, (state, { query, error }): AutocompleteState => ({
+      ...state,
+      customers: {
+        ...state.customers,
+        query,
+        items: [],
+        status: 'error',
+        error
+      }
+    })),
+
+    on(AutocompleteActions.clearCustomerOptions, (state): AutocompleteState => ({
+      ...state,
+      customers: initialAutocompleteSliceState
+    })),
+
     on(AutocompleteActions.loadCategoryOptions, (state, { query }): AutocompleteState => ({
       ...state,
       categories: {
@@ -83,6 +120,43 @@ export const autocompleteFeature = createFeature({
     on(AutocompleteActions.clearRoleOptions, (state): AutocompleteState => ({
       ...state,
       roles: initialAutocompleteSliceState
+    })),
+
+    on(AutocompleteActions.loadProductOptions, (state, { query }): AutocompleteState => ({
+      ...state,
+      products: {
+        ...state.products,
+        query,
+        status: 'loading',
+        error: null
+      }
+    })),
+
+    on(AutocompleteActions.loadProductOptionsSuccess, (state, { query, items }): AutocompleteState => ({
+      ...state,
+      products: {
+        items,
+        query,
+        status: 'success',
+        error: null,
+        loadedAt: new Date().toISOString()
+      }
+    })),
+
+    on(AutocompleteActions.loadProductOptionsFailure, (state, { query, error }): AutocompleteState => ({
+      ...state,
+      products: {
+        ...state.products,
+        query,
+        items: [],
+        status: 'error',
+        error
+      }
+    })),
+
+    on(AutocompleteActions.clearProductOptions, (state): AutocompleteState => ({
+      ...state,
+      products: initialAutocompleteSliceState
     })),
 
     on(AutocompleteActions.loadSupplierOptions, (state, { query }): AutocompleteState => ({
@@ -160,7 +234,26 @@ export const autocompleteFeature = createFeature({
     }))
   ),
 
-  extraSelectors: ({ selectCategories, selectRoles, selectSuppliers, selectUnits }) => ({
+  extraSelectors: ({ selectCustomers, selectCategories, selectRoles, selectProducts, selectSuppliers, selectUnits }) => ({
+    selectCustomerOptions: createSelector(selectCustomers, (state) => state.items),
+    selectCustomerOptionsQuery: createSelector(selectCustomers, (state) => state.query),
+    selectCustomerOptionsLoading: createSelector(
+      selectCustomers,
+      (state) => state.status === 'loading'
+    ),
+    selectCustomerOptionsLoaded: createSelector(
+      selectCustomers,
+      (state) => state.status === 'success'
+    ),
+    selectCustomerOptionsError: createSelector(
+      selectCustomers,
+      (state) => state.error
+    ),
+    selectCustomerOptionsLoadedAt: createSelector(
+      selectCustomers,
+      (state) => state.loadedAt
+    ),
+
     selectCategoryOptions: createSelector(selectCategories, (state) => state.items),
     selectCategoryOptionsQuery: createSelector(selectCategories, (state) => state.query),
     selectCategoryOptionsLoading: createSelector(
@@ -196,6 +289,25 @@ export const autocompleteFeature = createFeature({
     ),
     selectRoleOptionsLoadedAt: createSelector(
       selectRoles,
+      (state) => state.loadedAt
+    ),
+
+    selectProductOptions: createSelector(selectProducts, (state) => state.items),
+    selectProductOptionsQuery: createSelector(selectProducts, (state) => state.query),
+    selectProductOptionsLoading: createSelector(
+      selectProducts,
+      (state) => state.status === 'loading'
+    ),
+    selectProductOptionsLoaded: createSelector(
+      selectProducts,
+      (state) => state.status === 'success'
+    ),
+    selectProductOptionsError: createSelector(
+      selectProducts,
+      (state) => state.error
+    ),
+    selectProductOptionsLoadedAt: createSelector(
+      selectProducts,
       (state) => state.loadedAt
     ),
 
