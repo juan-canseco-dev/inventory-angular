@@ -307,7 +307,7 @@
                 </div>
 
                 <div class="order-note order-note--subtle">
-                  {{ details.deliverComments || 'No delivery comments yet.' }}
+                  {{ details.deliverComments ?? details.comment ?? 'No delivery comments yet.' }}
                 </div>
               </div>
             </section>

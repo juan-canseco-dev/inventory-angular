@@ -343,7 +343,7 @@ export class EditComponent implements OnInit, OnDestroy {
       deliveredAt: details.deliveredAt ? this.toDisplayDate(details.deliveredAt) : 'Pending',
       total: details.total,
       markAsDelivered: false,
-      deliverComment: details.deliverComments ?? ''
+      deliverComment: details.deliverComments ?? details.comment ?? ''
     });
 
     this.orderItems.set(

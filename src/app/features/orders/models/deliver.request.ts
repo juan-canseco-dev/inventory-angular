@@ -1,4 +1,4 @@
 export interface DeliverOrderRequest {
   orderId: number;
-  comment: string;
+  comment: string | null;
 };

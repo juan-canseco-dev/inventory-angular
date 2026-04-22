@@ -172,7 +172,7 @@
             </div>
 
             <div class="order-note order-note--subtle">
-              {{ details.deliverComments || 'No delivery comments were provided for this order.' }}
+              {{ details.deliverComments ?? details.comment ?? 'No delivery comments were provided for this order.' }}
             </div>
           </div>
         </section>

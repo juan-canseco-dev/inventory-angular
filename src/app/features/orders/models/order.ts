@@ -34,5 +34,6 @@ export interface OrderDetails {
   delivered: boolean;
   orderedAt: Date;
   deliveredAt : Date | null;
+  comment?: string | null;
   deliverComments?: string | null;
 };
