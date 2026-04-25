@@ -8,6 +8,7 @@ import { UsersEffects } from '../../features/users/store';
 import { AutocompleteEffects } from '../../shared/autocomplete';
 import { ProductsEffects } from '../../features/products/store';
 import { OrdersEffects } from '../../features/orders/store';
+import { PurchasesEffects } from '../../features/purchases/store';
 
 
 export const ROOT_EFFECTS = [
@@ -18,6 +19,7 @@ export const ROOT_EFFECTS = [
   SupplierEffects,
   ProductsEffects,
   OrdersEffects,
+  PurchasesEffects,
   CustomersEffects,
   RoleEffects,
   UsersEffects

@@ -9,6 +9,7 @@ import { UnitsState, unitsFeature } from '../../features/units/store';
 import { suppliersFeature, SuppliersState  } from '../../features/suppliers/store';
 import { ProductsState, productsFeature } from '../../features/products/store';
 import { OrdersState, ordersFeature } from '../../features/orders/store';
+import { PurchasesState, purchasesFeature } from '../../features/purchases/store';
 
 export interface AppState {
   auth: AuthState;
@@ -18,6 +19,7 @@ export interface AppState {
   suppliers: SuppliersState;
   products: ProductsState;
   orders: OrdersState;
+  purchases: PurchasesState;
   customers: CustomersState;
   roles: RolesState;
   users: UsersState;
@@ -31,6 +33,7 @@ export const ROOT_REDUCERS : ActionReducerMap<AppState> = {
   suppliers: suppliersFeature.reducer,
   products: productsFeature.reducer,
   orders: ordersFeature.reducer,
+  purchases: purchasesFeature.reducer,
   customers: customersFeature.reducer,
   roles: rolesFeature.reducer,
   users: usersFeature.reducer

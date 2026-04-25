@@ -1,1 +1,242 @@
-<p>details works!</p>
+<ng-container *ngIf="detailsLoading()">
+  <div class="orders-workspace order-page">
+    <div class="order-page__header">
+      <div>
+        <h1 class="order-page__title">Purchase Details</h1>
+        <p class="order-page__subtitle">Loading purchase information.</p>
+      </div>
+    </div>
+
+    <div class="order-page__layout">
+      <div class="order-page__main">
+        <section class="order-section">
+          <header class="order-section__header">
+            <div class="order-step">1</div>
+            <div class="order-section__headings">
+              <h2 class="order-section__title">Supplier</h2>
+              <p class="order-section__subtitle">Loading supplier information.</p>
+            </div>
+          </header>
+          <div class="order-section__body">
+            <ngx-shimmer-loading class="w-100" [width]="'100%'" [height]="'120px'"></ngx-shimmer-loading>
+          </div>
+        </section>
+
+        <section class="order-section">
+          <header class="order-section__header">
+            <div class="order-step">2</div>
+            <div class="order-section__headings">
+              <h2 class="order-section__title">Purchase Items</h2>
+              <p class="order-section__subtitle">Loading products for this purchase.</p>
+            </div>
+          </header>
+          <div class="order-section__body">
+            <ngx-shimmer-loading class="w-100" [width]="'100%'" [height]="'220px'"></ngx-shimmer-loading>
+          </div>
+        </section>
+      </div>
+
+      <aside class="order-page__aside">
+        <section class="order-summary">
+          <header class="order-summary__header">
+            <h2 class="order-summary__title">Purchase Summary</h2>
+          </header>
+          <div class="order-summary__body">
+            <ngx-shimmer-loading class="w-100" [width]="'100%'" [height]="'280px'"></ngx-shimmer-loading>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!detailsLoading() && detailsError()">
+  <c-row class="text-center m-2 g-0">
+    <c-col>
+      <img class="error-illustration" src="../../../assets/images/error.png" width="200" height="200" alt="Error" />
+      <p>An error occurred, please try again</p>
+      <button mat-flat-button color="primary" type="button" (click)="onRetryClick()">Retry</button>
+    </c-col>
+  </c-row>
+</ng-container>
+
+<ng-container *ngIf="!detailsLoading() && !detailsError() && details() as details">
+  <div class="orders-workspace order-page">
+    <div class="order-page__header">
+      <div>
+        <h1 class="order-page__title">Purchase Details</h1>
+        <p class="order-page__subtitle">Review the supplier, items, totals, and arrival status.</p>
+      </div>
+
+      <button mat-stroked-button color="primary" type="button" class="order-page__header-action" (click)="onBackClick()">
+        <mat-icon>arrow_back</mat-icon>
+        Back
+      </button>
+    </div>
+
+    <div class="order-page__layout">
+      <div class="order-page__main">
+        <section class="order-section">
+          <header class="order-section__header">
+            <div class="order-step">1</div>
+            <div class="order-section__headings">
+              <h2 class="order-section__title">Supplier</h2>
+              <p class="order-section__subtitle">Supplier information associated with this purchase.</p>
+            </div>
+          </header>
+
+          <div class="order-section__body">
+            <article class="customer-card">
+              <div class="customer-card__avatar">
+                {{ details.supplier.companyName.charAt(0) }}
+              </div>
+
+              <div class="customer-card__content">
+                <div class="customer-card__title-row customer-card__title-row--static">
+                  <div>
+                    <h3 class="customer-card__name">{{ details.supplier.companyName }}</h3>
+                    <p class="customer-card__meta">{{ details.supplier.contactName }}</p>
+                  </div>
+                </div>
+
+                <div class="customer-card__details">
+                  <span>{{ details.supplier.contactPhone }}</span>
+                  <span>ID: {{ details.supplier.id }}</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="order-section">
+          <header class="order-section__header">
+            <div class="order-step">2</div>
+            <div class="order-section__headings">
+              <h2 class="order-section__title">Purchase Items</h2>
+              <p class="order-section__subtitle">Products included in this purchase.</p>
+            </div>
+          </header>
+
+          <div class="order-section__body">
+            <div class="order-table-wrap">
+              <table class="order-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Unit</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of details.items">
+                    <td>
+                      <div class="order-table__primary">{{ item.productName }}</div>
+                      <div class="order-table__secondary">Product #{{ item.productId }}</div>
+                    </td>
+                    <td>{{ item.productUnit }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ item.price | number:'1.2-2' }}</td>
+                    <td>${{ item.total | number:'1.2-2' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="order-section">
+          <header class="order-section__header">
+            <div class="order-step">3</div>
+            <div class="order-section__headings">
+              <h2 class="order-section__title">Additional Info</h2>
+              <p class="order-section__subtitle">Status and arrival information for this purchase.</p>
+            </div>
+          </header>
+
+          <div class="order-section__body">
+            <div class="order-info-grid">
+              <div class="order-info-card">
+                <span class="order-info-card__label">Status</span>
+                <strong>{{ details.arrived ? 'Arrived' : 'Pending' }}</strong>
+              </div>
+              <div class="order-info-card">
+                <span class="order-info-card__label">Ordered At</span>
+                <strong>{{ toDisplayDate(details.orderedAt) }}</strong>
+              </div>
+              <div class="order-info-card">
+                <span class="order-info-card__label">Arrived At</span>
+                <strong>{{ toDisplayDate(details.arrivedAt) }}</strong>
+              </div>
+            </div>
+
+            <div class="order-note order-note--subtle">
+              {{ details.receiveComments ?? 'No receiving comments were provided for this purchase.' }}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="order-page__aside">
+        <section class="order-summary">
+          <header class="order-summary__header">
+            <h2 class="order-summary__title">Purchase Summary</h2>
+          </header>
+
+          <div class="order-summary__body">
+            <div class="order-summary__section">
+              <span class="order-summary__label">Supplier</span>
+              <article class="customer-card customer-card--summary">
+                <div class="customer-card__avatar">
+                  {{ details.supplier.companyName.charAt(0) }}
+                </div>
+                <div class="customer-card__content">
+                  <h3 class="customer-card__name">{{ details.supplier.companyName }}</h3>
+                  <p class="customer-card__meta">{{ details.supplier.contactPhone }}</p>
+                </div>
+              </article>
+            </div>
+
+            <div class="order-summary__section">
+              <span class="order-summary__label">Purchase Overview</span>
+
+              <div class="order-stat-grid">
+                <div class="order-stat-card">
+                  <span class="order-stat-card__label">Items</span>
+                  <strong>{{ details.items.length }}</strong>
+                </div>
+                <div class="order-stat-card">
+                  <span class="order-stat-card__label">Total Quantity</span>
+                  <strong>{{ getTotalQuantity(details) }}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="order-summary__meta">
+              <div class="order-summary__meta-row">
+                <span>Purchase Id</span>
+                <strong>#{{ details.id }}</strong>
+              </div>
+              <div class="order-summary__meta-row">
+                <span>Status</span>
+                <strong>{{ details.arrived ? 'Arrived' : 'Pending' }}</strong>
+              </div>
+            </div>
+
+            <div class="order-summary__total">
+              <span>Total</span>
+              <strong>${{ details.total | number:'1.2-2' }}</strong>
+            </div>
+
+            <div class="order-summary__actions">
+              <button mat-stroked-button type="button" class="order-summary__secondary" (click)="onBackClick()">
+                Back
+              </button>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+</ng-container>

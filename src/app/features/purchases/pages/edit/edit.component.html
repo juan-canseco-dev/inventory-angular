@@ -1,1 +1,384 @@
-<p>edit works!</p>
+<ng-container *ngIf="detailsLoading()">
+  <div class="orders-workspace order-page">
+    <div class="order-page__header">
+      <div>
+        <h1 class="order-page__title">Edit Purchase</h1>
+        <p class="order-page__subtitle">Update products and arrival information.</p>
+      </div>
+    </div>
+
+    <div class="order-page__layout">
+      <div class="order-page__main">
+        <section class="order-section">
+          <header class="order-section__header">
+            <div class="order-step">1</div>
+            <div class="order-section__headings">
+              <h2 class="order-section__title">Supplier</h2>
+              <p class="order-section__subtitle">Loading the selected supplier details.</p>
+            </div>
+          </header>
+          <div class="order-section__body">
+            <ngx-shimmer-loading class="w-100" [width]="'100%'" [height]="'120px'"></ngx-shimmer-loading>
+          </div>
+        </section>
+
+        <section class="order-section">
+          <header class="order-section__header">
+            <div class="order-step">2</div>
+            <div class="order-section__headings">
+              <h2 class="order-section__title">Products</h2>
+              <p class="order-section__subtitle">Loading purchase products.</p>
+            </div>
+          </header>
+          <div class="order-section__body">
+            <ngx-shimmer-loading class="w-100" [width]="'100%'" [height]="'220px'"></ngx-shimmer-loading>
+          </div>
+        </section>
+      </div>
+
+      <aside class="order-page__aside">
+        <section class="order-summary">
+          <header class="order-summary__header">
+            <h2 class="order-summary__title">Purchase Summary</h2>
+          </header>
+          <div class="order-summary__body">
+            <ngx-shimmer-loading class="w-100" [width]="'100%'" [height]="'280px'"></ngx-shimmer-loading>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!detailsLoading() && detailsError()">
+  <c-row class="text-center m-2 g-0">
+    <c-col>
+      <img class="error-illustration" src="../../../assets/images/error.png" width="200" height="200" alt="Error" />
+      <p>An error occurred, please try again</p>
+      <button mat-flat-button color="primary" type="button" (click)="onRetryClick()">Retry</button>
+    </c-col>
+  </c-row>
+</ng-container>
+
+<ng-container *ngIf="!detailsLoading() && !detailsError()">
+  <c-row ngPreserveWhitespaces class="g-0">
+    <c-toaster *ngIf="saveError() as error" class="p-3" placement="bottom-center">
+      <c-toast
+        [autohide]="true"
+        [delay]="2500"
+        [visible]="true"
+        class="align-items-center text-white border-0"
+        color="danger">
+        <c-row class="d-flex g-0">
+          <c-toast-body>
+            <div>{{ error.message }}</div>
+            <div *ngIf="error.errors?.length" class="mt-2">
+              <div *ngFor="let validationError of error.errors">
+                <strong>{{ getValidationErrorLabel(validationError.field) }}:</strong>
+                {{ validationError.message }}
+              </div>
+            </div>
+          </c-toast-body>
+        </c-row>
+      </c-toast>
+    </c-toaster>
+
+    <c-col xs="12">
+      <form [formGroup]="purchaseForm" (ngSubmit)="onSaveClick()" class="orders-workspace order-page" *ngIf="details() as details">
+        <div class="order-page__header">
+          <div>
+            <h1 class="order-page__title">Edit Purchase</h1>
+            <p class="order-page__subtitle">Update products and, if allowed, mark the purchase as arrived.</p>
+          </div>
+
+          <button mat-stroked-button type="button" class="order-page__header-action" (click)="onCancelClick()">
+            Cancel
+          </button>
+        </div>
+
+        <div class="order-page__layout">
+          <div class="order-page__main">
+            <section class="order-section">
+              <header class="order-section__header">
+                <div class="order-step">1</div>
+                <div class="order-section__headings">
+                  <h2 class="order-section__title">Supplier</h2>
+                  <p class="order-section__subtitle">Review the supplier linked to this purchase.</p>
+                </div>
+              </header>
+
+              <div class="order-section__body">
+                <article class="customer-card">
+                  <div class="customer-card__avatar">
+                    {{ details.supplier.companyName.charAt(0) }}
+                  </div>
+
+                  <div class="customer-card__content">
+                    <div class="customer-card__title-row customer-card__title-row--static">
+                      <div>
+                        <h3 class="customer-card__name">{{ details.supplier.companyName }}</h3>
+                        <p class="customer-card__meta">{{ details.supplier.contactName }}</p>
+                      </div>
+                    </div>
+
+                    <div class="customer-card__details">
+                      <span>{{ details.supplier.contactPhone }}</span>
+                      <span>ID: {{ details.supplier.id }}</span>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="order-section">
+              <header class="order-section__header">
+                <div class="order-step">2</div>
+                <div class="order-section__headings">
+                  <h2 class="order-section__title">Products</h2>
+                  <p class="order-section__subtitle">Search products and keep the purchase items updated.</p>
+                </div>
+              </header>
+
+              <div class="order-section__body">
+                <div class="order-action-row">
+                  <mat-form-field appearance="outline" class="order-action-row__search">
+                    <mat-label>Add product</mat-label>
+                    <input
+                      matInput
+                      [formControl]="searchProduct"
+                      [matAutocomplete]="productAuto"
+                      placeholder="Search product by name"
+                      (focus)="onProductFocus()" />
+                    <mat-autocomplete
+                      #productAuto="matAutocomplete"
+                      [displayWith]="displayLookupOption"
+                      (optionSelected)="onProductSelected($event)">
+                      <mat-option *ngFor="let option of productOptions()" [value]="option">
+                        {{ option.label }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <button
+                      mat-icon-button
+                      matSuffix
+                      aria-label="Clear product"
+                      *ngIf="searchProduct.value"
+                      (click)="clearProductSearch()">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="order-action-row__qty">
+                    <mat-label>Quantity</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      min="1"
+                      step="1"
+                      [formControl]="quantityControl"
+                      placeholder="1" />
+                  </mat-form-field>
+
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    type="button"
+                    class="order-action-row__button"
+                    [disabled]="addProductLoading()"
+                    (click)="onAddItemClick()">
+                    <mat-icon>add</mat-icon>
+                    {{ addProductLoading() ? 'Adding...' : 'Add Product' }}
+                  </button>
+                </div>
+
+                <div *ngIf="productOptionsLoading()" class="order-feedback">
+                  Loading products...
+                </div>
+
+                <div *ngIf="productOptionsError() as error" class="order-feedback order-feedback--error">
+                  {{ error.message }}
+                </div>
+
+                <div class="order-note">
+                  If a product is already in the list, its quantity will be increased.
+                </div>
+              </div>
+            </section>
+
+            <section class="order-section">
+              <header class="order-section__header">
+                <div class="order-step">3</div>
+                <div class="order-section__headings">
+                  <h2 class="order-section__title">Purchase Items</h2>
+                  <p class="order-section__subtitle">{{ distinctItemsCount() }} product(s) currently in the purchase.</p>
+                </div>
+              </header>
+
+              <div class="order-section__body">
+                <div *ngIf="!purchaseItems().length && itemsTouched()" class="validation-inline validation-inline--spaced">
+                  You must keep at least <strong>one product</strong>.
+                </div>
+
+                <div class="order-table-wrap" *ngIf="purchaseItems().length; else editItemsEmptyState">
+                  <table class="order-table">
+                    <thead>
+                      <tr>
+                        <th>Product</th>
+                        <th>Unit</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th class="text-end">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of purchaseItems()">
+                        <td>
+                          <div class="order-table__primary">{{ item.productName }}</div>
+                          <div class="order-table__secondary">Product #{{ item.productId }}</div>
+                        </td>
+                        <td>{{ item.productUnit }}</td>
+                        <td>
+                          <input
+                            class="order-qty-input"
+                            type="number"
+                            min="1"
+                            step="1"
+                            [value]="item.quantity"
+                            (change)="onItemQuantityChange(item.productId, $any($event.target).value)" />
+                        </td>
+                        <td>${{ item.price | number:'1.2-2' }}</td>
+                        <td>${{ item.total | number:'1.2-2' }}</td>
+                        <td class="text-end">
+                          <button mat-icon-button type="button" aria-label="Remove item" (click)="onRemoveItemClick(item.productId)">
+                            <mat-icon>delete_outline</mat-icon>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <ng-template #editItemsEmptyState>
+                  <div class="order-empty-state">
+                    No products in this purchase yet.
+                  </div>
+                </ng-template>
+              </div>
+            </section>
+
+            <section class="order-section">
+              <header class="order-section__header">
+                <div class="order-step">4</div>
+                <div class="order-section__headings">
+                  <h2 class="order-section__title">Additional Info</h2>
+                  <p class="order-section__subtitle">Review purchase timing and update arrival status when needed.</p>
+                </div>
+              </header>
+
+              <div class="order-section__body">
+                <div class="order-info-grid">
+                  <div class="order-info-card">
+                    <span class="order-info-card__label">Status</span>
+                    <strong>{{ arrived.value }}</strong>
+                  </div>
+                  <div class="order-info-card">
+                    <span class="order-info-card__label">Ordered At</span>
+                    <strong>{{ orderedAt.value }}</strong>
+                  </div>
+                  <div class="order-info-card">
+                    <span class="order-info-card__label">Arrived At</span>
+                    <strong>{{ arrivedAt.value }}</strong>
+                  </div>
+                </div>
+
+                <div class="delivery-box" *ngIf="showReceiveSection()">
+                  <mat-checkbox color="primary" formControlName="markAsArrived">
+                    Mark this purchase as arrived
+                  </mat-checkbox>
+
+                  <mat-form-field appearance="outline" class="order-field-grid__wide" *ngIf="markAsArrived.value">
+                    <mat-label>Receiving comments</mat-label>
+                    <textarea
+                      matInput
+                      rows="4"
+                      formControlName="receiveComment"
+                      placeholder="Add receiving comments"></textarea>
+                  </mat-form-field>
+                </div>
+
+                <div class="order-note order-note--subtle">
+                  {{ details.receiveComments ?? 'No receiving comments yet.' }}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <aside class="order-page__aside">
+            <section class="order-summary">
+              <header class="order-summary__header">
+                <h2 class="order-summary__title">Purchase Summary</h2>
+              </header>
+
+              <div class="order-summary__body">
+                <div class="order-summary__section">
+                  <span class="order-summary__label">Supplier</span>
+                  <article class="customer-card customer-card--summary">
+                    <div class="customer-card__avatar">
+                      {{ details.supplier.companyName.charAt(0) }}
+                    </div>
+                    <div class="customer-card__content">
+                      <h3 class="customer-card__name">{{ details.supplier.companyName }}</h3>
+                      <p class="customer-card__meta">{{ details.supplier.contactPhone }}</p>
+                    </div>
+                  </article>
+                </div>
+
+                <div class="order-summary__section">
+                  <span class="order-summary__label">Purchase Overview</span>
+
+                  <div class="order-stat-grid">
+                    <div class="order-stat-card">
+                      <span class="order-stat-card__label">Items</span>
+                      <strong>{{ distinctItemsCount() }}</strong>
+                    </div>
+                    <div class="order-stat-card">
+                      <span class="order-stat-card__label">Total Quantity</span>
+                      <strong>{{ totalUnits() }}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="order-summary__meta">
+                  <div class="order-summary__meta-row">
+                    <span>Status</span>
+                    <strong>{{ arrived.value }}</strong>
+                  </div>
+                  <div class="order-summary__meta-row">
+                    <span>Ordered At</span>
+                    <strong>{{ orderedAt.value }}</strong>
+                  </div>
+                </div>
+
+                <div class="order-summary__total">
+                  <span>Total</span>
+                  <strong>${{ purchaseTotal() | number:'1.2-2' }}</strong>
+                </div>
+
+                <div class="order-summary__actions">
+                  <button mat-flat-button color="primary" type="submit" class="order-summary__primary" [disabled]="isSaving() || !purchaseItems().length">
+                    <mat-icon>save</mat-icon>
+                    {{ isSaving() ? 'Saving...' : 'Update Purchase' }}
+                  </button>
+
+                  <button mat-stroked-button type="button" class="order-summary__secondary" (click)="onCancelClick()">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </form>
+    </c-col>
+  </c-row>
+</ng-container>
