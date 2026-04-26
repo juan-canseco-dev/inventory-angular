@@ -1,1 +1,356 @@
-<p>Hello Dashboard</p>
+@if (!hasViewPermission()) {
+  <c-row class="g-0">
+    <c-col xs="12">
+      <c-card class="permission-card">
+        <c-card-body class="text-center">
+          <mat-icon class="permission-icon">lock</mat-icon>
+          <h4 class="mb-2">Dashboard is not available for your account</h4>
+          <p class="text-muted mb-0">
+            Your current role does not include dashboard access. Ask an administrator if you need these reports.
+          </p>
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+} @else {
+  <c-row class="align-items-center g-3 mb-3">
+    <c-col xs="12" lg="5">
+      <h3 class="mb-1">Dashboard</h3>
+      <div class="text-muted small">
+        {{ periodLabel() }}
+        @if (lastUpdatedAt()) {
+          <span class="mx-1">|</span>
+          <span>Updated {{ lastUpdatedAt() | date:'shortTime' }}</span>
+        }
+      </div>
+    </c-col>
+
+    <c-col xs="12" lg="7">
+      <form [formGroup]="filtersForm" class="dashboard-filters">
+        <mat-form-field appearance="outline" class="period-field">
+          <mat-label>Reporting period</mat-label>
+          <mat-date-range-input [rangePicker]="periodPicker">
+            <input matStartDate placeholder="Start date" [formControl]="startDate" />
+            <input matEndDate placeholder="End date" [formControl]="endDate" />
+          </mat-date-range-input>
+          <mat-datepicker-toggle matSuffix [for]="periodPicker"></mat-datepicker-toggle>
+          <mat-date-range-picker #periodPicker></mat-date-range-picker>
+        </mat-form-field>
+
+        <button mat-stroked-button color="primary" type="button" (click)="onApplyFilters()">
+          Apply
+          <mat-icon>search</mat-icon>
+        </button>
+
+        <button mat-button type="button" (click)="onResetFilters()">
+          Reset
+        </button>
+
+        <button mat-icon-button type="button" aria-label="Refresh dashboard" (click)="onRetryClick()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </form>
+    </c-col>
+  </c-row>
+
+  @if (isRefreshing()) {
+    <div class="refresh-strip text-muted">
+      <ngx-shimmer-loading [width]="'24px'" [height]="'12px'"></ngx-shimmer-loading>
+      <span>Refreshing dashboard...</span>
+    </div>
+  }
+
+  @if (showRefreshError()) {
+    <div class="refresh-strip text-danger">
+      <span>Dashboard could not refresh.</span>
+      <button mat-button color="warn" type="button" (click)="onRetryClick()">Retry</button>
+    </div>
+  }
+
+  @if (showInitialLoading()) {
+    <c-row class="g-3 mb-3">
+      @for (item of summarySkeletonItems; track item) {
+        <c-col xs="12" sm="6" xl="2">
+          <c-card class="summary-card">
+            <c-card-body>
+              <ngx-shimmer-loading [width]="'50%'" [height]="'16px'"></ngx-shimmer-loading>
+              <ngx-shimmer-loading [width]="'80%'" [height]="'32px'"></ngx-shimmer-loading>
+              <ngx-shimmer-loading [width]="'65%'" [height]="'14px'"></ngx-shimmer-loading>
+            </c-card-body>
+          </c-card>
+        </c-col>
+      }
+    </c-row>
+
+    <c-row class="g-3">
+      <c-col xs="12" xl="7">
+        <c-card>
+          <c-card-body>
+            <ngx-shimmer-loading [width]="'40%'" [height]="'20px'"></ngx-shimmer-loading>
+            <ngx-shimmer-loading [width]="'100%'" [height]="'280px'"></ngx-shimmer-loading>
+          </c-card-body>
+        </c-card>
+      </c-col>
+      <c-col xs="12" xl="5">
+        <c-card>
+          <c-card-body>
+            <ngx-shimmer-loading [width]="'40%'" [height]="'20px'"></ngx-shimmer-loading>
+            <ngx-shimmer-loading [width]="'100%'" [height]="'280px'"></ngx-shimmer-loading>
+          </c-card-body>
+        </c-card>
+      </c-col>
+      <c-col xs="12" xl="4">
+        <c-card>
+          <c-card-body>
+            @for (row of tableSkeletonRows; track row) {
+              <ngx-shimmer-loading [width]="'100%'" [height]="'24px'"></ngx-shimmer-loading>
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+      <c-col xs="12" xl="4">
+        <c-card>
+          <c-card-body>
+            @for (row of tableSkeletonRows; track row) {
+              <ngx-shimmer-loading [width]="'100%'" [height]="'24px'"></ngx-shimmer-loading>
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+      <c-col xs="12" xl="4">
+        <c-card>
+          <c-card-body>
+            @for (row of tableSkeletonRows; track row) {
+              <ngx-shimmer-loading [width]="'100%'" [height]="'24px'"></ngx-shimmer-loading>
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
+  } @else if (showInitialError()) {
+    <c-card class="state-card">
+      <c-card-body class="text-center">
+        <img src="../../../assets/images/error.png" alt="Unable to load dashboard" width="180" class="mb-3" />
+        <h5 class="mb-2">An error occurred while loading the dashboard</h5>
+        <p class="text-muted mb-3">{{ error()?.message || 'Please try again.' }}</p>
+        <button cButton color="primary" type="button" (click)="onRetryClick()">Retry</button>
+      </c-card-body>
+    </c-card>
+  } @else {
+    @if (data(); as dashboard) {
+    <c-row class="g-3 mb-3 summary-grid">
+      <c-col xs="12" sm="6" xl="2">
+        <c-card class="summary-card">
+          <c-card-body>
+            <div class="summary-label">Inventory Value</div>
+            <div class="summary-value">{{ dashboard.totalInventoryValueSummary.totalValue | currency }}</div>
+            <div class="summary-note">Total products on hand</div>
+          </c-card-body>
+        </c-card>
+      </c-col>
+
+      <c-col xs="12" sm="6" xl="2">
+        <c-card class="summary-card">
+          <c-card-body>
+            <div class="summary-label">Sales</div>
+            <div class="summary-value">{{ dashboard.salesValueSummary.totalValue | currency }}</div>
+            <div class="summary-note">Selected period</div>
+          </c-card-body>
+        </c-card>
+      </c-col>
+
+      <c-col xs="12" sm="6" xl="2">
+        <c-card class="summary-card">
+          <c-card-body>
+            <div class="summary-label">Purchases</div>
+            <div class="summary-value">{{ dashboard.purchasesValueSummary.totalValue | currency }}</div>
+            <div class="summary-note">Selected period</div>
+          </c-card-body>
+        </c-card>
+      </c-col>
+
+      <c-col xs="12" sm="6" xl="2">
+        <c-card class="summary-card warning">
+          <c-card-body>
+            <div class="summary-label">Low Stock</div>
+            <div class="summary-value">{{ dashboard.productsWithLowStockCount }}</div>
+            <div class="summary-note">Threshold: 10 units</div>
+          </c-card-body>
+        </c-card>
+      </c-col>
+
+      <c-col xs="12" sm="6" xl="2">
+        <c-card class="summary-card danger">
+          <c-card-body>
+            <div class="summary-label">Out of Stock</div>
+            <div class="summary-value">{{ dashboard.outOfStockProductsCount }}</div>
+            <div class="summary-note">Products unavailable</div>
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
+
+    <c-row class="g-3 mb-3">
+      <c-col xs="12" xl="7">
+        <c-card class="chart-card">
+          <c-card-header>
+            <strong>Monthly Sales</strong>
+          </c-card-header>
+          <c-card-body>
+            @if (dashboard.monthlySalesSeries.length) {
+              <div class="chart-box">
+                <c-chart type="line" [data]="monthlySalesChart()" [options]="chartOptions"></c-chart>
+              </div>
+            } @else {
+              <div class="empty-widget">No sales found for this period.</div>
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+
+      <c-col xs="12" xl="5">
+        <c-card class="chart-card">
+          <c-card-header>
+            <strong>Products by Category</strong>
+          </c-card-header>
+          <c-card-body>
+            @if (dashboard.productsCountByCategory.length) {
+              <div class="chart-box">
+                <c-chart type="bar" [data]="productsByCategoryChart()" [options]="chartOptions"></c-chart>
+              </div>
+            } @else {
+              <div class="empty-widget">No product categories found.</div>
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
+
+    <c-row class="g-3 mb-3">
+      <c-col xs="12" xl="4">
+        <c-card>
+          <c-card-header>
+            <strong>Top Sold Products</strong>
+          </c-card-header>
+          <c-card-body class="p-0">
+            <table cTable class="table table-striped table-hover m-0">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th class="text-end">Sold</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (product of dashboard.topSoldProducts; track product.productId) {
+                  <tr>
+                    <td>{{ product.productName }}</td>
+                    <td class="text-end">{{ product.totalSold }}</td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="2" class="text-center text-muted py-4">No sold products found.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </c-card-body>
+        </c-card>
+      </c-col>
+
+      <c-col xs="12" xl="4">
+        <c-card>
+          <c-card-header>
+            <strong>Top Customers</strong>
+          </c-card-header>
+          <c-card-body class="p-0">
+            <table cTable class="table table-striped table-hover m-0">
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th class="text-end">Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (customer of dashboard.topCustomersByRevenue; track customer.id) {
+                  <tr>
+                    <td>{{ customer.fullName }}</td>
+                    <td class="text-end">{{ customer.totalRevenue | currency }}</td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="2" class="text-center text-muted py-4">No customer revenue found.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </c-card-body>
+        </c-card>
+      </c-col>
+
+      <c-col xs="12" xl="4">
+        <c-card>
+          <c-card-header>
+            <strong>Top Suppliers</strong>
+          </c-card-header>
+          <c-card-body class="p-0">
+            <table cTable class="table table-striped table-hover m-0">
+              <thead>
+                <tr>
+                  <th>Supplier</th>
+                  <th class="text-end">Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (supplier of dashboard.topSuppliersByRevenue; track supplier.id) {
+                  <tr>
+                    <td>{{ supplier.name }}</td>
+                    <td class="text-end">{{ supplier.totalRevenue | currency }}</td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="2" class="text-center text-muted py-4">No supplier revenue found.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
+
+    <c-row class="g-3">
+      <c-col xs="12">
+        <c-card>
+          <c-card-header>
+            <strong>Products with Low Stock</strong>
+          </c-card-header>
+          <c-card-body class="p-0">
+            <table cTable class="table table-striped table-hover m-0">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Product</th>
+                  <th class="text-end">Stock Quantity</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (product of dashboard.productsWithLowStock; track product.id) {
+                  <tr>
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.name }}</td>
+                    <td class="text-end">{{ product.stockQuantity }}</td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="3" class="text-center text-muted py-4">No low-stock products found.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
+    }
+  }
+}
