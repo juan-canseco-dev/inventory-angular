@@ -12,6 +12,7 @@ Inventory Angular is a modern inventory management frontend built with Angular 1
 * Reactive forms for create and edit flows
 * NgRx-powered state management with facades
 * Pagination, sorting, filtering, and detail views across core modules
+* Real time updates via WebSockets.
 
 * * *
 
@@ -36,26 +37,6 @@ Inventory Angular is a modern inventory management frontend built with Angular 1
 * Facade pattern for state access
 
 * * *
-
-## Module Status
-
-The current project progress is:
-
-### Finished
-
-* Users
-* Roles
-* Categories
-* Units of Measurement
-* Products
-* Suppliers
-* Customers
-* Orders
-
-### Remaining
-
-* Purchases
-* Dashboard
 
 * * *
 
@@ -117,12 +98,6 @@ The app runs at:
 npm run build
 ```
 
-### Unit Tests
-
-```bash
-npm test
-```
-
 * * *
 
 ## Screenshots
@@ -137,6 +112,7 @@ npm test
 ![Inventory Angular Screenshot 06](assets/img/img06.png)
 ![Inventory Angular Screenshot 07](assets/img/img07.png)
 ![Inventory Angular Screenshot 08](assets/img/img08.png)
+![Inventory Angular Screenshot 09](assets/img/img08.png)
 
 * * *
 
@@ -144,8 +120,7 @@ npm test
 
 ### Next Steps
 
-* Finish the Purchases module workflows
-* Finalize the Dashabord module
+* Create Unit Tests
 * Continue polishing UX consistency across CRUD screens
 
 * * *
