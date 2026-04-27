@@ -112,7 +112,7 @@ npm run build
 ![Inventory Angular Screenshot 06](assets/img/img06.png)
 ![Inventory Angular Screenshot 07](assets/img/img07.png)
 ![Inventory Angular Screenshot 08](assets/img/img08.png)
-![Inventory Angular Screenshot 09](assets/img/img08.png)
+![Inventory Angular Screenshot 09](assets/img/img09.png)
 
 * * *
 
