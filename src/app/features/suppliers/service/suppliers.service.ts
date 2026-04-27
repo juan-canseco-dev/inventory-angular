@@ -43,24 +43,24 @@ export class SuppliersService {
     if (request.contactPhone != null) {
       params = params.append("contactPhone", request.contactPhone);
     }
-    return this.http.get<PagedList<Supplier>>(`${environment.baseUrl}/suppliers`, { params: params });
+    return this.http.get<PagedList<Supplier>>(`${environment.baseApiUrl}/suppliers`, { params: params });
   }
 
   getById(id: number): Observable<SupplierDetails> {
-    return this.http.get<SupplierDetails>(`${environment.baseUrl}/suppliers/${id}`);
+    return this.http.get<SupplierDetails>(`${environment.baseApiUrl}/suppliers/${id}`);
   }
 
   create(request: CreateSupplierRequest): Observable<number> {
-    return this.http.post<number>(`${environment.baseUrl}/suppliers`, request);
+    return this.http.post<number>(`${environment.baseApiUrl}/suppliers`, request);
   }
 
 
   update(request: UpdateSupplierRequest): Observable<any> {
-    return this.http.put<any>(`${environment.baseUrl}/suppliers/${request.supplierId}`, request);
+    return this.http.put<any>(`${environment.baseApiUrl}/suppliers/${request.supplierId}`, request);
   }
 
   delete(id: number): Observable<any> {
-    return this.http.delete<any>(`${environment.baseUrl}/suppliers/${id}`);
+    return this.http.delete<any>(`${environment.baseApiUrl}/suppliers/${id}`);
   }
 
 }

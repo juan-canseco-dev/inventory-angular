@@ -37,24 +37,24 @@ export class UnitsService {
       params = params.append("name", request.name);
     }
 
-    return this.http.get<PagedList<Unit>>(`${environment.baseUrl}/units`, { params: params });
+    return this.http.get<PagedList<Unit>>(`${environment.baseApiUrl}/units`, { params: params });
   }
 
   getById(id: number): Observable<Unit> {
-    return this.http.get<Unit>(`${environment.baseUrl}/units/${id}`);
+    return this.http.get<Unit>(`${environment.baseApiUrl}/units/${id}`);
   }
 
   create(request: CreateUnitRequest): Observable<number> {
-    return this.http.post<number>(`${environment.baseUrl}/units`, request);
+    return this.http.post<number>(`${environment.baseApiUrl}/units`, request);
   }
 
 
   update(request: UpdateUnitRequest): Observable<any> {
-    return this.http.put<any>(`${environment.baseUrl}/units/${request.unitOfMeasurementId}`, request);
+    return this.http.put<any>(`${environment.baseApiUrl}/units/${request.unitOfMeasurementId}`, request);
   }
 
   delete(id: number): Observable<any> {
-    return this.http.delete<any>(`${environment.baseUrl}/units/${id}`);
+    return this.http.delete<any>(`${environment.baseApiUrl}/units/${id}`);
   }
 
 }

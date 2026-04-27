@@ -143,14 +143,14 @@ export class DashboardComponent implements OnDestroy {
         if (!this.updatesConnected) {
           this.updatesConnected = true;
           this.loadDashboard();
-          //this.facade.connectUpdates();
+          this.facade.connectUpdates();
         }
         return;
       }
 
       if (this.updatesConnected) {
         this.updatesConnected = false;
-        //this.facade.disconnectUpdates();
+        this.facade.disconnectUpdates();
       }
     });
   }

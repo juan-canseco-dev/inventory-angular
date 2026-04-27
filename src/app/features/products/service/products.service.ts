@@ -53,24 +53,24 @@ export class ProductsService {
       params = params.append('unitId', request.unitId);
     }
 
-    return this.http.get<PagedList<Product>>(`${environment.baseUrl}/products`, {
+    return this.http.get<PagedList<Product>>(`${environment.baseApiUrl}/products`, {
       params
     });
   }
 
   getById(id: number): Observable<ProductDetails> {
-    return this.http.get<ProductDetails>(`${environment.baseUrl}/products/${id}`);
+    return this.http.get<ProductDetails>(`${environment.baseApiUrl}/products/${id}`);
   }
 
   create(request: CreateProductRequest): Observable<number> {
-    return this.http.post<number>(`${environment.baseUrl}/products`, request);
+    return this.http.post<number>(`${environment.baseApiUrl}/products`, request);
   }
 
   update(request: UpdateProductRequest): Observable<any> {
-    return this.http.put<any>(`${environment.baseUrl}/products/${request.productId}`, request);
+    return this.http.put<any>(`${environment.baseApiUrl}/products/${request.productId}`, request);
   }
 
   delete(id: number): Observable<any> {
-    return this.http.delete<any>(`${environment.baseUrl}/products/${id}`);
+    return this.http.delete<any>(`${environment.baseApiUrl}/products/${id}`);
   }
 }

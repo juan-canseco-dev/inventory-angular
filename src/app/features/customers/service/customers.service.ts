@@ -43,23 +43,23 @@ export class CustomersService {
       if (request.phone != null) {
         params = params.append("phone", request.phone);
       }
-      return this.http.get<PagedList<Customer>>(`${environment.baseUrl}/customers`, { params: params });
+      return this.http.get<PagedList<Customer>>(`${environment.baseApiUrl}/customers`, { params: params });
     }
 
     getById(id: number): Observable<CustomerDetails> {
-      return this.http.get<CustomerDetails>(`${environment.baseUrl}/customers/${id}`);
+      return this.http.get<CustomerDetails>(`${environment.baseApiUrl}/customers/${id}`);
     }
 
     create(request: CreateCustomerRequest): Observable<number> {
-      return this.http.post<number>(`${environment.baseUrl}/customers`, request);
+      return this.http.post<number>(`${environment.baseApiUrl}/customers`, request);
     }
 
 
     update(request: UpdateCustomerRequest): Observable<any> {
-      return this.http.put<any>(`${environment.baseUrl}/customers/${request.customerId}`, request);
+      return this.http.put<any>(`${environment.baseApiUrl}/customers/${request.customerId}`, request);
     }
 
     delete(id: number): Observable<any> {
-      return this.http.delete<any>(`${environment.baseUrl}/customers/${id}`);
+      return this.http.delete<any>(`${environment.baseApiUrl}/customers/${id}`);
     }
 }

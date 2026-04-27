@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable, forkJoin, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { toLocalDateTimeString } from '../../../shared/utils/time.utils';
 import {
@@ -18,19 +18,16 @@ import {
   TopSoldProduct,
   TopSupplierByRevenue
 } from '../models';
-
-interface StompFrame {
-  command: string;
-  headers: Record<string, string>;
-  body: string;
-}
+import { RxStompService } from '../../../core/websockets';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
+
   private readonly http = inject(HttpClient);
-  private readonly dashboardUrl = `${environment.baseUrl}/dashboard`;
+  private readonly stompService = inject(RxStompService);
+  private readonly dashboardUrl = `${environment.baseApiUrl}/dashboard`;
 
   getDashboardData(request: DashboardRequest): Observable<DashboardData> {
     const dateRange = {
@@ -132,64 +129,11 @@ export class DashboardService {
     return this.http.get<InventoryValueSummary>(`${this.dashboardUrl}/inventory-value/summary/total`);
   }
 
+  ///topic/dashboard/updates
   watchUpdates(): Observable<DashboardUpdatedMessage> {
-    return new Observable<DashboardUpdatedMessage>((observer) => {
-      let socket: WebSocket | null = null;
-      let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-      let stopped = false;
-
-      const connect = (): void => {
-        if (stopped) return;
-
-        socket = new WebSocket(this.getSocketUrl());
-
-        socket.onmessage = (event) => {
-          this.readSockJsMessage(String(event.data)).forEach((frame) => {
-            if (frame.command === 'CONNECTED') {
-              this.sendStompFrame(socket, [
-                'SUBSCRIBE',
-                'id:dashboard-updates',
-                'destination:/topic/dashboard/updates',
-                '',
-                ''
-              ].join('\n'));
-              return;
-            }
-
-            if (frame.command !== 'MESSAGE') {
-              return;
-            }
-
-            const message = this.parseDashboardMessage(frame.body);
-            if (message?.type === 'dashboard.updated') {
-              observer.next(message);
-            }
-          });
-
-          if (event.data === 'o') {
-            this.sendConnectFrame(socket);
-          }
-        };
-
-        socket.onclose = () => {
-          if (!stopped) {
-            reconnectTimer = setTimeout(connect, 5000);
-          }
-        };
-
-        socket.onerror = () => socket?.close();
-      };
-
-      connect();
-
-      return () => {
-        stopped = true;
-        if (reconnectTimer) {
-          clearTimeout(reconnectTimer);
-        }
-        socket?.close();
-      };
-    });
+    return this.stompService.watch('/topic/dashboard/updates').pipe(
+      map(message=> JSON.parse(message.body) as DashboardUpdatedMessage)
+    );
   }
 
   private toDateRangeParams(request: DashboardRequestDateRange): HttpParams {
@@ -212,78 +156,6 @@ export class DashboardService {
 
   private toLowStockParams(request: DashboardLowStockRequest): HttpParams {
     return new HttpParams().append('stockThreshold', request.stockThreshold);
-  }
-
-  private getSocketUrl(): string {
-    const apiBaseUrl = environment.baseUrl || `${window.location.origin}/api`;
-    const appBaseUrl = apiBaseUrl.replace(/\/api\/?$/, '');
-    const wsBaseUrl = appBaseUrl.replace(/^http/, 'ws');
-
-    return `${wsBaseUrl}/ws-stomp`;
-  }
-
-  private sendConnectFrame(socket: WebSocket | null): void {
-    const token = localStorage.getItem('token');
-    const headers = [
-      'CONNECT',
-      'accept-version:1.2',
-      'heart-beat:0,0'
-    ];
-
-    if (token) {
-      headers.push(`Authorization:Bearer ${token}`);
-    }
-
-    headers.push('', '');
-    this.sendStompFrame(socket, headers.join('\n'));
-  }
-
-  private sendStompFrame(socket: WebSocket | null, frame: string): void {
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
-      return;
-    }
-
-    socket.send(JSON.stringify([`${frame}\u0000`]));
-  }
-
-  private readSockJsMessage(message: string): StompFrame[] {
-    if (!message.startsWith('a')) {
-      return [];
-    }
-
-    try {
-      const frames = JSON.parse(message.substring(1)) as string[];
-      return frames.map((frame) => this.parseStompFrame(frame));
-    } catch {
-      return [];
-    }
-  }
-
-  private parseStompFrame(frame: string): StompFrame {
-    const cleanFrame = frame.replace(/\u0000$/, '');
-    const [head, body = ''] = cleanFrame.split('\n\n');
-    const [command, ...headerLines] = head.split('\n');
-    const headers = headerLines.reduce<Record<string, string>>((result, line) => {
-      const separator = line.indexOf(':');
-      if (separator > -1) {
-        result[line.substring(0, separator)] = line.substring(separator + 1);
-      }
-      return result;
-    }, {});
-
-    return {
-      command,
-      headers,
-      body
-    };
-  }
-
-  private parseDashboardMessage(body: string): DashboardUpdatedMessage | null {
-    try {
-      return JSON.parse(body) as DashboardUpdatedMessage;
-    } catch {
-      return null;
-    }
   }
 }
 

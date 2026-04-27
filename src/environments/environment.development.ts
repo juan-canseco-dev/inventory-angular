@@ -1,4 +1,5 @@
 export const environment = {
     production: false,
-    baseUrl: 'http://localhost:8080/api'
+    baseApiUrl: 'http://localhost:8080/api',
+    baseBrokerUrl: 'http://localhost:8080/ws-stomp'
 };

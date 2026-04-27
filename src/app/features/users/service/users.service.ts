@@ -45,28 +45,28 @@ export class UsersService {
       params = params.append('email', request.email);
     }
 
-    return this.http.get<PagedList<User>>(`${environment.baseUrl}/users`, {
+    return this.http.get<PagedList<User>>(`${environment.baseApiUrl}/users`, {
       params
     });
   }
 
   getById(id: number): Observable<UserWithDetails> {
-    return this.http.get<UserWithDetails>(`${environment.baseUrl}/users/${id}`);
+    return this.http.get<UserWithDetails>(`${environment.baseApiUrl}/users/${id}`);
   }
 
   create(request: CreateUserRequest): Observable<number> {
-    return this.http.post<number>(`${environment.baseUrl}/users`, request);
+    return this.http.post<number>(`${environment.baseApiUrl}/users`, request);
   }
 
   update(request: UpdateUserRequest): Observable<void> {
-    return this.http.put<void>(`${environment.baseUrl}/users/${request.userId}`, request);
+    return this.http.put<void>(`${environment.baseApiUrl}/users/${request.userId}`, request);
   }
 
   changeRole(request: ChangeUserRoleRequest): Observable<void> {
-    return this.http.put<void>(`${environment.baseUrl}/users/${request.userId}/changeRole`, request);
+    return this.http.put<void>(`${environment.baseApiUrl}/users/${request.userId}/changeRole`, request);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${environment.baseUrl}/users/${id}`);
+    return this.http.delete<void>(`${environment.baseApiUrl}/users/${id}`);
   }
 }

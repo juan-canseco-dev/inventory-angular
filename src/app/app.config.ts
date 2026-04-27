@@ -21,6 +21,7 @@ import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { ROOT_REDUCERS, ROOT_EFFECTS  } from './core/store';
+import { RxStompService, rxStompServiceFactory } from './core/websockets';
 
 export function tokenGetter() {
   return localStorage.getItem("token");
@@ -47,6 +48,10 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideStore(ROOT_REDUCERS),
     provideEffects(ROOT_EFFECTS),
-    provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() })
+    provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
+    {
+      provide: RxStompService,
+      useFactory: rxStompServiceFactory
+    }
 ]
 };

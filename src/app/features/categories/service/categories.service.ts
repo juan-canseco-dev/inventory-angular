@@ -37,23 +37,23 @@ export class CategoriesService {
       params = params.append("name", request.name);
     }
 
-    return this.http.get<PagedList<Category>>(`${environment.baseUrl}/categories`, {params: params});
+    return this.http.get<PagedList<Category>>(`${environment.baseApiUrl}/categories`, {params: params});
   }
 
   getById(id : number) : Observable<Category>{
-    return this.http.get<Category>(`${environment.baseUrl}/categories/${id}`);
+    return this.http.get<Category>(`${environment.baseApiUrl}/categories/${id}`);
   }
 
   create(request: CreateCategoryRequest) : Observable<number> {
-    return this.http.post<number>(`${environment.baseUrl}/categories`, request);
+    return this.http.post<number>(`${environment.baseApiUrl}/categories`, request);
   }
 
 
   update(request: UpdateCategoryRequest) : Observable<any> {
-    return this.http.put<any>(`${environment.baseUrl}/categories/${request.categoryId}`, request);
+    return this.http.put<any>(`${environment.baseApiUrl}/categories/${request.categoryId}`, request);
   }
 
   delete(id: number) : Observable<any> {
-    return this.http.delete<any>(`${environment.baseUrl}/categories/${id}`);
+    return this.http.delete<any>(`${environment.baseApiUrl}/categories/${id}`);
   }
 }

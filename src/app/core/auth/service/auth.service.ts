@@ -18,7 +18,7 @@ export class AuthService {
   ) { }
 
    signIn(request: SignInRequest): Observable<JwtResponse> {
-    return this.http.post<JwtResponse>(`${environment.baseUrl}/auth/singIn`, request);
+    return this.http.post<JwtResponse>(`${environment.baseApiUrl}/auth/singIn`, request);
   }
 
   setJwt(token: string): void {

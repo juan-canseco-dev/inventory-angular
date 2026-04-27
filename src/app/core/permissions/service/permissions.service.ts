@@ -12,7 +12,7 @@ export class PermissionsService {
   private http = inject(HttpClient);
 
   getAll() : Observable<PermissionResourceGroup[]> {
-    return this.http.get<PermissionResourceGroup[]>(`${environment.baseUrl}/resources`);
+    return this.http.get<PermissionResourceGroup[]>(`${environment.baseApiUrl}/resources`);
   }
 
 }

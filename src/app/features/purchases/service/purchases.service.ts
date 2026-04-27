@@ -54,27 +54,27 @@ export class PurchasesService {
       params = params.append("arrivedAtEndDate", toLocalDateTimeString(request.arrivedAtEndDate));
     }
 
-    return this.http.get<PagedList<Purchase>>(`${environment.baseUrl}/purchases`, { params: params });
+    return this.http.get<PagedList<Purchase>>(`${environment.baseApiUrl}/purchases`, { params: params });
   }
 
   getById(id: number): Observable<PurchaseDetails> {
-    return this.http.get<PurchaseDetails>(`${environment.baseUrl}/purchases/${id}`);
+    return this.http.get<PurchaseDetails>(`${environment.baseApiUrl}/purchases/${id}`);
   }
 
   create(request: CreatePurchaseRequest): Observable<number> {
-    return this.http.post<number>(`${environment.baseUrl}/purchases`, request);
+    return this.http.post<number>(`${environment.baseApiUrl}/purchases`, request);
   }
 
 
   update(request: UpdatePurchaseRequest): Observable<any> {
-    return this.http.put<any>(`${environment.baseUrl}/purchases/${request.purchaseId}`, request);
+    return this.http.put<any>(`${environment.baseApiUrl}/purchases/${request.purchaseId}`, request);
   }
 
   delete(id: number): Observable<any> {
-    return this.http.delete<any>(`${environment.baseUrl}/purchases/${id}`);
+    return this.http.delete<any>(`${environment.baseApiUrl}/purchases/${id}`);
   }
 
   receive(request: ReceivePurchaseRequest): Observable<any> {
-    return this.http.put<any>(`${environment.baseUrl}/purchases/receive`, request);
+    return this.http.put<any>(`${environment.baseApiUrl}/purchases/receive`, request);
   }
 }

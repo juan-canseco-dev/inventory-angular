@@ -54,27 +54,27 @@ export class OrdersService {
       params = params.append("deliveredAtEndDate", toLocalDateTimeString(request.deliveredAtEndDate));
     }
 
-    return this.http.get<PagedList<Order>>(`${environment.baseUrl}/orders`, { params: params });
+    return this.http.get<PagedList<Order>>(`${environment.baseApiUrl}/orders`, { params: params });
   }
 
   getById(id: number): Observable<OrderDetails> {
-    return this.http.get<OrderDetails>(`${environment.baseUrl}/orders/${id}`);
+    return this.http.get<OrderDetails>(`${environment.baseApiUrl}/orders/${id}`);
   }
 
   create(request: CreateOrderRequest): Observable<number> {
-    return this.http.post<number>(`${environment.baseUrl}/orders`, request);
+    return this.http.post<number>(`${environment.baseApiUrl}/orders`, request);
   }
 
 
   update(request: UpdateOrderRequest): Observable<any> {
-    return this.http.put<any>(`${environment.baseUrl}/orders/${request.orderId}`, request);
+    return this.http.put<any>(`${environment.baseApiUrl}/orders/${request.orderId}`, request);
   }
 
   delete(id: number): Observable<any> {
-    return this.http.delete<any>(`${environment.baseUrl}/orders/${id}`);
+    return this.http.delete<any>(`${environment.baseApiUrl}/orders/${id}`);
   }
 
   deliver(request: DeliverOrderRequest): Observable<any> {
-    return this.http.put<any>(`${environment.baseUrl}/orders/deliver`, request);
+    return this.http.put<any>(`${environment.baseApiUrl}/orders/deliver`, request);
   }
 }

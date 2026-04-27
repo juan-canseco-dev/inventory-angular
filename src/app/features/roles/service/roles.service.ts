@@ -37,24 +37,24 @@ export class RolesService {
           params = params.append("name", request.name);
         }
 
-        return this.http.get<PagedList<Role>>(`${environment.baseUrl}/roles`, { params: params });
+        return this.http.get<PagedList<Role>>(`${environment.baseApiUrl}/roles`, { params: params });
       }
 
       getById(id: number): Observable<RoleDetails> {
-        return this.http.get<RoleDetails>(`${environment.baseUrl}/roles/${id}`);
+        return this.http.get<RoleDetails>(`${environment.baseApiUrl}/roles/${id}`);
       }
 
       create(request: CreateRoleRequest): Observable<number> {
-        return this.http.post<number>(`${environment.baseUrl}/roles`, request);
+        return this.http.post<number>(`${environment.baseApiUrl}/roles`, request);
       }
 
 
       update(request: UpdateRoleRequest): Observable<any> {
-        return this.http.put<any>(`${environment.baseUrl}/roles/${request.roleId}`, request);
+        return this.http.put<any>(`${environment.baseApiUrl}/roles/${request.roleId}`, request);
       }
 
       delete(id: number): Observable<any> {
-        return this.http.delete<any>(`${environment.baseUrl}/roles/${id}`);
+        return this.http.delete<any>(`${environment.baseApiUrl}/roles/${id}`);
       }
 
 }
