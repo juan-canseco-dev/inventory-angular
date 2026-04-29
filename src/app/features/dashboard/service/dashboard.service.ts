@@ -28,6 +28,7 @@ export class DashboardService {
   private readonly http = inject(HttpClient);
   private readonly stompService = inject(RxStompService);
   private readonly dashboardUrl = `${environment.baseApiUrl}/dashboard`;
+  
 
   getDashboardData(request: DashboardRequest): Observable<DashboardData> {
     const dateRange = {

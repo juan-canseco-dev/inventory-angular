@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnDestroy,
+  OnInit,
   computed,
   effect,
   inject
@@ -57,10 +58,9 @@ import { DashboardFacade, initialDashboardRequest } from './store';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DashboardComponent implements OnDestroy {
+export class DashboardComponent implements OnInit, OnDestroy {
   private readonly facade = inject(DashboardFacade);
   private readonly permissionsFacade = inject(PermissionsFacade);
-  private updatesConnected = false;
 
   readonly data = this.facade.data;
   readonly error = this.facade.loadError;
@@ -137,28 +137,16 @@ export class DashboardComponent implements OnDestroy {
     return `${request.startDate.toLocaleDateString()} - ${request.endDate.toLocaleDateString()}`;
   });
 
-  constructor() {
-    effect(() => {
-      if (this.hasViewPermission()) {
-        if (!this.updatesConnected) {
-          this.updatesConnected = true;
-          this.loadDashboard();
-          this.facade.connectUpdates();
-        }
-        return;
-      }
 
-      if (this.updatesConnected) {
-        this.updatesConnected = false;
-        this.facade.disconnectUpdates();
-      }
-    });
+  ngOnInit(): void {
+    if (this.hasViewPermission()) {
+      this.loadDashboard();
+      this.facade.connectUpdates();
+    }
   }
 
   ngOnDestroy(): void {
-    if (this.updatesConnected) {
-      this.facade.disconnectUpdates();
-    }
+    this.facade.disconnectUpdates();
   }
 
   onApplyFilters(): void {

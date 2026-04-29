@@ -12,5 +12,4 @@ export const rxStompConfig : RxStompConfig  = {
    debug: (msg: string): void => {
      console.log(new Date(), msg);
    }
-}
-console.log(rxStompConfig);
+};
