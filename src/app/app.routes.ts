@@ -103,6 +103,10 @@ export const routes: Routes = [
           permission: PermissionCatalog.Roles_View
         }
       },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/auth/profile/index').then(m => m.MyProfileComponent)
+      }
     ]
   },
   {
